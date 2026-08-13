@@ -1,0 +1,11 @@
+{
+  "appId": "com.dutaterang.katalog",
+  "appName": "Duta Terang",
+  "webDir": ".",
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": true,
+      "style": "DARK"
+    }
+  }
+}
