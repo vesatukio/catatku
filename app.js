@@ -19,7 +19,7 @@
    GANTI hanya URL di bawah dengan URL Web App GAS Anda.
 
    Format:
-   https://script.google.com/macros/s/XXXXXXXX/exec
+   https://script.google.com/macros/s/AKfycbyW1qBf0LX3qPtSwRrvaxIuiIcHMFkuy9PViZ-YZrTfZeM6WqCNlfcNJN1CVzE7M1F3/exec
 */
 
 const GAS_URL =
