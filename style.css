@@ -1,15 +1,16 @@
 :root {
   --primary: #2563eb;
   --primary-dark: #1d4ed8;
-  --success: #16a34a;
-  --danger: #dc2626;
-  --warning: #ea580c;
-  --bg-color: #f3f5f9;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f97316;
+
+  --bg-color: #f4f6f8;
   --text-main: #111827;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
+  --text-muted: #4b5563;
   --card-bg: #ffffff;
-  --radius: 16px;
+
+  --border: #e2e8f0;
 }
 
 /* =========================================================
