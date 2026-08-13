@@ -1,16 +1,16 @@
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="viewport"
+        content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
   <title>CatatKu</title>
 
   <link rel="manifest" href="./manifest.json">
-  <link rel="icon" href="./icon-512.png">
+  <link rel="icon" type="image/png" href="./icon-512.png">
   <link rel="apple-touch-icon" href="./icon-512.png">
 
   <meta name="theme-color" content="#2563eb">
@@ -23,7 +23,8 @@
       -webkit-tap-highlight-color:transparent;
     }
 
-    html,body{
+    html,
+    body{
       margin:0;
       padding:0;
       width:100%;
@@ -38,7 +39,9 @@
       overflow-x:hidden;
     }
 
-    button,input,select{
+    button,
+    input,
+    select{
       font:inherit;
     }
 
@@ -73,6 +76,7 @@
       border-radius:12px;
       object-fit:cover;
       background:#eef2f7;
+      flex:0 0 42px;
     }
 
     .brand{
@@ -115,8 +119,7 @@
       margin:7px 0 17px;
     }
 
-    .wallet-row,
-    .stats{
+    .wallet-row{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
@@ -133,6 +136,17 @@
       font-size:11px;
       opacity:.7;
       margin-bottom:4px;
+    }
+
+    .wallet-box b{
+      font-size:14px;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:14px;
     }
 
     .card,
@@ -228,7 +242,8 @@
       margin-bottom:6px;
     }
 
-    input,select{
+    input,
+    select{
       width:100%;
       padding:12px;
       border:1px solid #dfe4eb;
@@ -439,17 +454,22 @@
 
   <header class="header">
     <div class="brand-row">
+
       <img
         class="brand-logo"
         src="./icon-512.png"
         alt="CatatKu">
 
       <div>
-        <div class="brand">CatatKu</div>
+        <div class="brand">
+          CatatKu
+        </div>
+
         <div class="subtitle">
           Keuangan pribadi & toko
         </div>
       </div>
+
     </div>
   </header>
 
@@ -481,7 +501,6 @@
         </div>
 
       </div>
-
     </div>
 
 
@@ -561,7 +580,6 @@
         </button>
 
       </div>
-
     </div>
 
 
@@ -597,12 +615,8 @@
         <label>Sumber</label>
 
         <select id="trxSumber">
-          <option value="Pribadi">
-            Pribadi
-          </option>
-          <option value="Toko">
-            Toko
-          </option>
+          <option value="Pribadi">Pribadi</option>
+          <option value="Toko">Toko</option>
         </select>
 
       </div>
@@ -801,9 +815,7 @@
       </div>
 
       <div id="listPenjualan">
-        <div class="loading">
-          Memuat...
-        </div>
+        <div class="loading">Memuat...</div>
       </div>
 
     </div>
@@ -1023,9 +1035,7 @@
       </div>
 
       <div id="listBarang">
-        <div class="loading">
-          Memuat barang...
-        </div>
+        <div class="loading">Memuat barang...</div>
       </div>
 
     </div>
@@ -1044,9 +1054,7 @@
       </div>
 
       <div id="listHutang">
-        <div class="loading">
-          Memuat hutang...
-        </div>
+        <div class="loading">Memuat hutang...</div>
       </div>
 
     </div>
@@ -1063,6 +1071,7 @@
         <label>Jenis</label>
 
         <select id="hutangJenis">
+
           <option value="Hutang Supplier">
             Hutang Supplier
           </option>
@@ -1070,6 +1079,7 @@
           <option value="Hutang Pribadi">
             Hutang Pribadi
           </option>
+
         </select>
 
       </div>
@@ -1257,7 +1267,6 @@
         </button>
 
       </div>
-
     </div>
 
 
@@ -1362,7 +1371,6 @@ function rupiah(n){
       .toLocaleString('id-ID');
 }
 
-
 function toast(msg){
 
   const el =
@@ -1374,12 +1382,9 @@ function toast(msg){
   el.classList.add('show');
 
   setTimeout(function(){
-
     el.classList.remove('show');
-
   },2500);
 }
-
 
 function escapeHtml(text){
 
@@ -1400,108 +1405,128 @@ function escapeHtml(text){
 
 function apiCall(action, params){
 
-  params = params || {};
+  params =
+    params || {};
 
-  return new Promise(function(resolve,reject){
+  return new Promise(
+    function(resolve,reject){
 
-    const callback =
-      'catatku_' +
-      Date.now() +
-      '_' +
-      Math.random()
-        .toString(36)
-        .slice(2);
+      const callback =
+        'catatku_' +
+        Date.now() +
+        '_' +
+        Math.random()
+          .toString(36)
+          .slice(2);
 
-    const script =
-      document.createElement('script');
+      const script =
+        document.createElement('script');
 
-    const query =
-      new URLSearchParams();
+      const query =
+        new URLSearchParams();
 
-    query.set('action',action);
-    query.set('key',API_KEY);
-    query.set('callback',callback);
+      query.set(
+        'action',
+        action
+      );
 
-    Object.keys(params)
-      .forEach(function(key){
+      query.set(
+        'key',
+        API_KEY
+      );
 
-        let value =
-          params[key];
-
-        if(
-          value &&
-          typeof value === 'object'
-        ){
-          value =
-            JSON.stringify(value);
-        }
-
-        query.set(
-          key,
-          String(value)
-        );
-
-      });
+      query.set(
+        'callback',
+        callback
+      );
 
 
-    window[callback] =
-      function(result){
+      Object.keys(params)
+        .forEach(function(key){
 
-        delete window[callback];
+          let value =
+            params[key];
 
-        script.remove();
+          if(
+            value &&
+            typeof value === 'object'
+          ){
 
-        if(
-          result &&
-          result.success
-        ){
+            value =
+              JSON.stringify(
+                value
+              );
 
-          resolve(
-            result.data
+          }
+
+          query.set(
+            key,
+            String(value)
           );
 
-        }else{
+        });
+
+
+      window[callback] =
+        function(result){
+
+          delete window[callback];
+
+          script.remove();
+
+
+          if(
+            result &&
+            result.success
+          ){
+
+            resolve(
+              result.data
+            );
+
+          }else{
+
+            reject(
+              new Error(
+                result &&
+                result.error
+                  ? result.error
+                  : 'API gagal.'
+              )
+            );
+
+          }
+
+        };
+
+
+      script.onerror =
+        function(){
+
+          delete window[callback];
+
+          script.remove();
 
           reject(
             new Error(
-              result &&
-              result.error
-                ? result.error
-                : 'API gagal.'
+              'Tidak dapat terhubung ke Apps Script.'
             )
           );
 
-        }
-
-      };
+        };
 
 
-    script.onerror =
-      function(){
+      script.src =
+        GAS_API +
+        '?' +
+        query.toString();
 
-        delete window[callback];
+      document.body.appendChild(
+        script
+      );
 
-        script.remove();
-
-        reject(
-          new Error(
-            'Tidak dapat terhubung ke Apps Script.'
-          )
-        );
-
-      };
-
-
-    script.src =
-      GAS_API +
-      '?' +
-      query.toString();
-
-    document.body.appendChild(
-      script
-    );
-
-  });
+    }
+  );
 }
 
 
@@ -1572,7 +1597,9 @@ async function loadDashboard(){
   try{
 
     const d =
-      await apiCall('dashboard');
+      await apiCall(
+        'dashboard'
+      );
 
     document.getElementById(
       'saldo'
@@ -1592,22 +1619,30 @@ async function loadDashboard(){
     document.getElementById(
       'pemasukanHariIni'
     ).textContent =
-      rupiah(d.pemasukanHariIni);
+      rupiah(
+        d.pemasukanHariIni
+      );
 
     document.getElementById(
       'pengeluaranHariIni'
     ).textContent =
-      rupiah(d.pengeluaranHariIni);
+      rupiah(
+        d.pengeluaranHariIni
+      );
 
     document.getElementById(
       'totalHutang'
     ).textContent =
-      rupiah(d.totalHutang);
+      rupiah(
+        d.totalHutang
+      );
 
     document.getElementById(
       'nilaiStok'
     ).textContent =
-      rupiah(d.nilaiStok);
+      rupiah(
+        d.nilaiStok
+      );
 
   }catch(e){
 
@@ -1635,12 +1670,15 @@ async function loadHistory(){
   box.innerHTML =
     '<div class="loading">Memuat history...</div>';
 
+
   try{
 
     const data =
       await apiCall(
         'history',
-        {limit:20}
+        {
+          limit:20
+        }
       );
 
 
@@ -1659,55 +1697,69 @@ async function loadHistory(){
 
 
     box.innerHTML =
-      data.map(function(t){
+      data
+        .map(function(t){
 
-        const masuk =
-          t.Jenis === 'Masuk';
+          const masuk =
+            t.Jenis === 'Masuk';
 
-        return `
+          return `
 
-          <div class="history-item">
+            <div class="history-item">
 
-            <div>
+              <div>
 
-              <div class="history-name">
-                ${escapeHtml(
-                  t.Keterangan ||
-                  t.Kategori ||
-                  'Transaksi'
-                )}
+                <div class="history-name">
+
+                  ${escapeHtml(
+                    t.Keterangan ||
+                    t.Kategori ||
+                    'Transaksi'
+                  )}
+
+                </div>
+
+                <div class="history-meta">
+
+                  ${escapeHtml(
+                    t.Tanggal || ''
+                  )}
+
+                  •
+                  ${escapeHtml(
+                    t.Sumber || ''
+                  )}
+
+                  •
+                  ${escapeHtml(
+                    t.Metode || ''
+                  )}
+
+                </div>
+
               </div>
 
-              <div class="history-meta">
-                ${escapeHtml(
-                  t.Tanggal || ''
+
+              <div class="${
+                masuk
+                  ? 'masuk'
+                  : 'keluar'
+              }">
+
+                ${masuk ? '+' : '-'}
+
+                ${rupiah(
+                  t.Jumlah
                 )}
-                •
-                ${escapeHtml(
-                  t.Sumber || ''
-                )}
-                •
-                ${escapeHtml(
-                  t.Metode || ''
-                )}
+
               </div>
 
             </div>
 
-            <div class="${
-              masuk ? 'masuk' : 'keluar'
-            }">
+          `;
 
-              ${masuk ? '+' : '-'}
-              ${rupiah(t.Jumlah)}
-
-            </div>
-
-          </div>
-
-        `;
-
-      }).join('');
+        })
+        .join('');
 
   }catch(e){
 
@@ -1734,6 +1786,7 @@ async function loadKategori(){
       await apiCall(
         'kategori'
       );
+
 
     semuaKategori =
       Array.isArray(data)
@@ -1773,7 +1826,6 @@ async function loadKategori(){
           if(!nama){
             return;
           }
-
 
           const option =
             document.createElement(
@@ -1816,22 +1868,30 @@ function pilihJenis(jenis){
     jenis;
 
   document
-    .getElementById('btnMasuk')
+    .getElementById(
+      'btnMasuk'
+    )
     .classList.toggle(
       'active',
       jenis === 'Masuk'
     );
 
   document
-    .getElementById('btnKeluar')
+    .getElementById(
+      'btnKeluar'
+    )
     .classList.toggle(
       'active',
       jenis === 'Keluar'
     );
+
 }
 
 
-function pilihMetode(button,metode){
+function pilihMetode(
+  button,
+  metode
+){
 
   metodePembayaran =
     metode;
@@ -1850,6 +1910,7 @@ function pilihMetode(button,metode){
   button.classList.add(
     'active'
   );
+
 }
 
 
@@ -1880,7 +1941,8 @@ async function simpanTransaksi(){
       {
         payload:{
           tanggal:
-            new Date().toISOString(),
+            new Date()
+              .toISOString(),
 
           sumber:
             document.getElementById(
@@ -1928,7 +1990,9 @@ async function simpanTransaksi(){
     await loadDashboard();
     await loadHistory();
 
-    openPage('home');
+    openPage(
+      'home'
+    );
 
   }catch(e){
 
@@ -1953,6 +2017,7 @@ async function loadBarang(){
       await apiCall(
         'barang'
       );
+
 
     semuaBarang =
       Array.isArray(data)
@@ -1983,20 +2048,22 @@ async function loadBarang(){
       semuaBarang
         .forEach(function(b){
 
-          const op =
+          const option =
             document.createElement(
               'option'
             );
 
-          op.value =
+          option.value =
             b.ID;
 
-          op.textContent =
+          option.textContent =
             b['Nama Barang'] +
             ' — stok ' +
             b.Stok;
 
-          select.appendChild(op);
+          select.appendChild(
+            option
+          );
 
         });
 
@@ -2129,6 +2196,7 @@ document.addEventListener(
           b['Harga Jual'] || '';
 
       }
+
     }
 
 
@@ -2158,6 +2226,7 @@ document.addEventListener(
           b['Harga Modal'] || '';
 
       }
+
     }
 
   }
@@ -2167,9 +2236,12 @@ document.addEventListener(
 async function simpanBarang(){
 
   const nama =
-    document.getElementById(
-      'barangNama'
-    ).value.trim();
+    document
+      .getElementById(
+        'barangNama'
+      )
+      .value
+      .trim();
 
 
   if(!nama){
@@ -2191,43 +2263,55 @@ async function simpanBarang(){
           nama:nama,
 
           kategori:
-            document.getElementById(
-              'barangKategori'
-            ).value ||
+            document
+              .getElementById(
+                'barangKategori'
+              )
+              .value ||
             'Lainnya',
 
           hargaModal:
             Number(
-              document.getElementById(
-                'barangModal'
-              ).value || 0
+              document
+                .getElementById(
+                  'barangModal'
+                )
+                .value || 0
             ),
 
           hargaJual:
             Number(
-              document.getElementById(
-                'barangJual'
-              ).value || 0
+              document
+                .getElementById(
+                  'barangJual'
+                )
+                .value || 0
             ),
 
           stok:
             Number(
-              document.getElementById(
-                'barangStok'
-              ).value || 0
+              document
+                .getElementById(
+                  'barangStok'
+                )
+                .value || 0
             ),
 
           stokMinimum:
             Number(
-              document.getElementById(
-                'barangMinimum'
-              ).value || 0
+              document
+                .getElementById(
+                  'barangMinimum'
+                )
+                .value || 0
             ),
 
           supplier:
-            document.getElementById(
-              'barangSupplier'
-            ).value
+            document
+              .getElementById(
+                'barangSupplier'
+              )
+              .value
         }
       }
     );
@@ -2238,9 +2322,11 @@ async function simpanBarang(){
     );
 
 
-    document.getElementById(
-      'barangNama'
-    ).value = '';
+    document
+      .getElementById(
+        'barangNama'
+      )
+      .value = '';
 
 
     await loadBarang();
@@ -2253,6 +2339,7 @@ async function simpanBarang(){
     );
 
   }
+
 }
 
 
@@ -2379,6 +2466,16 @@ async function simpanPenjualan(){
   }
 
 
+  if(qty <= 0){
+
+    toast(
+      'Jumlah harus lebih dari 0'
+    );
+
+    return;
+  }
+
+
   try{
 
     const result =
@@ -2415,7 +2512,9 @@ async function simpanPenjualan(){
     await loadHistory();
     await loadBarang();
 
-    openPage('home');
+    openPage(
+      'home'
+    );
 
   }catch(e){
 
@@ -2528,7 +2627,9 @@ async function simpanBelanja(){
     await loadHistory();
     await loadBarang();
 
-    openPage('home');
+    openPage(
+      'home'
+    );
 
   }catch(e){
 
@@ -2658,7 +2759,8 @@ async function simpanHutang(){
           total:
             total,
 
-          dibayar:0,
+          dibayar:
+            0,
 
           jatuhTempo:
             document.getElementById(
@@ -2701,6 +2803,20 @@ async function bayarHutangPrompt(id){
   }
 
 
+  const nilai =
+    Number(jumlah);
+
+
+  if(nilai <= 0){
+
+    toast(
+      'Jumlah pembayaran tidak valid'
+    );
+
+    return;
+  }
+
+
   try{
 
     const result =
@@ -2711,7 +2827,7 @@ async function bayarHutangPrompt(id){
             id:id,
 
             jumlah:
-              Number(jumlah),
+              nilai,
 
             sumber:
               'Toko',
@@ -3034,7 +3150,6 @@ function renderKewajiban(
     </div>
 
   `;
-
 }
 
 
@@ -3044,20 +3159,17 @@ function renderKewajiban(
 
 function localDate(d){
 
-  const y =
-    d.getFullYear();
-
-  const m =
+  return (
+    d.getFullYear() +
+    '-' +
     String(
-      d.getMonth()+1
-    ).padStart(2,'0');
-
-  const day =
+      d.getMonth() + 1
+    ).padStart(2,'0') +
+    '-' +
     String(
       d.getDate()
-    ).padStart(2,'0');
-
-  return y + '-' + m + '-' + day;
+    ).padStart(2,'0')
+  );
 }
 
 
@@ -3086,12 +3198,12 @@ async function loadLaporan(mode){
         sekarang
       );
 
-    const day =
+    const hari =
       d.getDay() || 7;
 
     d.setDate(
       d.getDate() -
-      day +
+      hari +
       1
     );
 
@@ -3176,35 +3288,28 @@ function tampilLaporan(data){
   document.getElementById(
     'lapMasuk'
   ).textContent =
-    rupiah(
-      data.masuk
-    );
+    rupiah(data.masuk);
 
   document.getElementById(
     'lapKeluar'
   ).textContent =
-    rupiah(
-      data.keluar
-    );
+    rupiah(data.keluar);
 
   document.getElementById(
     'lapBersih'
   ).textContent =
-    rupiah(
-      data.bersih
-    );
+    rupiah(data.bersih);
 
   document.getElementById(
     'lapToko'
   ).textContent =
-    rupiah(
-      data.masukToko
-    );
+    rupiah(data.masukToko);
+
 }
 
 
 /* ==================================================
-   PWA
+   SERVICE WORKER
 ================================================== */
 
 if(
@@ -3216,14 +3321,12 @@ if(
     function(){
 
       navigator.serviceWorker
-        .register(
-          './sw.js'
-        )
-        .catch(function(e){
+        .register('./sw.js')
+        .catch(function(err){
 
           console.error(
             'Service Worker:',
-            e
+            err
           );
 
         });
@@ -3253,3 +3356,4 @@ startApp();
 
 </body>
 </html>
+```
