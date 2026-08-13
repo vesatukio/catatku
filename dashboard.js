@@ -80,3 +80,30 @@ function renderHistoryDashboard(){
     }
   }
 }
+function editTransaksi(id) {
+  // Cari data transaksi berdasarkan ID atau index
+  const item = DATA.history.find((t, i) => (t.id !== undefined ? t.id == id : i == id));
+  if (!item) return;
+
+  // Contoh aksi: Memasukkan data lama ke form input atau memunculkan modal edit
+  // Anda bisa menyesuaikan dengan fungsi form input yang sudah ada di aplikasi Anda
+  if (confirm(`Edit transaksi: ${item.Keterangan || item.Kategori} senilai ${rupiah(item.Jumlah)}?`)) {
+    // Panggil fungsi API/form edit Anda di sini, atau hapus dulu untuk diinput ulang
+    console.log("Edit data:", item);
+  }
+}
+
+async function hapusTransaksi(id) {
+  if (confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) {
+    try {
+      // Panggil API penghapusan atau perbarui data lokal
+      await api('hapusTransaksi', { id: id });
+      // Muat ulang data dashboard
+      loadDashboard();
+    } catch (err) {
+      // Fallback jika menggunakan penyimpanan lokal/array biasa
+      DATA.history = DATA.history.filter((t, i) => (t.id !== undefined ? t.id != id : i != id));
+      renderHistoryDashboard();
+    }
+  }
+}
