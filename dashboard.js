@@ -1,109 +1,381 @@
 async function loadDashboard(){
-  try{
-    const d = await api('dashboard');
-    DATA.dashboard = d;
-    document.getElementById('saldo').textContent = rupiah(d.saldo);
-    document.getElementById('masukHari').textContent = rupiah(d.pemasukanHariIni);
-    document.getElementById('keluarHari').textContent = rupiah(d.pengeluaranHariIni);
-    document.getElementById('saldoPribadi').textContent = rupiah(d.saldoPribadi);
-    document.getElementById('saldoToko').textContent = rupiah(d.saldoToko);
-    document.getElementById('totalHutang').textContent = rupiah(d.totalHutang);
-    document.getElementById('nilaiStok').textContent = rupiah(d.nilaiStok);
-    document.getElementById('jumlahBarang').textContent = Number(d.jumlahBarang || 0);
 
-    loadLabaBulan();
-    loadHistoryDashboard();
-    loadNotifikasiDashboard();
+  try{
+
+    const d = await api('dashboard');
+
+    DATA.dashboard = d;
+
+    document.getElementById('saldo').textContent =
+      rupiah(d.saldo);
+
+    document.getElementById('masukHari').textContent =
+      rupiah(d.pemasukanHariIni);
+
+    document.getElementById('keluarHari').textContent =
+      rupiah(d.pengeluaranHariIni);
+
+    document.getElementById('saldoPribadi').textContent =
+      rupiah(d.saldoPribadi);
+
+    document.getElementById('saldoToko').textContent =
+      rupiah(d.saldoToko);
+
+    document.getElementById('totalHutang').textContent =
+      rupiah(d.totalHutang);
+
+    document.getElementById('nilaiStok').textContent =
+      rupiah(d.nilaiStok);
+
+    document.getElementById('jumlahBarang').textContent =
+      Number(d.jumlahBarang || 0);
+
+    await loadLabaBulan();
+
+    await loadHistoryDashboard();
+
+    await loadNotifikasiDashboard();
+
   }catch(err){
+
     showError(err);
+
   }
+
 }
+
 
 async function loadLabaBulan(){
+
   try{
-    const d = await api('laporanLaba', { mulai: firstDayMonth(), akhir: todayDate() });
-    document.getElementById('labaBulan').textContent = rupiah(d.labaKotor);
-  }catch(err){}
+
+    const d = await api(
+      'laporanLaba',
+      {
+        mulai: firstDayMonth(),
+        akhir: todayDate()
+      }
+    );
+
+    document.getElementById('labaBulan').textContent =
+      rupiah(d.labaKotor);
+
+  }catch(err){
+
+    console.error('Gagal memuat laba:', err);
+
+  }
+
 }
+
 
 async function loadHistoryDashboard(){
+
   try{
+
     const data = await api('history');
-    DATA.history = data;
+
+    DATA.history = Array.isArray(data)
+      ? data
+      : [];
+
     renderHistoryDashboard();
-  }catch(err){}
+
+  }catch(err){
+
+    console.error(
+      'Gagal memuat transaksi dashboard:',
+      err
+    );
+
+  }
+
 }
 
-function renderHistoryDashboard(){
-  const el = document.getElementById('historyDashboard');
-  const btnToggle = document.getElementById('btnToggleHistory');
 
-  if(!DATA.history || !DATA.history.length){
-    el.innerHTML = '<div style="font-size: 15px; color: var(--text-muted); text-align: center; padding: 12px;">Belum ada transaksi.</div>';
-    if(btnToggle) btnToggle.style.display = 'none';
+function renderHistoryDashboard(){
+
+  const el =
+    document.getElementById('historyDashboard');
+
+  if(!el) return;
+
+
+  if(
+    !DATA.history ||
+    !DATA.history.length
+  ){
+
+    el.innerHTML = `
+      <div class="dashboard-empty">
+
+        <div class="dashboard-empty-icon">
+          💰
+        </div>
+
+        <div class="dashboard-empty-title">
+          Belum ada transaksi
+        </div>
+
+        <div class="dashboard-empty-text">
+          Pemasukan dan pengeluaran akan muncul di sini.
+        </div>
+
+      </div>
+    `;
+
     return;
   }
 
-  const dataTampil = tampilkanSemuaHistoryFlag ? DATA.history : DATA.history.slice(0, 5);
 
-  el.innerHTML = dataTampil.map((t, index) => {
-    const masuk = t.Jenis === 'Masuk';
-    const warnaNominal = masuk ? 'var(--success)' : 'var(--danger)';
-    const tanda = masuk ? '+' : '-';
-    
-    // Asumsikan t.id atau index digunakan sebagai pengenal data
-    const idData = t.id !== undefined ? t.id : index;
+  const dataTampil =
+    tampilkanSemuaHistoryFlag
+      ? DATA.history
+      : DATA.history.slice(0, 5);
 
-    return `
-      <div style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: 15px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <strong style="color: var(--text-main); font-size: 16px;">${esc(t.Keterangan || t.Kategori)}</strong>
-          <strong style="color: ${warnaNominal}; font-size: 16px;">${tanda}${rupiah(t.Jumlah)}</strong>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
-          <small style="color: var(--text-muted); font-size: 13px;">${esc(t.Sumber)} · ${esc(t.Metode)} · ${esc(t.Tanggal)}</small>
-          <div>
-            <button onclick="editTransaksi('${idData}')" style="background: #e0e7ff; color: #1d4ed8; border: none; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin-right: 4px;">Edit</button>
-            <button onclick="hapusTransaksi('${idData}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;">Hapus</button>
+
+  el.innerHTML = `
+
+    <div class="dashboard-history-list">
+
+      ${dataTampil.map((t, index) => {
+
+        const masuk =
+          String(t.Jenis || '') === 'Masuk';
+
+        const warnaClass =
+          masuk
+            ? 'dashboard-masuk'
+            : 'dashboard-keluar';
+
+        const tanda =
+          masuk ? '+' : '-';
+
+        const icon =
+          masuk ? '💰' : '💸';
+
+
+        const idData =
+          t.id !== undefined
+            ? t.id
+            : index;
+
+
+        return `
+
+          <div class="dashboard-history-item">
+
+            <div class="
+              dashboard-history-icon
+              ${warnaClass}
+            ">
+              ${icon}
+            </div>
+
+
+            <div class="dashboard-history-info">
+
+              <div class="dashboard-history-title">
+                ${esc(
+                  t.Keterangan ||
+                  t.Kategori ||
+                  'Transaksi'
+                )}
+              </div>
+
+              <div class="dashboard-history-detail">
+
+                ${esc(t.Kategori || '-')}
+
+                ${t.Sumber
+                  ? ' · ' + esc(t.Sumber)
+                  : ''
+                }
+
+                ${t.Metode
+                  ? ' · ' + esc(t.Metode)
+                  : ''
+                }
+
+              </div>
+
+              <div class="dashboard-history-date">
+                ${esc(t.Tanggal || '')}
+              </div>
+
+            </div>
+
+
+            <div class="dashboard-history-right">
+
+              <div class="
+                dashboard-history-amount
+                ${warnaClass}
+              ">
+                ${tanda}${rupiah(t.Jumlah)}
+              </div>
+
+              <div class="dashboard-history-actions">
+
+                <button
+                  class="history-edit-btn"
+                  onclick="editTransaksi('${esc(idData)}')"
+                >
+                  Edit
+                </button>
+
+                <button
+                  class="history-delete-btn"
+                  onclick="hapusTransaksi('${esc(idData)}')"
+                >
+                  Hapus
+                </button>
+
+              </div>
+
+            </div>
+
           </div>
-        </div>
-      </div>
-    `;
-  }).join('');
 
-  if(btnToggle) {
-    if(DATA.history.length > 5) {
-      btnToggle.style.display = 'block';
-      btnToggle.innerText = tampilkanSemuaHistoryFlag ? 'Sembunyikan' : `Lihat Semua (${DATA.history.length})`;
-    } else {
-      btnToggle.style.display = 'none';
+        `;
+
+      }).join('')}
+
+    </div>
+
+    ${
+      DATA.history.length > 5
+      ?
+      `
+        <button
+          id="btnToggleHistory"
+          class="history-see-all"
+          onclick="toggleHistoryDashboard()"
+        >
+          ${
+            tampilkanSemuaHistoryFlag
+              ? 'Sembunyikan'
+              : `Lihat Semua (${DATA.history.length})`
+          }
+        </button>
+      `
+      :
+      ''
     }
-  }
-}
-function editTransaksi(id) {
-  // Cari data transaksi berdasarkan ID atau index
-  const item = DATA.history.find((t, i) => (t.id !== undefined ? t.id == id : i == id));
-  if (!item) return;
 
-  // Contoh aksi: Memasukkan data lama ke form input atau memunculkan modal edit
-  // Anda bisa menyesuaikan dengan fungsi form input yang sudah ada di aplikasi Anda
-  if (confirm(`Edit transaksi: ${item.Keterangan || item.Kategori} senilai ${rupiah(item.Jumlah)}?`)) {
-    // Panggil fungsi API/form edit Anda di sini, atau hapus dulu untuk diinput ulang
-    console.log("Edit data:", item);
-  }
+  `;
+
 }
 
-async function hapusTransaksi(id) {
-  if (confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) {
-    try {
-      // Panggil API penghapusan atau perbarui data lokal
-      await api('hapusTransaksi', { id: id });
-      // Muat ulang data dashboard
-      loadDashboard();
-    } catch (err) {
-      // Fallback jika menggunakan penyimpanan lokal/array biasa
-      DATA.history = DATA.history.filter((t, i) => (t.id !== undefined ? t.id != id : i != id));
-      renderHistoryDashboard();
+
+function toggleHistoryDashboard(){
+
+  tampilkanSemuaHistoryFlag =
+    !tampilkanSemuaHistoryFlag;
+
+  renderHistoryDashboard();
+
+}
+
+
+function editTransaksi(id){
+
+  const item =
+    DATA.history.find(
+      (t, i) =>
+        (
+          t.id !== undefined
+            ? String(t.id) === String(id)
+            : String(i) === String(id)
+        )
+    );
+
+
+  if(!item){
+
+    showToast(
+      'Data transaksi tidak ditemukan'
+    );
+
+    return;
+  }
+
+
+  /*
+   * Untuk sementara fungsi edit
+   * tetap menggunakan mekanisme lama.
+   *
+   * API edit belum diubah.
+   */
+
+  if(
+    confirm(
+      `Edit transaksi:\n\n` +
+      `${item.Keterangan || item.Kategori}\n` +
+      `${rupiah(item.Jumlah)}`
+    )
+  ){
+
+    console.log(
+      'Data transaksi:',
+      item
+    );
+
+    showToast(
+      'Fitur edit siap dikembangkan'
+    );
+
+  }
+
+}
+
+
+async function hapusTransaksi(id){
+
+  if(
+    !confirm(
+      'Apakah Anda yakin ingin menghapus transaksi ini?'
+    )
+  ){
+
+    return;
+
+  }
+
+
+  try{
+
+    await api(
+      'hapusTransaksi',
+      {
+        id: id
+      }
+    );
+
+
+    showToast(
+      'Transaksi berhasil dihapus'
+    );
+
+
+    await loadDashboard();
+
+
+    if(
+      typeof loadHistory === 'function'
+    ){
+
+      await loadHistory();
+
     }
+
+
+  }catch(err){
+
+    console.error(err);
+
+    showError(err);
+
   }
+
 }
