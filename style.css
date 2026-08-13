@@ -36,8 +36,10 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 600px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
+  padding: 0 4px;
 }
 
 .logo {
@@ -52,9 +54,10 @@ body {
 }
 
 .container {
-  max-width: 600px;
+  width: 100%;
+  max-width: 100%; /* Hapus batas 600px agar melebar penuh */
   margin: 0 auto;
-  padding: 16px;
+  padding: 12px;
 }
 
 .card {
