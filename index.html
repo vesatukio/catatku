@@ -4241,45 +4241,6 @@ init();
 </script>
 
 
-<!-- ==================================================
-     SERVICE WORKER
-================================================== -->
-
-<script>
-
-if("serviceWorker" in navigator){
-
-  window.addEventListener(
-    "load",
-    function(){
-
-      navigator.serviceWorker
-        .register("./sw.js")
-
-        .then(function(){
-
-          console.log(
-            "CatatKu siap digunakan"
-          );
-
-        })
-
-        .catch(function(err){
-
-          console.error(
-            "Service Worker gagal:",
-            err
-          );
-
-        });
-
-    }
-  );
-
-}
-
-</script>
-
 
 </body>
 </html>
