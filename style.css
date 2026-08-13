@@ -1,7 +1,3 @@
-/* ==================================================
-   CATATKU STYLING (style.css)
-================================================== */
-
 *{
   box-sizing: border-box;
   margin: 0;
@@ -417,6 +413,25 @@ th{
 
 .search{
   margin-bottom: 10px;
+}
+
+.toast{
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #1e293b;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 13px;
+  z-index: 200;
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 12px #0003;
+}
+
+.toast.show{
+  transform: translateX(-50%) translateY(0);
 }
 
 @media(min-width: 700px){
