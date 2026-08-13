@@ -1163,3 +1163,230 @@ span {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+/* =========================================================
+   KARTU BARANG - MOBILE APP
+========================================================= */
+
+.barang-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.barang-card {
+  background: #ffffff;
+
+  border: 1px solid var(--border);
+
+  border-radius: 16px;
+
+  padding: 16px;
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.05);
+}
+
+.barang-top {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 15px;
+}
+
+.barang-icon {
+  width: 48px;
+  height: 48px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+
+  background: #fff7ed;
+
+  font-size: 25px;
+}
+
+.barang-info {
+  min-width: 0;
+}
+
+.barang-nama {
+  font-size: 18px;
+
+  line-height: 1.25;
+
+  font-weight: 800;
+
+  color: var(--text-main);
+
+  overflow-wrap: anywhere;
+}
+
+.barang-kategori {
+  margin-top: 4px;
+
+  font-size: 14px;
+
+  color: var(--text-muted);
+}
+
+.barang-stok-row {
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  padding: 13px;
+
+  margin-bottom: 12px;
+
+  border-radius: 13px;
+
+  background: #f8fafc;
+}
+
+.barang-label {
+  font-size: 13px;
+
+  font-weight: 600;
+
+  color: var(--text-muted);
+}
+
+.barang-stok {
+  margin-top: 2px;
+
+  font-size: 23px;
+
+  line-height: 1.2;
+
+  font-weight: 800;
+}
+
+.barang-stok span {
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+.stok-aman {
+  color: var(--success);
+}
+
+.stok-rendah {
+  color: var(--danger);
+}
+
+.barang-minimum {
+  font-size: 13px;
+
+  color: var(--text-muted);
+
+  font-weight: 600;
+}
+
+.barang-harga {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 10px;
+}
+
+.harga-box {
+  padding: 12px;
+
+  border-radius: 12px;
+
+  background: #f8fafc;
+}
+
+.harga-box.jual {
+  background: #eff6ff;
+}
+
+.harga-label {
+  font-size: 12px;
+
+  color: var(--text-muted);
+
+  font-weight: 600;
+
+  margin-bottom: 4px;
+}
+
+.harga-modal,
+.harga-jual {
+  font-size: 16px;
+
+  line-height: 1.25;
+
+  font-weight: 800;
+
+  word-break: break-word;
+}
+
+.harga-jual {
+  color: var(--primary);
+}
+
+.stok-warning {
+  margin-top: 11px;
+
+  padding: 9px 11px;
+
+  border-radius: 10px;
+
+  background: #fef2f2;
+
+  color: var(--danger);
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  text-align: center;
+}
+
+.empty {
+  padding: 45px 20px;
+
+  text-align: center;
+
+  color: var(--text-muted);
+}
+
+.empty-icon {
+  font-size: 42px;
+
+  margin-bottom: 8px;
+}
+
+.empty-title {
+  font-size: 18px;
+
+  font-weight: 800;
+
+  color: var(--text-main);
+}
+
+.empty-text {
+  margin-top: 5px;
+
+  font-size: 14px;
+}
+
+@media (min-width: 600px) {
+
+  .barang-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
