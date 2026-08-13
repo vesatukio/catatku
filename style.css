@@ -1,13 +1,54 @@
-/* ==================================================
-   GELANGGANG UTAMA & TATA LETAK
-================================================== */
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f97316;
+  --bg-color: #f4f6f8;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --card-bg: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #f4f6f8;
-  color: #1f2937;
+  background-color: var(--bg-color);
+  color: var(--text-main);
   margin: 0;
   padding: 0;
-  padding-bottom: 70px;
+  padding-bottom: 80px;
+}
+
+.header {
+  background: var(--card-bg);
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 .container {
@@ -17,17 +58,20 @@ body {
 }
 
 .card {
-  background: #ffffff;
+  background: var(--card-bg);
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-/* Saldo Utama */
 .balance {
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .balance-label {
@@ -36,12 +80,11 @@ body {
 }
 
 .balance-value {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: bold;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
-/* Grid Statistik (Kotak-kotak kecil di atas) */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -50,39 +93,37 @@ body {
 }
 
 .stat {
-  background: #ffffff;
-  padding: 12px 16px;
-  border-radius: 12px;
+  background: var(--card-bg);
+  padding: 14px 16px;
+  border-radius: 14px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .stat-title {
-  font-size: 12px;
-  color: #6b7280;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .stat-value {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
-.stat-value.green { color: #16a34a; }
-.stat-value.red { color: #dc2626; }
-.stat-value.blue { color: #2563eb; }
-.stat-value.orange { color: #ea580c; }
+.stat-value.green { color: var(--success); }
+.stat-value.red { color: var(--danger); }
+.stat-value.blue { color: var(--primary); }
+.stat-value.orange { color: var(--warning); }
 
-/* Judul Section */
 .section-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
   margin-bottom: 12px;
-  color: #111827;
+  color: var(--text-main);
 }
 
-/* ==================================================
-   AKSI CEPAT (Tampil Mencolok & Timbul)
-================================================== */
 .actions {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -98,11 +139,11 @@ body {
   border: 0;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: #ffffff;
 }
 
 .action:active {
   transform: scale(0.97);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .action small {
@@ -115,38 +156,149 @@ body {
 
 .action.action-pemasukan {
   background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: #ffffff;
-  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35);
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.3);
 }
 
 .action.action-pengeluaran {
   background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #ffffff;
-  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
 }
 
 .action.action-penjualan {
   background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: #ffffff;
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
 }
 
 .action.action-barang {
   background: linear-gradient(135deg, #f97316, #ea580c);
-  color: #ffffff;
-  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.35);
+  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.3);
 }
-/* Tata letak untuk kotak-kotak statistik di atas */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card-bg);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  z-index: 1000;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.nav-btn span {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+.nav-btn.active {
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--text-muted);
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea, 
+.search {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+}
+
+.form-group input:focus, 
+.form-group select:focus, 
+.form-group textarea:focus, 
+.search:focus {
+  border-color: var(--primary);
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-success { background: var(--success); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-box {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 16px;
+  padding: 20px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
 }
 
-.stat {
-  background: #ffffff;
-  padding: 12px 16px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+.close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
 }
