@@ -1,1711 +1,511 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-
-<meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-
-<meta
-  name="theme-color"
-  content="#2563eb">
-
-<meta
-  name="mobile-web-app-capable"
-  content="yes">
-
-<meta
-  name="apple-mobile-web-app-capable"
-  content="yes">
-
-<meta
-  name="apple-mobile-web-app-status-bar-style"
-  content="default">
-
-<meta
-  name="description"
-  content="CatatKu - Keuangan Pribadi dan Toko">
-
-<title>CatatKu — Keuangan Pribadi & Toko</title>
-
-<link
-  rel="manifest"
-  href="manifest.json">
-
-<link
-  rel="stylesheet"
-  href="style.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="description" content="CatatKu - Keuangan Pribadi dan Toko">
+  <title>CatatKu — Keuangan Pribadi & Toko</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<!-- =====================================================
-     LOADING
-===================================================== -->
-
-<div id="loading" class="loading">
-
-  <div class="spinner"></div>
-
-  <div class="loading-title">
-    Menyiapkan CatatKu...
+  <!-- LOADING -->
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div class="loading-title">Menyiapkan CatatKu...</div>
+    <div class="loading-sub">Keuangan Pribadi & Toko</div>
   </div>
 
-  <div class="loading-sub">
-    Keuangan Pribadi & Toko
-  </div>
-
-</div>
-
-
-<!-- =====================================================
-     HEADER
-===================================================== -->
-
-<header class="topbar">
-
-  <div class="brand">
-
-    <div class="app-title">
-      CatatKu
+  <!-- HEADER / TOPBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="app-title">CatatKu</div>
+      <div class="app-subtitle">Keuangan Pribadi & Toko</div>
     </div>
-
-    <div class="app-subtitle">
-      Keuangan Pribadi & Toko
+    <div class="header-actions">
+      <div class="connection-status">
+        <span id="onlineDot" class="online-dot online"></span>
+        <span id="onlineText">Online</span>
+      </div>
+      <button class="icon-btn" type="button" onclick="refreshApp()" aria-label="Refresh">↻</button>
     </div>
+  </header>
 
-  </div>
-
-
-  <div class="header-actions">
-
-    <div class="connection-status">
-
-      <span
-        id="onlineDot"
-        class="online-dot">
-      </span>
-
-      <span id="onlineText">
-        ...
-      </span>
-
+  <!-- SYNC BAR -->
+  <div class="sync-bar">
+    <div class="sync-left">
+      <span class="sync-icon">☁</span>
+      <span id="syncText">Data tersimpan otomatis</span>
     </div>
-
-
-    <button
-      class="icon-btn"
-      type="button"
-      onclick="refreshApp()"
-      aria-label="Refresh">
-
-      ↻
-
-    </button>
-
-  </div>
-
-</header>
-
-
-<!-- =====================================================
-     SYNC BAR
-===================================================== -->
-
-<div class="sync-bar">
-
-  <div class="sync-left">
-
-    <span class="sync-icon">
-      ☁
-    </span>
-
-    <span id="syncText">
-      Data tersimpan otomatis
-    </span>
-
-  </div>
-
-
-  <div class="sync-right">
-
-    <span
-      id="syncBadge"
-      class="sync-badge hidden">
-
-      0
-
-    </span>
-
-    <button
-      type="button"
-      class="sync-button"
-      onclick="syncOffline()">
-
-      Sinkronkan
-
-    </button>
-
-  </div>
-
-</div>
-
-
-<!-- =====================================================
-     MAIN
-===================================================== -->
-
-<main class="container">
-
-
-<!-- =====================================================
-     DASHBOARD
-===================================================== -->
-
-<section
-  id="page-dashboard"
-  class="page active">
-
-
-  <!-- SALDO -->
-
-  <div class="welcome-card">
-
-    <div>
-
-      <div class="small white-muted">
-        Saldo Saat Ini
-      </div>
-
-      <div
-        id="saldo"
-        class="saldo">
-
-        Rp 0
-
-      </div>
-
-      <div class="balance-label">
-        Keuangan Anda
-      </div>
-
+    <div class="sync-right">
+      <span id="syncBadge" class="sync-badge hidden">0</span>
+      <button type="button" class="sync-button" onclick="syncOffline()">Sinkronkan</button>
     </div>
-
-
-    <div class="wallet-icon">
-      💰
-    </div>
-
   </div>
 
+  <!-- MAIN CONTAINER -->
+  <main class="container">
 
-  <!-- RINGKASAN -->
-
-  <div class="section-title-row">
-
-    <h2>
-      Ringkasan
-    </h2>
-
-  </div>
-
-
-  <div class="summary-grid">
-
-
-    <button
-      class="summary-card income"
-      onclick="showPage('add');setTransactionType('PEMASUKAN')">
-
-      <div class="summary-icon">
-        ↗
+    <!-- PAGE: DASHBOARD -->
+    <section id="page-dashboard" class="page active">
+      <div class="welcome-card">
+        <div>
+          <div class="small white-muted">Saldo Saat Ini</div>
+          <div id="saldo" class="saldo">Rp 0</div>
+          <div class="balance-label">Keuangan Anda</div>
+        </div>
+        <div class="wallet-icon">💰</div>
       </div>
 
-      <div class="summary-info">
-
-        <div class="small">
-          Pemasukan
-        </div>
-
-        <div
-          id="totalPemasukan"
-          class="summary-value">
-
-          Rp 0
-
-        </div>
-
+      <div class="section-title-row">
+        <h2>Ringkasan</h2>
       </div>
 
-    </button>
+      <div class="summary-grid">
+        <button class="summary-card income" onclick="showPage('add'); setTransactionType('PEMASUKAN')">
+          <div class="summary-icon">↗</div>
+          <div class="summary-info">
+            <div class="small">Pemasukan</div>
+            <div id="totalPemasukan" class="summary-value">Rp 0</div>
+          </div>
+        </button>
 
+        <button class="summary-card expense" onclick="showPage('add'); setTransactionType('PENGELUARAN')">
+          <div class="summary-icon">↘</div>
+          <div class="summary-info">
+            <div class="small">Pengeluaran</div>
+            <div id="totalPengeluaran" class="summary-value">Rp 0</div>
+          </div>
+        </button>
 
-    <button
-      class="summary-card expense"
-      onclick="showPage('add');setTransactionType('PENGELUARAN')">
+        <button class="summary-card sales" onclick="showPage('penjualan')">
+          <div class="summary-icon">🛒</div>
+          <div class="summary-info">
+            <div class="small">Penjualan</div>
+            <div id="totalPenjualan" class="summary-value">Rp 0</div>
+          </div>
+        </button>
 
-      <div class="summary-icon">
-        ↘
+        <button class="summary-card debt" onclick="showPage('hutang')">
+          <div class="summary-icon">💳</div>
+          <div class="summary-info">
+            <div class="small">Hutang</div>
+            <div id="totalHutang" class="summary-value">Rp 0</div>
+          </div>
+        </button>
       </div>
 
-      <div class="summary-info">
-
-        <div class="small">
-          Pengeluaran
-        </div>
-
-        <div
-          id="totalPengeluaran"
-          class="summary-value">
-
-          Rp 0
-
-        </div>
-
+      <div class="section-title-row">
+        <h2>Akses Cepat</h2>
       </div>
 
-    </button>
-
-
-    <button
-      class="summary-card sales"
-      onclick="showPage('penjualan')">
-
-      <div class="summary-icon">
-        🛒
+      <div class="quick-grid">
+        <button class="quick-card" onclick="quickTransaction('PEMASUKAN')">
+          <span class="quick-icon">💰</span>
+          <span>Pemasukan</span>
+        </button>
+        <button class="quick-card" onclick="quickTransaction('PENGELUARAN')">
+          <span class="quick-icon">💸</span>
+          <span>Pengeluaran</span>
+        </button>
+        <button class="quick-card" onclick="showPage('penjualan')">
+          <span class="quick-icon">🛒</span>
+          <span>Penjualan</span>
+        </button>
+        <button class="quick-card" onclick="showPage('belanja')">
+          <span class="quick-icon">📦</span>
+          <span>Belanja Stok</span>
+        </button>
+        <button class="quick-card" onclick="openModal('hutangModal')">
+          <span class="quick-icon">💳</span>
+          <span>Hutang</span>
+        </button>
+        <button class="quick-card" onclick="showPage('report')">
+          <span class="quick-icon">📊</span>
+          <span>Laporan</span>
+        </button>
       </div>
 
-      <div class="summary-info">
-
-        <div class="small">
-          Penjualan
-        </div>
-
-        <div
-          id="totalPenjualan"
-          class="summary-value">
-
-          Rp 0
-
-        </div>
-
+      <div class="section-title-row">
+        <h2>Transaksi Terbaru</h2>
+        <button class="text-btn" onclick="showPage('history')">Lihat Semua</button>
       </div>
 
-    </button>
+      <div id="recentTransactions" class="transaction-list">
+        <div class="empty">Belum ada transaksi</div>
+      </div>
+    </section>
 
-
-    <button
-      class="summary-card debt"
-      onclick="showPage('hutang')">
-
-      <div class="summary-icon">
-        💳
+    <!-- PAGE: TRANSAKSI / ADD -->
+    <section id="page-add" class="page">
+      <div class="page-title">
+        <h1>Tambah Transaksi</h1>
+        <p>Catat pemasukan atau pengeluaran</p>
       </div>
 
-      <div class="summary-info">
-
-        <div class="small">
-          Hutang
-        </div>
-
-        <div
-          id="totalHutang"
-          class="summary-value">
-
-          Rp 0
-
-        </div>
-
+      <div class="type-tabs">
+        <button id="tabIncome" class="type-tab active" type="button" onclick="setTransactionType('PEMASUKAN')">
+          <span>+</span> Pemasukan
+        </button>
+        <button id="tabExpense" class="type-tab" type="button" onclick="setTransactionType('PENGELUARAN')">
+          <span>−</span> Pengeluaran
+        </button>
       </div>
 
+      <form id="transactionForm" class="form-card">
+        <div class="form-group">
+          <label for="trxTanggal">Tanggal</label>
+          <input id="trxTanggal" type="date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="trxKategori">Kategori</label>
+          <select id="trxKategori" required>
+            <option value="">Pilih kategori</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="trxKeterangan">Keterangan</label>
+          <input id="trxKeterangan" type="text" placeholder="Contoh: Jual LED 12W" required>
+        </div>
+
+        <div class="form-group">
+          <label for="trxNominal">Nominal (Rp)</label>
+          <input id="trxNominal" type="number" inputmode="numeric" min="0" placeholder="0" required>
+        </div>
+
+        <div class="form-group">
+          <label for="trxRekening">Rekening / Kas</label>
+          <input id="trxRekening" type="text" value="Kas">
+        </div>
+
+        <button class="primary-btn big-btn" type="submit">Simpan Transaksi</button>
+      </form>
+    </section>
+
+    <!-- PAGE: BARANG -->
+    <section id="page-barang" class="page">
+      <div class="page-title">
+        <h1>Barang</h1>
+        <p>Stok dan harga toko</p>
+      </div>
+
+      <div class="page-action">
+        <button class="primary-btn" onclick="openModal('barangModal')">+ Tambah Barang</button>
+      </div>
+
+      <div class="search-box">
+        <span>🔎</span>
+        <input id="barangSearch" type="search" placeholder="Cari nama barang..." oninput="filterBarang(this.value)">
+      </div>
+
+      <div id="barangList" class="product-list">
+        <div class="empty">Belum ada barang.</div>
+      </div>
+    </section>
+
+    <!-- PAGE: PENJUALAN -->
+    <section id="page-penjualan" class="page">
+      <div class="page-title">
+        <h1>Penjualan</h1>
+        <p>Catat penjualan toko</p>
+      </div>
+
+      <form id="penjualanForm" class="form-card">
+        <div class="form-group">
+          <label for="jualBarang">Barang</label>
+          <select id="jualBarang" required>
+            <option value="">Pilih barang</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="jualQty">Jumlah</label>
+          <input id="jualQty" type="number" inputmode="numeric" min="1" value="1" required>
+        </div>
+
+        <div class="form-group">
+          <label for="jualHarga">Harga Jual Satuan (Rp)</label>
+          <input id="jualHarga" type="number" inputmode="numeric" min="0" required>
+        </div>
+
+        <div class="total-preview">
+          <span>Total Penjualan</span>
+          <strong id="jualTotalPreview">Rp 0</strong>
+        </div>
+
+        <div class="form-group">
+          <label for="jualPelanggan">Pelanggan</label>
+          <input id="jualPelanggan" type="text" placeholder="Opsional (Umum)">
+        </div>
+
+        <button class="primary-btn big-btn" type="submit">🛒 Simpan Penjualan</button>
+      </form>
+    </section>
+
+    <!-- PAGE: BELANJA -->
+    <section id="page-belanja" class="page">
+      <div class="page-title">
+        <h1>Belanja Stok</h1>
+        <p>Pembelian barang toko</p>
+      </div>
+
+      <form id="belanjaForm" class="form-card">
+        <div class="form-group">
+          <label for="belanjaBarang">Barang</label>
+          <select id="belanjaBarang" required>
+            <option value="">Pilih barang</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="belanjaQty">Jumlah</label>
+          <input id="belanjaQty" type="number" inputmode="numeric" min="1" value="1" required>
+        </div>
+
+        <div class="form-group">
+          <label for="belanjaHarga">Harga Modal Satuan (Rp)</label>
+          <input id="belanjaHarga" type="number" inputmode="numeric" min="0" required>
+        </div>
+
+        <div class="total-preview">
+          <span>Total Belanja</span>
+          <strong id="belanjaTotalPreview">Rp 0</strong>
+        </div>
+
+        <div class="form-group">
+          <label for="belanjaSupplier">Supplier</label>
+          <input id="belanjaSupplier" type="text" placeholder="Nama supplier (Opsional)">
+        </div>
+
+        <button class="primary-btn big-btn" type="submit">📦 Simpan Belanja</button>
+      </form>
+    </section>
+
+    <!-- PAGE: HUTANG -->
+    <section id="page-hutang" class="page">
+      <div class="page-title">
+        <h1>Hutang & Cicilan</h1>
+        <p>Kelola hutang dan jatuh tempo</p>
+      </div>
+
+      <div class="page-action">
+        <button class="primary-btn" onclick="openModal('hutangModal')">+ Tambah Hutang</button>
+      </div>
+
+      <div id="hutangList" class="debt-list">
+        <div class="empty">Belum ada hutang.</div>
+      </div>
+    </section>
+
+    <!-- PAGE: RIWAYAT -->
+    <section id="page-history" class="page">
+      <div class="page-title">
+        <h1>Riwayat</h1>
+        <p>Semua transaksi</p>
+      </div>
+
+      <div class="search-box">
+        <span>🔎</span>
+        <input id="historySearch" type="search" placeholder="Cari transaksi..." oninput="filterHistory(this.value)">
+      </div>
+
+      <div id="historyList" class="transaction-list">
+        <div class="empty">Belum ada transaksi.</div>
+      </div>
+    </section>
+
+    <!-- PAGE: LAPORAN -->
+    <section id="page-report" class="page">
+      <div class="page-title">
+        <h1>Laporan</h1>
+        <p>Ringkasan keuangan</p>
+      </div>
+
+      <div class="report-filter form-card">
+        <div class="form-group">
+          <label for="reportStart">Mulai Tanggal</label>
+          <input id="reportStart" type="date">
+        </div>
+
+        <div class="form-group">
+          <label for="reportEnd">Sampai Tanggal</label>
+          <input id="reportEnd" type="date">
+        </div>
+
+        <button class="primary-btn big-btn" onclick="loadReport()">📊 Tampilkan Laporan</button>
+      </div>
+
+      <div id="reportResult" class="report-card">
+        Pilih periode laporan di atas.
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="showPage('dashboard')">
+      <span class="nav-icon">⌂</span>
+      <span>Beranda</span>
     </button>
-
-
-  </div>
-
-
-  <!-- AKSI CEPAT -->
-
-  <div class="section-title-row">
-
-    <h2>
-      Akses Cepat
-    </h2>
-
-  </div>
-
-
-  <div class="quick-grid">
-
-
-    <button
-      class="quick-card"
-      onclick="quickTransaction('PEMASUKAN')">
-
-      <span class="quick-icon">
-        💰
-      </span>
-
-      <span>
-        Pemasukan
-      </span>
-
+    <button class="nav-item" onclick="showPage('add')">
+      <span class="nav-icon">↗</span>
+      <span>Transaksi</span>
     </button>
-
-
-    <button
-      class="quick-card"
-      onclick="quickTransaction('PENGELUARAN')">
-
-      <span class="quick-icon">
-        💸
-      </span>
-
-      <span>
-        Pengeluaran
-      </span>
-
-    </button>
-
-
-    <button
-      class="quick-card"
-      onclick="showPage('penjualan')">
-
-      <span class="quick-icon">
-        🛒
-      </span>
-
-      <span>
-        Penjualan
-      </span>
-
-    </button>
-
-
-    <button
-      class="quick-card"
-      onclick="showPage('belanja')">
-
-      <span class="quick-icon">
-        📦
-      </span>
-
-      <span>
-        Belanja Stok
-      </span>
-
-    </button>
-
-
-    <button
-      class="quick-card"
-      onclick="openModal('hutangModal')">
-
-      <span class="quick-icon">
-        💳
-      </span>
-
-      <span>
-        Hutang
-      </span>
-
-    </button>
-
-
-    <button
-      class="quick-card"
-      onclick="showPage('report')">
-
-      <span class="quick-icon">
-        📊
-      </span>
-
-      <span>
-        Laporan
-      </span>
-
-    </button>
-
-
-  </div>
-
-
-  <!-- TRANSAKSI TERBARU -->
-
-  <div class="section-title-row">
-
-    <h2>
-      Transaksi Terbaru
-    </h2>
-
-    <button
-      class="text-btn"
-      onclick="showPage('history')">
-
-      Lihat Semua
-
-    </button>
-
-  </div>
-
-
-  <div
-    id="recentTransactions"
-    class="transaction-list">
-
-    <div class="empty">
-      Belum ada transaksi
-    </div>
-
-  </div>
-
-
-</section>
-
-
-<!-- =====================================================
-     TRANSAKSI
-===================================================== -->
-
-<section
-  id="page-add"
-  class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Tambah Transaksi
-    </h1>
-
-    <p>
-      Catat pemasukan atau pengeluaran
-    </p>
-
-  </div>
-
-
-  <div class="type-tabs">
-
-    <button
-      id="tabIncome"
-      class="type-tab active"
-      type="button"
-      onclick="setTransactionType('PEMASUKAN')">
-
+    <button class="nav-plus" onclick="openQuickAdd()" aria-label="Tambah">
       <span>+</span>
-      Pemasukan
-
     </button>
-
-
-    <button
-      id="tabExpense"
-      class="type-tab"
-      type="button"
-      onclick="setTransactionType('PENGELUARAN')">
-
-      <span>−</span>
-      Pengeluaran
-
+    <button class="nav-item" onclick="showPage('barang')">
+      <span class="nav-icon">▣</span>
+      <span>Barang</span>
     </button>
-
-  </div>
-
-
-  <form
-    id="transactionForm"
-    class="form-card">
-
-
-    <label for="trxTanggal">
-      Tanggal
-    </label>
-
-    <input
-      id="trxTanggal"
-      type="date"
-      required>
-
-
-    <label for="trxKategori">
-      Kategori
-    </label>
-
-    <select
-      id="trxKategori"
-      required>
-
-      <option value="">
-        Pilih kategori
-      </option>
-
-    </select>
-
-
-    <label for="trxKeterangan">
-      Keterangan
-    </label>
-
-    <input
-      id="trxKeterangan"
-      type="text"
-      placeholder="Contoh: Jual LED 12W"
-      required>
-
-
-    <label for="trxNominal">
-      Nominal
-    </label>
-
-    <input
-      id="trxNominal"
-      type="number"
-      inputmode="numeric"
-      min="0"
-      placeholder="Rp 0"
-      required>
-
-
-    <label for="trxRekening">
-      Rekening / Kas
-    </label>
-
-    <input
-      id="trxRekening"
-      type="text"
-      value="Kas">
-
-
-    <button
-      class="primary-btn big-btn"
-      type="submit">
-
-      Simpan Transaksi
-
+    <button class="nav-item" onclick="showMoreMenu()">
+      <span class="nav-icon">☰</span>
+      <span>Lainnya</span>
     </button>
+  </nav>
 
-  </form>
-
-</section>
-
-
-<!-- =====================================================
-     BARANG
-===================================================== -->
-
-<section
-  id="page-barang"
-  class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Barang
-    </h1>
-
-    <p>
-      Stok dan harga toko
-    </p>
-
-  </div>
-
-
-  <div class="page-action">
-
-    <button
-      class="primary-btn"
-      onclick="openModal('barangModal')">
-
-      + Tambah Barang
-
+  <!-- QUICK ADD MENU -->
+  <div id="quickAddMenu" class="quick-add">
+    <button class="quick-income" onclick="quickTransaction('PEMASUKAN')">
+      <span>💰</span> Pemasukan
     </button>
-
-  </div>
-
-
-  <div class="search-box">
-
-    <span>
-      🔎
-    </span>
-
-    <input
-      id="barangSearch"
-      type="search"
-      placeholder="Cari nama barang..."
-      oninput="filterBarang(this.value)">
-
-  </div>
-
-
-  <div
-    id="barangList"
-    class="product-list">
-
-    <div class="empty">
-      Belum ada barang.
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     PENJUALAN
-===================================================== -->
-
-<section
-  id="page-penjualan"
-  class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Penjualan
-    </h1>
-
-    <p>
-      Catat penjualan toko
-    </p>
-
-  </div>
-
-
-  <form
-    id="penjualanForm"
-    class="form-card">
-
-
-    <label for="jualBarang">
-      Barang
-    </label>
-
-    <select
-      id="jualBarang"
-      required>
-
-      <option value="">
-        Pilih barang
-      </option>
-
-    </select>
-
-
-    <label for="jualQty">
-      Jumlah
-    </label>
-
-    <input
-      id="jualQty"
-      type="number"
-      inputmode="numeric"
-      min="1"
-      value="1"
-      required>
-
-
-    <label for="jualHarga">
-      Harga Jual
-    </label>
-
-    <input
-      id="jualHarga"
-      type="number"
-      inputmode="numeric"
-      min="0"
-      required>
-
-
-    <div class="total-preview">
-
-      <span>
-        Total Penjualan
-      </span>
-
-      <strong id="jualTotalPreview">
-        Rp 0
-      </strong>
-
-    </div>
-
-
-    <label for="jualPelanggan">
-      Pelanggan
-    </label>
-
-    <input
-      id="jualPelanggan"
-      type="text"
-      placeholder="Opsional">
-
-
-    <button
-      class="primary-btn big-btn"
-      type="submit">
-
-      🛒 Simpan Penjualan
-
+    <button class="quick-expense" onclick="quickTransaction('PENGELUARAN')">
+      <span>💸</span> Pengeluaran
     </button>
-
-  </form>
-
-</section>
-
-
-<!-- =====================================================
-     BELANJA
-===================================================== -->
-
-<section
-  id="page-belanja"
-  class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Belanja Stok
-    </h1>
-
-    <p>
-      Pembelian barang toko
-    </p>
-
-  </div>
-
-
-  <form
-    id="belanjaForm"
-    class="form-card">
-
-
-    <label for="belanjaBarang">
-      Barang
-    </label>
-
-    <select
-      id="belanjaBarang"
-      required>
-
-      <option value="">
-        Pilih barang
-      </option>
-
-    </select>
-
-
-    <label for="belanjaQty">
-      Jumlah
-    </label>
-
-    <input
-      id="belanjaQty"
-      type="number"
-      inputmode="numeric"
-      min="1"
-      value="1"
-      required>
-
-
-    <label for="belanjaHarga">
-      Harga Modal
-    </label>
-
-    <input
-      id="belanjaHarga"
-      type="number"
-      inputmode="numeric"
-      min="0"
-      required>
-
-
-    <div class="total-preview">
-
-      <span>
-        Total Belanja
-      </span>
-
-      <strong id="belanjaTotalPreview">
-        Rp 0
-      </strong>
-
-    </div>
-
-
-    <label for="belanjaSupplier">
-      Supplier
-    </label>
-
-    <input
-      id="belanjaSupplier"
-      type="text"
-      placeholder="Nama supplier">
-
-
-    <button
-      class="primary-btn big-btn"
-      type="submit">
-
-      📦 Simpan Belanja
-
+    <button class="quick-sale" onclick="showPage('penjualan'); closeQuickAdd()">
+      <span>🛒</span> Penjualan
     </button>
-
-  </form>
-
-</section>
-
-
-<!-- =====================================================
-     HUTANG
-===================================================== -->
-
-<section
-  id="page-hutang"
-  class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Hutang & Cicilan
-    </h1>
-
-    <p>
-      Kelola hutang dan jatuh tempo
-    </p>
-
-  </div>
-
-
-  <button
-    class="primary-btn"
-    onclick="openModal('hutangModal')">
-
-    + Tambah Hutang
-
-  </button>
-
-
-  <div
-    id="hutangList"
-    class="debt-list">
-
-    <div class="empty">
-      Belum ada hutang.
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     RIWAYAT
-===================================================== -->
-
-<section
-  id="page-history"
-  class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Riwayat
-    </h1>
-
-    <p>
-      Semua transaksi
-    </p>
-
-  </div>
-
-
-  <div class="search-box">
-
-    <span>
-      🔎
-    </span>
-
-    <input
-      id="historySearch"
-      type="search"
-      placeholder="Cari transaksi..."
-      oninput="filterHistory(this.value)">
-
-  </div>
-
-
-  <div
-    id="historyList"
-    class="transaction-list">
-
-    <div class="empty">
-      Belum ada transaksi.
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     LAPORAN
-===================================================== -->
-
-<section
-  id="page-report"
-  class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Laporan
-    </h1>
-
-    <p>
-      Ringkasan keuangan
-    </p>
-
-  </div>
-
-
-  <div class="report-filter">
-
-    <label>
-      Mulai
-    </label>
-
-    <input
-      id="reportStart"
-      type="date">
-
-
-    <label>
-      Sampai
-    </label>
-
-    <input
-      id="reportEnd"
-      type="date">
-
-
-    <button
-      class="primary-btn big-btn"
-      onclick="loadReport()">
-
-      📊 Tampilkan Laporan
-
+    <button class="quick-buy" onclick="showPage('belanja'); closeQuickAdd()">
+      <span>📦</span> Belanja
     </button>
-
+    <button class="quick-debt" onclick="openModal('hutangModal'); closeQuickAdd()">
+      <span>💳</span> Hutang
+    </button>
   </div>
 
-
-  <div
-    id="reportResult"
-    class="report-card">
-
-    Pilih periode laporan.
-
-  </div>
-
-</section>
-
-
-</main>
-
-
-<!-- =====================================================
-     BOTTOM NAV
-===================================================== -->
-
-<nav class="bottom-nav">
-
-
-  <button
-    class="nav-item active"
-    onclick="showPage('dashboard')">
-
-    <span class="nav-icon">
-      ⌂
-    </span>
-
-    <span>
-      Beranda
-    </span>
-
-  </button>
-
-
-  <button
-    class="nav-item"
-    onclick="showPage('add')">
-
-    <span class="nav-icon">
-      ↗
-    </span>
-
-    <span>
-      Transaksi
-    </span>
-
-  </button>
-
-
-  <button
-    class="nav-plus"
-    onclick="openQuickAdd()"
-    aria-label="Tambah">
-
-    <span>
-      +
-    </span>
-
-  </button>
-
-
-  <button
-    class="nav-item"
-    onclick="showPage('barang')">
-
-    <span class="nav-icon">
-      ▣
-    </span>
-
-    <span>
-      Barang
-    </span>
-
-  </button>
-
-
-  <button
-    class="nav-item"
-    onclick="showMoreMenu()">
-
-    <span class="nav-icon">
-      ☰
-    </span>
-
-    <span>
-      Lainnya
-    </span>
-
-  </button>
-
-
-</nav>
-
-
-<!-- =====================================================
-     QUICK ADD
-===================================================== -->
-
-<div
-  id="quickAddMenu"
-  class="quick-add">
-
-
-  <button
-    class="quick-income"
-    onclick="quickTransaction('PEMASUKAN')">
-
-    <span>💰</span>
-    Pemasukan
-
-  </button>
-
-
-  <button
-    class="quick-expense"
-    onclick="quickTransaction('PENGELUARAN')">
-
-    <span>💸</span>
-    Pengeluaran
-
-  </button>
-
-
-  <button
-    class="quick-sale"
-    onclick="showPage('penjualan');closeQuickAdd()">
-
-    <span>🛒</span>
-    Penjualan
-
-  </button>
-
-
-  <button
-    class="quick-buy"
-    onclick="showPage('belanja');closeQuickAdd()">
-
-    <span>📦</span>
-    Belanja
-
-  </button>
-
-
-  <button
-    class="quick-debt"
-    onclick="openModal('hutangModal');closeQuickAdd()">
-
-    <span>💳</span>
-    Hutang
-
-  </button>
-
-
-</div>
-
-
-<!-- =====================================================
-     MORE MENU
-===================================================== -->
-
-<div
-  id="moreMenu"
-  class="drawer hidden">
-
-
-  <div
-    class="drawer-overlay"
-    onclick="closeMoreMenu()">
-  </div>
-
-
-  <div class="drawer-panel">
-
-
-    <div class="drawer-head">
-
-      <div>
-
-        <div class="drawer-title">
-          Menu CatatKu
+  <!-- MORE MENU DRAWER -->
+  <div id="moreMenu" class="drawer hidden">
+    <div class="drawer-overlay" onclick="closeMoreMenu()"></div>
+    <div class="drawer-panel">
+      <div class="drawer-head">
+        <div>
+          <div class="drawer-title">Menu CatatKu</div>
+          <div class="drawer-sub">Semua fitur aplikasi</div>
         </div>
-
-        <div class="drawer-sub">
-          Semua fitur aplikasi
+        <button class="close-btn" onclick="closeMoreMenu()">×</button>
+      </div>
+      <button class="drawer-item" onclick="openFromMenu('belanja')">
+        <span>🛍️</span>
+        <div>
+          <strong>Belanja Stok</strong>
+          <small>Pembelian barang toko</small>
         </div>
-
-      </div>
-
-
-      <button
-        class="close-btn"
-        onclick="closeMoreMenu()">
-
-        ×
-
       </button>
-
+      <button class="drawer-item" onclick="openFromMenu('hutang')">
+        <span>💳</span>
+        <div>
+          <strong>Hutang & Cicilan</strong>
+          <small>Hutang dan jatuh tempo</small>
+        </div>
+      </button>
+      <button class="drawer-item" onclick="openFromMenu('history')">
+        <span>📋</span>
+        <div>
+          <strong>Riwayat</strong>
+          <small>Semua transaksi</small>
+        </div>
+      </button>
+      <button class="drawer-item" onclick="openFromMenu('report')">
+        <span>📊</span>
+        <div>
+          <strong>Laporan</strong>
+          <small>Ringkasan keuangan</small>
+        </div>
+      </button>
+      <button class="drawer-item" onclick="syncOffline(); closeMoreMenu()">
+        <span>🔄</span>
+        <div>
+          <strong>Sinkronkan Data</strong>
+          <small>Simpan & refresh data</small>
+        </div>
+      </button>
     </div>
-
-
-    <button
-      class="drawer-item"
-      onclick="openFromMenu('belanja')">
-
-      <span>🛍️</span>
-
-      <div>
-        <strong>Belanja Stok</strong>
-        <small>Pembelian barang toko</small>
-      </div>
-
-    </button>
-
-
-    <button
-      class="drawer-item"
-      onclick="openFromMenu('hutang')">
-
-      <span>💳</span>
-
-      <div>
-        <strong>Hutang & Cicilan</strong>
-        <small>Hutang dan jatuh tempo</small>
-      </div>
-
-    </button>
-
-
-    <button
-      class="drawer-item"
-      onclick="openFromMenu('history')">
-
-      <span>📋</span>
-
-      <div>
-        <strong>Riwayat</strong>
-        <small>Semua transaksi</small>
-      </div>
-
-    </button>
-
-
-    <button
-      class="drawer-item"
-      onclick="openFromMenu('report')">
-
-      <span>📊</span>
-
-      <div>
-        <strong>Laporan</strong>
-        <small>Ringkasan keuangan</small>
-      </div>
-
-    </button>
-
-
-    <button
-      class="drawer-item"
-      onclick="syncOffline();closeMoreMenu()">
-
-      <span>🔄</span>
-
-      <div>
-        <strong>Sinkronkan Data</strong>
-        <small>Kirim data ke Google Sheet</small>
-      </div>
-
-    </button>
-
-
   </div>
 
-</div>
-
-
-<!-- =====================================================
-     MODAL BARANG
-===================================================== -->
-
-<div
-  id="barangModal"
-  class="modal hidden">
-
-
-  <div class="modal-box">
-
-
-    <div class="modal-head">
-
-      <div>
-
-        <h2>
-          Tambah Barang
-        </h2>
-
-        <p>
-          Masukkan data barang toko
-        </p>
-
+  <!-- MODAL: BARANG -->
+  <div id="barangModal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div>
+          <h2>Tambah Barang</h2>
+          <p>Masukkan data barang toko</p>
+        </div>
+        <button class="close-btn" onclick="closeModal('barangModal')">×</button>
       </div>
-
-
-      <button
-        class="close-btn"
-        onclick="closeModal('barangModal')">
-
-        ×
-
-      </button>
-
+      <form id="barangForm">
+        <div class="form-group">
+          <label for="barangNama">Nama Barang</label>
+          <input id="barangNama" required placeholder="Contoh: LED 12W">
+        </div>
+        <div class="form-group">
+          <label for="barangModalPrice">Harga Modal (Rp)</label>
+          <input id="barangModalPrice" type="number" inputmode="numeric" min="0" required placeholder="0">
+        </div>
+        <div class="form-group">
+          <label for="barangJualPrice">Harga Jual (Rp)</label>
+          <input id="barangJualPrice" type="number" inputmode="numeric" min="0" required placeholder="0">
+        </div>
+        <div class="form-group">
+          <label for="barangStok">Stok Awal</label>
+          <input id="barangStok" type="number" inputmode="numeric" min="0" value="0">
+        </div>
+        <button class="primary-btn big-btn" type="submit">Simpan Barang</button>
+      </form>
     </div>
-
-
-    <form
-      id="barangForm">
-
-
-      <label for="barangNama">
-        Nama Barang
-      </label>
-
-      <input
-        id="barangNama"
-        required
-        placeholder="Contoh: LED 12W">
-
-
-      <label for="barangModalPrice">
-        Harga Modal
-      </label>
-
-      <input
-        id="barangModalPrice"
-        type="number"
-        inputmode="numeric"
-        min="0"
-        required
-        placeholder="0">
-
-
-      <label for="barangJualPrice">
-        Harga Jual
-      </label>
-
-      <input
-        id="barangJualPrice"
-        type="number"
-        inputmode="numeric"
-        min="0"
-        required
-        placeholder="0">
-
-
-      <label for="barangStok">
-        Stok Awal
-      </label>
-
-      <input
-        id="barangStok"
-        type="number"
-        inputmode="numeric"
-        min="0"
-        value="0">
-
-
-      <button
-        class="primary-btn big-btn"
-        type="submit">
-
-        Simpan Barang
-
-      </button>
-
-
-    </form>
-
   </div>
 
-</div>
-
-
-<!-- =====================================================
-     MODAL HUTANG
-===================================================== -->
-
-<div
-  id="hutangModal"
-  class="modal hidden">
-
-
-  <div class="modal-box">
-
-
-    <div class="modal-head">
-
-      <div>
-
-        <h2>
-          Tambah Hutang
-        </h2>
-
-        <p>
-          Catat hutang baru
-        </p>
-
+  <!-- MODAL: HUTANG -->
+  <div id="hutangModal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div>
+          <h2>Tambah Hutang</h2>
+          <p>Catat hutang baru</p>
+        </div>
+        <button class="close-btn" onclick="closeModal('hutangModal')">×</button>
       </div>
-
-
-      <button
-        class="close-btn"
-        onclick="closeModal('hutangModal')">
-
-        ×
-
-      </button>
-
+      <form id="hutangForm">
+        <div class="form-group">
+          <label for="hutangNama">Nama / Pihak</label>
+          <input id="hutangNama" required placeholder="Contoh: Supplier A">
+        </div>
+        <div class="form-group">
+          <label for="hutangNominal">Nominal (Rp)</label>
+          <input id="hutangNominal" type="number" inputmode="numeric" min="0" required placeholder="0">
+        </div>
+        <div class="form-group">
+          <label for="hutangTempo">Jatuh Tempo</label>
+          <input id="hutangTempo" type="date">
+        </div>
+        <div class="form-group">
+          <label for="hutangKeterangan">Keterangan</label>
+          <input id="hutangKeterangan" placeholder="Opsional">
+        </div>
+        <button class="primary-btn big-btn" type="submit">Simpan Hutang</button>
+      </form>
     </div>
-
-
-    <form
-      id="hutangForm">
-
-
-      <label for="hutangNama">
-        Nama / Pihak
-      </label>
-
-      <input
-        id="hutangNama"
-        required
-        placeholder="Contoh: Supplier A">
-
-
-      <label for="hutangNominal">
-        Nominal
-      </label>
-
-      <input
-        id="hutangNominal"
-        type="number"
-        inputmode="numeric"
-        min="0"
-        required
-        placeholder="Rp 0">
-
-
-      <label for="hutangTempo">
-        Jatuh Tempo
-      </label>
-
-      <input
-        id="hutangTempo"
-        type="date">
-
-
-      <label for="hutangKeterangan">
-        Keterangan
-      </label>
-
-      <input
-        id="hutangKeterangan"
-        placeholder="Opsional">
-
-
-      <button
-        class="primary-btn big-btn"
-        type="submit">
-
-        Simpan Hutang
-
-      </button>
-
-
-    </form>
-
   </div>
 
-</div>
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast"></div>
 
-
-<!-- =====================================================
-     TOAST
-===================================================== -->
-
-<div
-  id="toast"
-  class="toast">
-</div>
-
-
-<script src="app.js"></script>
-
-
-<script>
-
-/* =====================================================
-   TAMBAHAN UI MOBILE
-===================================================== */
-
-function filterBarang(keyword) {
-
-  keyword =
-    String(keyword || "")
-      .toLowerCase()
-      .trim();
-
-  document
-    .querySelectorAll("#barangList .product-item")
-    .forEach(item => {
-
-      item.style.display =
-        item.textContent
-          .toLowerCase()
-          .includes(keyword)
-            ? ""
-            : "none";
-
-    });
-
-}
-
-
-function filterHistory(keyword) {
-
-  keyword =
-    String(keyword || "")
-      .toLowerCase()
-      .trim();
-
-  document
-    .querySelectorAll("#historyList .transaction-item")
-    .forEach(item => {
-
-      item.style.display =
-        item.textContent
-          .toLowerCase()
-          .includes(keyword)
-            ? ""
-            : "none";
-
-    });
-
-}
-
-
-/* TOTAL PENJUALAN */
-
-function updateJualTotal() {
-
-  const qty =
-    Number(
-      document.getElementById("jualQty")?.value
-    ) || 0;
-
-  const harga =
-    Number(
-      document.getElementById("jualHarga")?.value
-    ) || 0;
-
-  const el =
-    document.getElementById("jualTotalPreview");
-
-  if (el) {
-
-    el.textContent =
-      rupiah(qty * harga);
-
-  }
-
-}
-
-
-/* TOTAL BELANJA */
-
-function updateBelanjaTotal() {
-
-  const qty =
-    Number(
-      document.getElementById("belanjaQty")?.value
-    ) || 0;
-
-  const harga =
-    Number(
-      document.getElementById("belanjaHarga")?.value
-    ) || 0;
-
-  const el =
-    document.getElementById("belanjaTotalPreview");
-
-  if (el) {
-
-    el.textContent =
-      rupiah(qty * harga);
-
-  }
-
-}
-
-
-/* EVENT TOTAL */
-
-document.addEventListener(
-  "input",
-  function(e) {
-
-    if (
-      e.target.id === "jualQty" ||
-      e.target.id === "jualHarga"
-    ) {
-
-      updateJualTotal();
-
-    }
-
-
-    if (
-      e.target.id === "belanjaQty" ||
-      e.target.id === "belanjaHarga"
-    ) {
-
-      updateBelanjaTotal();
-
-    }
-
-  }
-);
-
-
-/* KETIKA PILIH BARANG BELANJA */
-
-document.addEventListener(
-  "change",
-  function(e) {
-
-    if (
-      e.target.id === "belanjaBarang"
-    ) {
-
-      const barang =
-        appData.barang.find(
-          x =>
-            String(x.id) ===
-            String(e.target.value)
-        );
-
-      if (barang) {
-
-        const harga =
-          document.getElementById(
-            "belanjaHarga"
-          );
-
-        if (harga) {
-
-          harga.value =
-            barang.hargaModal || 0;
-
-        }
-
-      }
-
-      updateBelanjaTotal();
-
-    }
-
-  }
-);
-
-
-/* KLIK LUAR QUICK MENU */
-
-document.addEventListener(
-  "click",
-  function(e) {
-
-    const menu =
-      document.getElementById(
-        "quickAddMenu"
-      );
-
-    const plus =
-      document.querySelector(
-        ".nav-plus"
-      );
-
-    if (
-      menu &&
-      menu.classList.contains("show") &&
-      !menu.contains(e.target) &&
-      !plus.contains(e.target)
-    ) {
-
-      closeQuickAdd();
-
-    }
-
-  }
-);
-
-</script>
-
-
+  <script src="app.js"></script>
 </body>
 </html>
