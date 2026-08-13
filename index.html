@@ -780,48 +780,54 @@ CatatKu — Keuangan Pribadi & Toko
 
 <nav class="bottom-nav">
 
-
   <button
+    class="nav-circle nav-home active"
     onclick="showPage('dashboard')">
 
-    <span>⌂</span>
-    <small>Beranda</small>
+    <span class="nav-icon">⌂</span>
+    <span>Beranda</span>
 
   </button>
 
 
   <button
-    onclick="showPage('add')">
+    class="nav-circle nav-transaksi"
+    onclick="showPage('transaksi')">
 
-    <span>＋</span>
-    <small>Catat</small>
+    <span class="nav-icon">↗</span>
+    <span>Transaksi</span>
+
+  </button>
+
+
+  <!-- TOMBOL + BESAR -->
+
+  <button
+    class="nav-plus"
+    onclick="openQuickAdd()"
+    aria-label="Tambah">
+
+    <span>+</span>
 
   </button>
 
 
   <button
+    class="nav-circle nav-barang"
     onclick="showPage('barang')">
 
-    <span>📦</span>
-    <small>Barang</small>
+    <span class="nav-icon">▣</span>
+    <span>Barang</span>
 
   </button>
 
 
   <button
-    onclick="showPage('penjualan')">
-
-    <span>🛒</span>
-    <small>Jual</small>
-
-  </button>
-
-
-  <button
+    class="nav-circle nav-more"
     onclick="showMoreMenu()">
 
-    <span>☰</span>
-    <small>Menu</small>
+    <span class="nav-icon">☰</span>
+    <span>Lainnya</span>
 
   </button>
 
