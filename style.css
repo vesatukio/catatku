@@ -5,8 +5,8 @@
   --danger: #ef4444;
   --warning: #f97316;
   --bg-color: #f4f6f8;
-  --text-main: #1f2937;
-  --text-muted: #6b7280;
+  --text-main: #111827;
+  --text-muted: #4b5563;
   --card-bg: #ffffff;
 }
 
@@ -20,12 +20,14 @@ body {
   color: var(--text-main);
   margin: 0;
   padding: 0;
-  padding-bottom: 80px;
+  /* Jarak bawah diperbesar agar konten tidak tertutup menu navigasi yang lebih besar */
+  padding-bottom: 100px; 
 }
 
+/* Header Full Layar */
 .header {
   background: var(--card-bg);
-  padding: 16px;
+  padding: 12px 16px;
   border-bottom: 1px solid #e5e7eb;
   position: sticky;
   top: 0;
@@ -39,7 +41,6 @@ body {
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  padding: 0 4px;
 }
 
 .logo {
@@ -49,70 +50,72 @@ body {
 }
 
 .subtitle {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
+/* Container Full 1 Layar HP tanpa batas max-width */
 .container {
   width: 100%;
-  max-width: 100%; /* Hapus batas 600px agar melebar penuh */
+  max-width: 100%;
   margin: 0 auto;
-  padding: 12px;
+  padding: 10px 12px;
 }
 
+/* Kartu & Jarak Rapat */
 .card {
   background: var(--card-bg);
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 10px; /* Dirapatkan agar tidak terlalu jauh */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .balance {
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: #ffffff;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 16px;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 10px;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .balance-label {
-  font-size: 13px;
+  font-size: 14px;
   opacity: 0.9;
 }
 
 .balance-value {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: bold;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
+/* Grid Statistik */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .stat {
   background: var(--card-bg);
-  padding: 14px 16px;
-  border-radius: 14px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  padding: 10px 12px;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .stat-title {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-weight: 500;
 }
 
 .stat-value {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: bold;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .stat-value.green { color: var(--success); }
@@ -121,27 +124,28 @@ body {
 .stat-value.orange { color: var(--warning); }
 
 .section-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: bold;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   color: var(--text-main);
 }
 
+/* Tombol Aksi Cepat */
 .actions {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 8px;
 }
 
 .action {
-  padding: 16px;
-  border-radius: 16px;
+  padding: 14px;
+  border-radius: 12px;
   text-align: left;
   font-weight: bold;
+  font-size: 14px;
   cursor: pointer;
   border: 0;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   color: #ffffff;
 }
 
@@ -151,31 +155,16 @@ body {
 
 .action small {
   display: block;
-  margin-top: 4px;
+  margin-top: 2px;
   font-weight: normal;
-  font-size: 11px;
+  font-size: 12px;
   opacity: 0.9;
 }
 
-.action.action-pemasukan {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.3);
-}
-
-.action.action-pengeluaran {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
-}
-
-.action.action-penjualan {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
-}
-
-.action.action-barang {
-  background: linear-gradient(135deg, #f97316, #ea580c);
-  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.3);
-}
+.action.action-pemasukan { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.action.action-pengeluaran { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.action.action-penjualan { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.action.action-barang { background: linear-gradient(135deg, #f97316, #ea580c); }
 
 .page {
   display: none;
@@ -185,6 +174,9 @@ body {
   display: block;
 }
 
+/* ==================================================
+   MENU NAVIGASI BAWAH (Diperbesar ala Shopee/DANA)
+================================================== */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -193,9 +185,9 @@ body {
   background: var(--card-bg);
   display: flex;
   justify-content: space-around;
-  padding: 10px 0;
+  padding: 10px 4px 14px 4px;
   border-top: 1px solid #e5e7eb;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
   z-index: 1000;
 }
 
@@ -205,14 +197,17 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 11px;
+  font-size: 13px; /* Font lebih besar & jelas */
+  font-weight: 500;
   color: var(--text-muted);
   cursor: pointer;
+  flex: 1;
+  padding: 4px;
 }
 
 .nav-btn span {
-  font-size: 18px;
-  margin-bottom: 2px;
+  font-size: 22px; /* Ikon diperbesar agar enak dipencet jari */
+  margin-bottom: 3px;
 }
 
 .nav-btn.active {
@@ -220,16 +215,17 @@ body {
   font-weight: bold;
 }
 
+/* Ukuran Font Form & Standar Stand Jari HP */
 .form-group {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .form-group label {
   display: block;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   margin-bottom: 4px;
-  color: var(--text-muted);
+  color: var(--text-main);
 }
 
 .form-group input, 
@@ -237,10 +233,10 @@ body {
 .form-group textarea, 
 .search {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
   border-radius: 10px;
-  font-size: 16px;
+  font-size: 16px; /* Pas di HP, bebas auto-zoom */
   outline: none;
   background: #fff;
 }
@@ -254,12 +250,12 @@ body {
 
 .btn {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   border: none;
   border-radius: 10px;
   font-weight: bold;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
   margin-bottom: 8px;
 }
 
@@ -267,6 +263,7 @@ body {
 .btn-success { background: var(--success); color: white; }
 .btn-danger { background: var(--danger); color: white; }
 
+/* Modal */
 .modal {
   display: none;
   position: fixed;
@@ -275,7 +272,7 @@ body {
   z-index: 2000;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 12px;
 }
 
 .modal.active {
@@ -287,8 +284,8 @@ body {
   width: 100%;
   max-width: 500px;
   border-radius: 16px;
-  padding: 20px;
-  max-height: 90vh;
+  padding: 18px;
+  max-height: 85vh;
   overflow-y: auto;
 }
 
@@ -296,12 +293,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .close {
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
 }
