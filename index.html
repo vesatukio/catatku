@@ -1,24 +1,20 @@
-```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport"
       content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
 <meta name="theme-color" content="#2563eb">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 
 <title>CatatKu — Keuangan Pribadi & Toko</title>
-
 <link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#2563eb">
 <link rel="apple-touch-icon" href="./icon-192.png">
 
-<style>
 
+<style>
 *{
   box-sizing:border-box;
   margin:0;
@@ -32,10 +28,7 @@ body{
   padding-bottom:75px;
 }
 
-button,
-input,
-select,
-textarea{
+button,input,select,textarea{
   font:inherit;
 }
 
@@ -167,85 +160,22 @@ button{
 .actions{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:12px;
+  gap:10px;
 }
 
 .action{
-  position:relative;
-  min-height:88px;
-  padding:16px 14px;
-  border-radius:17px;
+  background:white;
+  padding:15px;
+  border-radius:14px;
   text-align:left;
-  color:white;
+  box-shadow:0 2px 8px #0000000c;
   font-weight:bold;
-  font-size:16px;
-  line-height:1.2;
-  box-shadow:0 5px 12px #0002;
-  overflow:hidden;
-  transition:
-    transform .15s ease,
-    box-shadow .15s ease;
-}
-
-.action:active{
-  transform:scale(.96);
-  box-shadow:0 2px 6px #0002;
-}
-
-.action::after{
-  content:"";
-  position:absolute;
-  width:75px;
-  height:75px;
-  right:-20px;
-  bottom:-25px;
-  background:#ffffff22;
-  border-radius:50%;
-}
-
-.action:first-child::before{
-  content:"💰";
-}
-
-.action:nth-child(2)::before{
-  content:"💸";
-}
-
-.action:nth-child(3)::before{
-  content:"🛒";
-}
-
-.action:nth-child(4)::before{
-  content:"📦";
-}
-
-.action::before{
-  display:block;
-  font-size:27px;
-  margin-bottom:8px;
-}
-
-.action:nth-child(1){
-  background:linear-gradient(135deg,#16a34a,#15803d);
-}
-
-.action:nth-child(2){
-  background:linear-gradient(135deg,#ef4444,#dc2626);
-}
-
-.action:nth-child(3){
-  background:linear-gradient(135deg,#f59e0b,#ea580c);
-}
-
-.action:nth-child(4){
-  background:linear-gradient(135deg,#2563eb,#1d4ed8);
 }
 
 .action small{
   display:block;
-  color:#ffffffdd;
-  margin-top:4px;
-  font-size:11px;
+  color:#64748b;
+  margin-top:5px;
   font-weight:normal;
 }
 
@@ -334,8 +264,7 @@ table{
   min-width:600px;
 }
 
-th,
-td{
+th,td{
   padding:10px 8px;
   border-bottom:1px solid #e5e7eb;
   text-align:left;
@@ -466,7 +395,6 @@ th{
   background:#f8fafc;
   border-radius:12px;
   font-weight:bold;
-  text-align:left;
 }
 
 .alert{
@@ -500,9 +428,7 @@ th{
   }
 
 }
-
 </style>
-
 </head>
 
 <body>
@@ -513,7 +439,6 @@ th{
 
     <div>
       <div class="logo">💰 CatatKu</div>
-
       <div class="subtitle">
         Keuangan Pribadi & Toko
       </div>
@@ -545,7 +470,8 @@ th{
       Saldo Total
     </div>
 
-    <div id="saldo" class="balance-value">
+    <div id="saldo"
+         class="balance-value">
       Rp 0
     </div>
 
@@ -555,6 +481,7 @@ th{
   <div class="grid">
 
     <div class="stat">
+
       <div class="stat-title">
         Pemasukan Hari Ini
       </div>
@@ -563,10 +490,12 @@ th{
            class="stat-value green">
         Rp 0
       </div>
+
     </div>
 
 
     <div class="stat">
+
       <div class="stat-title">
         Pengeluaran Hari Ini
       </div>
@@ -575,10 +504,12 @@ th{
            class="stat-value red">
         Rp 0
       </div>
+
     </div>
 
 
     <div class="stat">
+
       <div class="stat-title">
         Saldo Pribadi
       </div>
@@ -587,10 +518,12 @@ th{
            class="stat-value blue">
         Rp 0
       </div>
+
     </div>
 
 
     <div class="stat">
+
       <div class="stat-title">
         Saldo Toko
       </div>
@@ -599,10 +532,12 @@ th{
            class="stat-value blue">
         Rp 0
       </div>
+
     </div>
 
 
     <div class="stat">
+
       <div class="stat-title">
         Total Hutang
       </div>
@@ -611,10 +546,12 @@ th{
            class="stat-value orange">
         Rp 0
       </div>
+
     </div>
 
 
     <div class="stat">
+
       <div class="stat-title">
         Nilai Stok
       </div>
@@ -623,10 +560,12 @@ th{
            class="stat-value">
         Rp 0
       </div>
+
     </div>
 
 
     <div class="stat">
+
       <div class="stat-title">
         Jumlah Barang
       </div>
@@ -635,10 +574,12 @@ th{
            class="stat-value">
         0
       </div>
+
     </div>
 
 
     <div class="stat">
+
       <div class="stat-title">
         Laba Bulan Ini
       </div>
@@ -647,6 +588,7 @@ th{
            class="stat-value green">
         Rp 0
       </div>
+
     </div>
 
   </div>
@@ -663,28 +605,28 @@ th{
       <button
         class="action"
         onclick="openModal('modalTransaksi')">
-        Pemasukan
+        💰 Pemasukan
         <small>Catat uang masuk</small>
       </button>
 
       <button
         class="action"
         onclick="openModal('modalPengeluaran')">
-        Pengeluaran
+        💸 Pengeluaran
         <small>Catat uang keluar</small>
       </button>
 
       <button
         class="action"
         onclick="showPage('kasir')">
-        Penjualan
+        🛒 Penjualan
         <small>Kasir toko</small>
       </button>
 
       <button
         class="action"
         onclick="showPage('barang')">
-        Barang
+        📦 Barang
         <small>Stok & harga</small>
       </button>
 
@@ -711,6 +653,7 @@ th{
   </div>
 
 </section>
+
 
 
 <!-- ==================================================
@@ -757,6 +700,7 @@ th{
   </div>
 
 </section>
+
 
 
 <!-- ==================================================
@@ -832,7 +776,9 @@ th{
     <button
       class="btn btn-primary"
       onclick="simpanPenjualan()">
+
       💾 Simpan Penjualan
+
     </button>
 
   </div>
@@ -851,6 +797,7 @@ th{
 </section>
 
 
+
 <!-- ==================================================
      BARANG
 ================================================== -->
@@ -864,7 +811,9 @@ th{
   <button
     class="btn btn-primary"
     onclick="openModal('modalBarang')">
+
     ➕ Tambah Barang
+
   </button>
 
 
@@ -881,6 +830,7 @@ th{
   </div>
 
 </section>
+
 
 
 <!-- ==================================================
@@ -974,7 +924,9 @@ th{
     <button
       class="btn btn-primary"
       onclick="simpanBelanja()">
+
       💾 Simpan Belanja
+
     </button>
 
   </div>
@@ -993,6 +945,7 @@ th{
 </section>
 
 
+
 <!-- ==================================================
      HUTANG
 ================================================== -->
@@ -1006,13 +959,19 @@ th{
   <button
     class="btn btn-primary"
     onclick="openModal('modalHutang')">
+
     ➕ Tambah Hutang / Tagihan
+
   </button>
 
 
-  <div id="hutangList" class="card"></div>
+  <div id="hutangList"
+       class="card">
+
+  </div>
 
 </section>
+
 
 
 <!-- ==================================================
@@ -1028,6 +987,7 @@ th{
   <div id="notifikasiList"></div>
 
 </section>
+
 
 
 <!-- ==================================================
@@ -1048,19 +1008,25 @@ th{
       <button
         class="action"
         onclick="loadLaporan('hari')">
+
         📅 Hari Ini
+
       </button>
 
       <button
         class="action"
         onclick="loadLaporan('minggu')">
+
         📆 Minggu Ini
+
       </button>
 
       <button
         class="action"
         onclick="loadLaporan('bulan')">
+
         🗓️ Bulan Ini
+
       </button>
 
     </div>
@@ -1084,6 +1050,7 @@ th{
 </section>
 
 
+
 <!-- ==================================================
      PENGATURAN
 ================================================== -->
@@ -1101,19 +1068,25 @@ th{
       <button
         class="menu-item"
         onclick="showPage('kategori')">
+
         🏷️ Kelola Kategori
+
       </button>
 
       <button
         class="menu-item"
         onclick="setupCheck()">
+
         🔄 Periksa Database
+
       </button>
 
       <button
         class="menu-item"
         onclick="location.reload()">
+
         ♻️ Refresh Data
+
       </button>
 
     </div>
@@ -1121,6 +1094,7 @@ th{
   </div>
 
 </section>
+
 
 
 <!-- ==================================================
@@ -1142,6 +1116,7 @@ th{
 </section>
 
 </main>
+
 
 
 <!-- ==================================================
@@ -1206,11 +1181,14 @@ th{
 </nav>
 
 
+
 <!-- ==================================================
      MENU MODAL
 ================================================== -->
 
-<div id="modalMenu" class="modal">
+<div
+  id="modalMenu"
+  class="modal">
 
   <div class="modal-box">
 
@@ -1272,11 +1250,14 @@ th{
 </div>
 
 
+
 <!-- ==================================================
      MODAL PEMASUKAN
 ================================================== -->
 
-<div id="modalTransaksi" class="modal">
+<div
+  id="modalTransaksi"
+  class="modal">
 
   <div class="modal-box">
 
@@ -1353,7 +1334,9 @@ th{
     <button
       class="btn btn-success"
       onclick="simpanPemasukan()">
+
       💾 Simpan
+
     </button>
 
   </div>
@@ -1361,11 +1344,14 @@ th{
 </div>
 
 
+
 <!-- ==================================================
      MODAL PENGELUARAN
 ================================================== -->
 
-<div id="modalPengeluaran" class="modal">
+<div
+  id="modalPengeluaran"
+  class="modal">
 
   <div class="modal-box">
 
@@ -1456,7 +1442,9 @@ th{
     <button
       class="btn btn-danger"
       onclick="simpanPengeluaran()">
+
       💾 Simpan
+
     </button>
 
   </div>
@@ -1464,11 +1452,14 @@ th{
 </div>
 
 
+
 <!-- ==================================================
      MODAL BARANG
 ================================================== -->
 
-<div id="modalBarang" class="modal">
+<div
+  id="modalBarang"
+  class="modal">
 
   <div class="modal-box">
 
@@ -1572,7 +1563,9 @@ th{
     <button
       class="btn btn-primary"
       onclick="simpanBarang()">
+
       💾 Simpan Barang
+
     </button>
 
   </div>
@@ -1580,11 +1573,14 @@ th{
 </div>
 
 
+
 <!-- ==================================================
      MODAL HUTANG
 ================================================== -->
 
-<div id="modalHutang" class="modal">
+<div
+  id="modalHutang"
+  class="modal">
 
   <div class="modal-box">
 
@@ -1671,7 +1667,9 @@ th{
     <button
       class="btn btn-primary"
       onclick="simpanHutang()">
+
       💾 Simpan
+
     </button>
 
   </div>
@@ -1679,14 +1677,8 @@ th{
 </div>
 
 
-<!-- ==================================================
-     JAVASCRIPT UTAMA
-================================================== -->
 
 <script>
-
-"use strict";
-
 
 /* ==================================================
    KONFIGURASI
@@ -1751,7 +1743,8 @@ function esc(v){
 
 function todayDate(){
 
-  const d = new Date();
+  const d =
+    new Date();
 
   const pad =
     n => String(n).padStart(2,'0');
@@ -1767,7 +1760,8 @@ function todayDate(){
 
 function datetimeLocal(){
 
-  const d = new Date();
+  const d =
+    new Date();
 
   const pad =
     n => String(n).padStart(2,'0');
@@ -1781,37 +1775,6 @@ function datetimeLocal(){
     pad(d.getHours()) +
     ':' +
     pad(d.getMinutes());
-
-}
-
-
-function firstDayMonth(){
-
-  const d = new Date();
-
-  d.setDate(1);
-
-  const pad =
-    n => String(n).padStart(2,'0');
-
-  return d.getFullYear() +
-    '-' +
-    pad(d.getMonth()+1) +
-    '-01';
-
-}
-
-
-function formatDate(d){
-
-  const pad =
-    n => String(n).padStart(2,'0');
-
-  return d.getFullYear() +
-    '-' +
-    pad(d.getMonth()+1) +
-    '-' +
-    pad(d.getDate());
 
 }
 
@@ -1830,8 +1793,7 @@ async function api(action,payload){
     encodeURIComponent(API_KEY);
 
 
-  if(payload !== undefined &&
-     payload !== null){
+  if(payload){
 
     url +=
       '&payload=' +
@@ -1844,54 +1806,33 @@ async function api(action,payload){
 
   const response =
     await fetch(url,{
+
       method:'GET',
+
       cache:'no-store'
+
     });
-
-
-  const text =
-    await response.text();
 
 
   if(!response.ok){
 
     throw new Error(
       'HTTP Error ' +
-      response.status +
-      ': ' +
-      text.substring(0,200)
+      response.status
     );
 
   }
 
 
-  let json;
-
-  try{
-
-    json =
-      JSON.parse(text);
-
-  }catch(e){
-
-    console.error(
-      'Respons server bukan JSON:',
-      text
-    );
-
-    throw new Error(
-      'Google Apps Script tidak mengirim JSON. ' +
-      'Periksa deployment Web App dan URL API.'
-    );
-
-  }
+  const json =
+    await response.json();
 
 
   if(!json.success){
 
     throw new Error(
       json.error ||
-      'Terjadi kesalahan pada server.'
+      'Terjadi kesalahan.'
     );
 
   }
@@ -1992,22 +1933,18 @@ function goMenu(page){
 
 function openModal(id){
 
-  const el =
-    document.getElementById(id);
-
-  if(el)
-    el.classList.add('show');
+  document
+    .getElementById(id)
+    .classList.add('show');
 
 }
 
 
 function closeModal(id){
 
-  const el =
-    document.getElementById(id);
-
-  if(el)
-    el.classList.remove('show');
+  document
+    .getElementById(id)
+    .classList.remove('show');
 
 }
 
@@ -2023,54 +1960,55 @@ async function loadDashboard(){
     const d =
       await api('dashboard');
 
-    DATA.dashboard = d;
+    DATA.dashboard =
+      d;
 
 
     document.getElementById('saldo')
       .textContent =
-      rupiah(d?.saldo);
+      rupiah(d.saldo);
 
 
     document.getElementById('masukHari')
       .textContent =
-      rupiah(d?.pemasukanHariIni);
+      rupiah(d.pemasukanHariIni);
 
 
     document.getElementById('keluarHari')
       .textContent =
-      rupiah(d?.pengeluaranHariIni);
+      rupiah(d.pengeluaranHariIni);
 
 
     document.getElementById('saldoPribadi')
       .textContent =
-      rupiah(d?.saldoPribadi);
+      rupiah(d.saldoPribadi);
 
 
     document.getElementById('saldoToko')
       .textContent =
-      rupiah(d?.saldoToko);
+      rupiah(d.saldoToko);
 
 
     document.getElementById('totalHutang')
       .textContent =
-      rupiah(d?.totalHutang);
+      rupiah(d.totalHutang);
 
 
     document.getElementById('nilaiStok')
       .textContent =
-      rupiah(d?.nilaiStok);
+      rupiah(d.nilaiStok);
 
 
     document.getElementById('jumlahBarang')
       .textContent =
-      Number(d?.jumlahBarang || 0);
+      Number(d.jumlahBarang || 0);
 
 
-    await loadLabaBulan();
+    loadLabaBulan();
 
-    await loadHistoryDashboard();
+    loadHistoryDashboard();
 
-    await loadNotifikasiDashboard();
+    loadNotifikasiDashboard();
 
   }catch(err){
 
@@ -2089,21 +2027,37 @@ async function loadLabaBulan(){
       await api(
         'laporanLaba',
         {
-          mulai:firstDayMonth(),
-          akhir:todayDate()
+          mulai:
+            firstDayMonth(),
+          akhir:
+            todayDate()
         }
       );
 
 
     document.getElementById('labaBulan')
       .textContent =
-      rupiah(d?.labaKotor);
+      rupiah(d.labaKotor);
 
-  }catch(err){
+  }catch(err){}
 
-    console.error(err);
+}
 
-  }
+
+function firstDayMonth(){
+
+  const d =
+    new Date();
+
+  d.setDate(1);
+
+  const pad =
+    n => String(n).padStart(2,'0');
+
+  return d.getFullYear() +
+    '-' +
+    pad(d.getMonth()+1) +
+    '-01';
 
 }
 
@@ -2117,7 +2071,10 @@ async function loadHistory(){
   try{
 
     DATA.history =
-      await api('history') || [];
+      await api(
+        'history',
+        null
+      );
 
     renderHistory();
 
@@ -2135,17 +2092,14 @@ async function loadHistoryDashboard(){
   try{
 
     const data =
-      await api('history') || [];
+      await api('history');
 
-    DATA.history = data;
+    DATA.history =
+      data;
 
     renderHistoryDashboard();
 
-  }catch(err){
-
-    console.error(err);
-
-  }
+  }catch(err){}
 
 }
 
@@ -2156,10 +2110,6 @@ function renderHistoryDashboard(){
     document.getElementById(
       'historyDashboard'
     );
-
-
-  if(!el)
-    return;
 
 
   if(!DATA.history.length){
@@ -2178,7 +2128,7 @@ function renderHistoryDashboard(){
       .map(t => {
 
         const masuk =
-          String(t.Jenis) === 'Masuk';
+          t.Jenis === 'Masuk';
 
         return `
 
@@ -2194,7 +2144,9 @@ function renderHistoryDashboard(){
                 ${esc(t.Keterangan || t.Kategori)}
               </strong>
 
-              <strong class="${masuk ? 'green' : 'red'}">
+              <strong class="${
+                masuk ? 'green' : 'red'
+              }">
 
                 ${masuk ? '+' : '-'}
                 ${rupiah(t.Jumlah)}
@@ -2231,10 +2183,6 @@ function renderHistory(){
     );
 
 
-  if(!el)
-    return;
-
-
   const q =
     String(
       document.getElementById(
@@ -2247,7 +2195,6 @@ function renderHistory(){
     DATA.history.filter(t => {
 
       return (
-
         String(t.Keterangan || '')
           .toLowerCase()
           .includes(q) ||
@@ -2259,7 +2206,6 @@ function renderHistory(){
         String(t.Sumber || '')
           .toLowerCase()
           .includes(q)
-
       );
 
     });
@@ -2310,17 +2256,17 @@ function renderHistory(){
               </td>
 
               <td>
-
-                <span class="badge ${
-                  t.Jenis === 'Masuk'
-                  ? 'badge-green'
-                  : 'badge-red'
-                }">
+                <span class="
+                  badge
+                  ${
+                    t.Jenis === 'Masuk'
+                    ? 'badge-green'
+                    : 'badge-red'
+                  }">
 
                   ${esc(t.Jenis)}
 
                 </span>
-
               </td>
 
               <td>
@@ -2351,7 +2297,7 @@ async function loadKategori(){
   try{
 
     DATA.kategori =
-      await api('kategori') || [];
+      await api('kategori');
 
 
     isiSelectKategori(
@@ -2376,10 +2322,6 @@ async function loadKategori(){
       );
 
 
-    if(!el)
-      return;
-
-
     if(!DATA.kategori.length){
 
       el.innerHTML =
@@ -2397,14 +2339,12 @@ async function loadKategori(){
       <table>
 
       <thead>
-
       <tr>
         <th>ID</th>
         <th>Nama</th>
         <th>Jenis</th>
         <th>Aktif</th>
       </tr>
-
       </thead>
 
       <tbody>
@@ -2415,17 +2355,11 @@ async function loadKategori(){
 
           <td>${esc(k.ID)}</td>
 
-          <td>
-            ${esc(k['Nama Kategori'])}
-          </td>
+          <td>${esc(k['Nama Kategori'])}</td>
 
-          <td>
-            ${esc(k.Jenis)}
-          </td>
+          <td>${esc(k.Jenis)}</td>
 
-          <td>
-            ${esc(k.Aktif)}
-          </td>
+          <td>${esc(k.Aktif)}</td>
 
         </tr>
 
@@ -2453,13 +2387,12 @@ function isiSelectKategori(id,jenis){
   const el =
     document.getElementById(id);
 
-  if(!el)
-    return;
+  if(!el) return;
 
 
   let data =
     DATA.kategori.filter(k =>
-      String(k.Aktif).toUpperCase() === 'YA'
+      k.Aktif === 'YA'
     );
 
 
@@ -2467,7 +2400,7 @@ function isiSelectKategori(id,jenis){
 
     const filtered =
       data.filter(k =>
-        String(k.Jenis) === String(jenis)
+        k.Jenis === jenis
       );
 
     if(filtered.length)
@@ -2497,7 +2430,8 @@ async function loadBarang(){
   try{
 
     DATA.barang =
-      await api('barang') || [];
+      await api('barang');
+
 
     renderBarang();
 
@@ -2520,10 +2454,6 @@ function renderBarang(){
     );
 
 
-  if(!el)
-    return;
-
-
   const q =
     String(
       document.getElementById(
@@ -2536,7 +2466,6 @@ function renderBarang(){
     DATA.barang.filter(b => {
 
       return (
-
         String(b['Nama Barang'] || '')
           .toLowerCase()
           .includes(q) ||
@@ -2544,7 +2473,6 @@ function renderBarang(){
         String(b.Kategori || '')
           .toLowerCase()
           .includes(q)
-
       );
 
     });
@@ -2618,11 +2546,13 @@ function renderBarang(){
 
           <td>
 
-            <span class="badge ${
-              stok <= min
-              ? 'badge-red'
-              : 'badge-green'
-            }">
+            <span class="
+              badge
+              ${
+                stok <= min
+                ? 'badge-red'
+                : 'badge-green'
+              }">
 
               ${stok}
 
@@ -2665,8 +2595,7 @@ function isiSelectBarang(){
     const el =
       document.getElementById(id);
 
-    if(!el)
-      return;
+    if(!el) return;
 
 
     el.innerHTML =
@@ -2694,20 +2623,20 @@ function isiSelectBarang(){
 
 async function loadKasir(){
 
+  if(!DATA.barang.length)
+    await loadBarang();
+
+
+  const el =
+    document.getElementById(
+      'penjualanList'
+    );
+
+
   try{
 
-    if(!DATA.barang.length)
-      await loadBarang();
-
-
-    const el =
-      document.getElementById(
-        'penjualanList'
-      );
-
-
     DATA.penjualan =
-      await api('penjualan') || [];
+      await api('penjualan');
 
 
     DATA.penjualan =
@@ -2755,17 +2684,11 @@ async function loadKasir(){
 
           <td>${esc(p.Tanggal)}</td>
 
-          <td>
-            ${esc(p['Nama Barang'])}
-          </td>
+          <td>${esc(p['Nama Barang'])}</td>
 
-          <td>
-            ${esc(p.Qty)}
-          </td>
+          <td>${esc(p.Qty)}</td>
 
-          <td>
-            ${rupiah(p.Omzet)}
-          </td>
+          <td>${rupiah(p.Omzet)}</td>
 
           <td class="green">
             ${rupiah(p['Laba Kotor'])}
@@ -2801,7 +2724,7 @@ async function loadBelanja(){
   try{
 
     DATA.belanja =
-      await api('belanja') || [];
+      await api('belanja');
 
 
     const el =
@@ -2856,29 +2779,22 @@ async function loadBelanja(){
 
           <td>${esc(b.Tanggal)}</td>
 
-          <td>
-            ${esc(b['Nama Barang'])}
-          </td>
+          <td>${esc(b['Nama Barang'])}</td>
 
-          <td>
-            ${esc(b.Qty)}
-          </td>
+          <td>${esc(b.Qty)}</td>
 
-          <td>
-            ${rupiah(b.Total)}
-          </td>
+          <td>${rupiah(b.Total)}</td>
 
-          <td>
-            ${rupiah(b.Sisa)}
-          </td>
+          <td>${rupiah(b.Sisa)}</td>
 
           <td>
 
-            <span class="badge ${
-              b.Status === 'LUNAS'
-              ? 'badge-green'
-              : 'badge-orange'
-            }">
+            <span class="badge
+              ${
+                b.Status === 'LUNAS'
+                ? 'badge-green'
+                : 'badge-orange'
+              }">
 
               ${esc(b.Status)}
 
@@ -2916,7 +2832,7 @@ async function loadHutang(){
   try{
 
     DATA.hutang =
-      await api('hutang') || [];
+      await api('hutang');
 
 
     const el =
@@ -2970,17 +2886,13 @@ async function loadHutang(){
         <tr>
 
           <td>
-
             <strong>
               ${esc(h.Pihak)}
             </strong>
-
             <br>
-
             <small>
               ${esc(h.Keterangan)}
             </small>
-
           </td>
 
           <td>
@@ -3001,11 +2913,12 @@ async function loadHutang(){
 
           <td>
 
-            <span class="badge ${
-              h.Status === 'LUNAS'
-              ? 'badge-green'
-              : 'badge-red'
-            }">
+            <span class="badge
+              ${
+                h.Status === 'LUNAS'
+                ? 'badge-green'
+                : 'badge-red'
+              }">
 
               ${esc(h.Status)}
 
@@ -3021,8 +2934,10 @@ async function loadHutang(){
                 <button
                   class="btn btn-success"
                   style="padding:7px"
-                  onclick='bayarHutangPrompt(${JSON.stringify(h).replace(/'/g,"&#39;")})'>
+                  onclick='bayarHutangPrompt(${JSON.stringify(h)})'>
+
                   Bayar
+
                 </button>
               `
               : ''
@@ -3077,15 +2992,6 @@ async function bayarHutangPrompt(h){
   }
 
 
-  if(n > Number(h.Sisa || 0)){
-
-    alert('Pembayaran tidak boleh lebih besar dari sisa hutang.');
-
-    return;
-
-  }
-
-
   try{
 
     await api(
@@ -3106,9 +3012,9 @@ async function bayarHutangPrompt(h){
 
     alert('Pembayaran berhasil.');
 
-    await loadHutang();
+    loadHutang();
 
-    await loadDashboard();
+    loadDashboard();
 
   }catch(err){
 
@@ -3128,7 +3034,8 @@ async function loadNotifikasi(){
   try{
 
     DATA.notifikasi =
-      await api('notifikasi') || [];
+      await api('notifikasi');
+
 
     renderNotifikasi();
 
@@ -3149,10 +3056,6 @@ function renderNotifikasi(){
     );
 
 
-  if(!el)
-    return;
-
-
   if(!DATA.notifikasi.length){
 
     el.innerHTML = `
@@ -3160,10 +3063,7 @@ function renderNotifikasi(){
       <div class="card">
 
         <div class="empty">
-
-          ✅ Tidak ada tagihan yang jatuh tempo
-          dalam 7 hari.
-
+          ✅ Tidak ada tagihan yang jatuh tempo dalam 7 hari.
         </div>
 
       </div>
@@ -3202,8 +3102,10 @@ function renderNotifikasi(){
 
         <button
           class="btn btn-success"
-          onclick='bayarHutangPrompt(${JSON.stringify(h).replace(/'/g,"&#39;")})'>
+          onclick='bayarHutangPrompt(${JSON.stringify(h)})'>
+
           Bayar
+
         </button>
 
       </div>
@@ -3218,17 +3120,13 @@ async function loadNotifikasiDashboard(){
   try{
 
     const data =
-      await api('notifikasi') || [];
+      await api('notifikasi');
 
 
     const el =
       document.getElementById(
         'dashboardAlert'
       );
-
-
-    if(!el)
-      return;
 
 
     if(!data.length){
@@ -3260,11 +3158,7 @@ async function loadNotifikasiDashboard(){
 
     `;
 
-  }catch(err){
-
-    console.error(err);
-
-  }
+  }catch(err){}
 
 }
 
@@ -3316,8 +3210,10 @@ async function loadLaporan(jenis){
         await api(
           'laporan',
           {
-            mulai:formatDate(start),
-            akhir:todayDate()
+            mulai:
+              formatDate(start),
+            akhir:
+              todayDate()
           }
         );
 
@@ -3330,15 +3226,14 @@ async function loadLaporan(jenis){
         await api(
           'laporan',
           {
-            mulai:firstDayMonth(),
-            akhir:todayDate()
+            mulai:
+              firstDayMonth(),
+            akhir:
+              todayDate()
           }
         );
 
     }
-
-
-    data = data || {};
 
 
     document.getElementById(
@@ -3359,7 +3254,6 @@ async function loadLaporan(jenis){
 
         </div>
 
-
         <div class="stat">
 
           <div class="stat-title">
@@ -3371,7 +3265,6 @@ async function loadLaporan(jenis){
           </div>
 
         </div>
-
 
         <div class="stat">
 
@@ -3385,7 +3278,6 @@ async function loadLaporan(jenis){
 
         </div>
 
-
         <div class="stat">
 
           <div class="stat-title">
@@ -3397,7 +3289,6 @@ async function loadLaporan(jenis){
           </div>
 
         </div>
-
 
         <div class="stat">
 
@@ -3425,7 +3316,8 @@ async function loadLaporan(jenis){
             ? firstDayMonth()
             : todayDate(),
 
-          akhir:todayDate()
+          akhir:
+            todayDate()
         }
       );
 
@@ -3443,11 +3335,10 @@ async function loadLaporan(jenis){
           </div>
 
           <div class="stat-value">
-            ${rupiah(laba?.omzet)}
+            ${rupiah(laba.omzet)}
           </div>
 
         </div>
-
 
         <div class="stat">
 
@@ -3456,11 +3347,10 @@ async function loadLaporan(jenis){
           </div>
 
           <div class="stat-value red">
-            ${rupiah(laba?.hpp)}
+            ${rupiah(laba.hpp)}
           </div>
 
         </div>
-
 
         <div class="stat">
 
@@ -3469,7 +3359,7 @@ async function loadLaporan(jenis){
           </div>
 
           <div class="stat-value green">
-            ${rupiah(laba?.labaKotor)}
+            ${rupiah(laba.labaKotor)}
           </div>
 
         </div>
@@ -3483,6 +3373,20 @@ async function loadLaporan(jenis){
     showError(err);
 
   }
+
+}
+
+
+function formatDate(d){
+
+  const pad =
+    n => String(n).padStart(2,'0');
+
+  return d.getFullYear() +
+    '-' +
+    pad(d.getMonth()+1) +
+    '-' +
+    pad(d.getDate());
 
 }
 
@@ -3552,7 +3456,7 @@ async function simpanPemasukan(){
 
     resetPemasukan();
 
-    await loadDashboard();
+    loadDashboard();
 
   }catch(err){
 
@@ -3568,7 +3472,6 @@ function resetPemasukan(){
   document.getElementById(
     'masukJumlah'
   ).value='';
-
 
   document.getElementById(
     'masukKeterangan'
@@ -3643,18 +3546,15 @@ async function simpanPengeluaran(){
 
     alert('Pengeluaran berhasil disimpan.');
 
-
     document.getElementById(
       'keluarJumlah'
     ).value='';
-
 
     document.getElementById(
       'keluarKeterangan'
     ).value='';
 
-
-    await loadDashboard();
+    loadDashboard();
 
   }catch(err){
 
@@ -3745,9 +3645,9 @@ async function simpanBarang(){
 
     alert('Barang berhasil ditambahkan.');
 
-    await loadBarang();
+    loadBarang();
 
-    await loadDashboard();
+    loadDashboard();
 
   }catch(err){
 
@@ -3798,9 +3698,8 @@ async function simpanPenjualan(){
 
   const barang =
     DATA.barang.find(
-      b =>
-        String(b.ID) ===
-        String(barangId)
+      b => String(b.ID) ===
+      String(barangId)
     );
 
 
@@ -3859,22 +3758,20 @@ async function simpanPenjualan(){
 
     alert('Penjualan berhasil disimpan.');
 
-
     document.getElementById(
       'jualQty'
     ).value=1;
-
 
     document.getElementById(
       'jualCatatan'
     ).value='';
 
 
-    await loadKasir();
+    loadKasir();
 
-    await loadBarang();
+    loadBarang();
 
-    await loadDashboard();
+    loadDashboard();
 
   }catch(err){
 
@@ -3945,7 +3842,8 @@ async function simpanBelanja(){
       'tambahBelanja',
       {
 
-        barangId:barangId,
+        barangId:
+          barangId,
 
         namaBarang:
           document.getElementById(
@@ -3987,13 +3885,13 @@ async function simpanBelanja(){
 
     alert('Belanja berhasil disimpan.');
 
-    await loadBelanja();
+    loadBelanja();
 
-    await loadBarang();
+    loadBarang();
 
-    await loadHutang();
+    loadHutang();
 
-    await loadDashboard();
+    loadDashboard();
 
   }catch(err){
 
@@ -4029,15 +3927,6 @@ async function simpanHutang(){
   if(total <= 0){
 
     alert('Total harus lebih dari 0.');
-
-    return;
-
-  }
-
-
-  if(dibayar < 0 || dibayar > total){
-
-    alert('Jumlah dibayar tidak valid.');
 
     return;
 
@@ -4082,9 +3971,9 @@ async function simpanHutang(){
 
     alert('Hutang/tagihan berhasil disimpan.');
 
-    await loadHutang();
+    loadHutang();
 
-    await loadDashboard();
+    loadDashboard();
 
   }catch(err){
 
@@ -4126,8 +4015,39 @@ function showError(err){
 
 
 /* ==================================================
-   EVENT SELECT BARANG KASIR
+   INIT
 ================================================== */
+
+async function init(){
+
+  document.getElementById(
+    'masukTanggal'
+  ).value =
+    datetimeLocal();
+
+
+  document.getElementById(
+    'keluarTanggal'
+  ).value =
+    datetimeLocal();
+
+
+  try{
+
+    await loadKategori();
+
+    await loadBarang();
+
+    await loadDashboard();
+
+  }catch(err){
+
+    showError(err);
+
+  }
+
+}
+
 
 document
   .getElementById('jualBarang')
@@ -4157,10 +4077,6 @@ document
     }
   );
 
-
-/* ==================================================
-   EVENT SELECT BARANG BELANJA
-================================================== */
 
 document
   .getElementById('belanjaBarang')
@@ -4197,51 +4113,26 @@ document
   );
 
 
-/* ==================================================
-   INIT
-================================================== */
-
-async function init(){
-
-  document.getElementById(
-    'masukTanggal'
-  ).value =
-    datetimeLocal();
-
-
-  document.getElementById(
-    'keluarTanggal'
-  ).value =
-    datetimeLocal();
-
-
-  try{
-
-    await loadKategori();
-
-    await loadBarang();
-
-    await loadDashboard();
-
-  }catch(err){
-
-    showError(err);
-
-  }
-
-}
-
-
-/* ==================================================
-   MULAI APLIKASI
-================================================== */
-
 init();
+
+
+/* ==================================================
+   SERVICE WORKER
+================================================== */
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .then(() => console.log("CatatKu siap digunakan"))
+      .catch(err =>
+        console.error("Service Worker gagal:", err)
+      );
+  });
+}
+</script>
 
 </script>
 
-
-
 </body>
 </html>
-```
