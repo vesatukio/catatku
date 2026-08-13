@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
 
 <meta charset="UTF-8">
@@ -22,6 +21,10 @@
   content="yes">
 
 <meta
+  name="apple-mobile-web-app-status-bar-style"
+  content="default">
+
+<meta
   name="description"
   content="CatatKu - Keuangan Pribadi dan Toko">
 
@@ -37,22 +40,22 @@
 
 </head>
 
-
 <body>
-
 
 <!-- =====================================================
      LOADING
 ===================================================== -->
 
-<div
-  id="loading"
-  class="loading">
+<div id="loading" class="loading">
 
   <div class="spinner"></div>
 
-  <div>
+  <div class="loading-title">
     Menyiapkan CatatKu...
+  </div>
+
+  <div class="loading-sub">
+    Keuangan Pribadi & Toko
   </div>
 
 </div>
@@ -64,7 +67,7 @@
 
 <header class="topbar">
 
-  <div>
+  <div class="brand">
 
     <div class="app-title">
       CatatKu
@@ -95,7 +98,9 @@
 
     <button
       class="icon-btn"
-      onclick="refreshApp()">
+      type="button"
+      onclick="refreshApp()"
+      aria-label="Refresh">
 
       ↻
 
@@ -112,29 +117,46 @@
 
 <div class="sync-bar">
 
-  <span id="syncText">
-    Data tersimpan otomatis
-  </span>
+  <div class="sync-left">
+
+    <span class="sync-icon">
+      ☁
+    </span>
+
+    <span id="syncText">
+      Data tersimpan otomatis
+    </span>
+
+  </div>
 
 
-  <button
-    onclick="syncOffline()">
+  <div class="sync-right">
 
-    Sinkronkan
+    <span
+      id="syncBadge"
+      class="sync-badge hidden">
 
-  </button>
+      0
 
+    </span>
 
-  <span
-    id="syncBadge"
-    class="sync-badge hidden">
+    <button
+      type="button"
+      class="sync-button"
+      onclick="syncOffline()">
 
-    0 menunggu
+      Sinkronkan
 
-  </span>
+    </button>
+
+  </div>
 
 </div>
 
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
 
 <main class="container">
 
@@ -148,11 +170,13 @@
   class="page active">
 
 
-  <div class="welcome">
+  <!-- SALDO -->
+
+  <div class="welcome-card">
 
     <div>
 
-      <div class="small">
+      <div class="small white-muted">
         Saldo Saat Ini
       </div>
 
@@ -162,6 +186,10 @@
 
         Rp 0
 
+      </div>
+
+      <div class="balance-label">
+        Keuangan Anda
       </div>
 
     </div>
@@ -174,16 +202,29 @@
   </div>
 
 
+  <!-- RINGKASAN -->
+
+  <div class="section-title-row">
+
+    <h2>
+      Ringkasan
+    </h2>
+
+  </div>
+
+
   <div class="summary-grid">
 
 
-    <div class="summary-card income">
+    <button
+      class="summary-card income"
+      onclick="showPage('add');setTransactionType('PEMASUKAN')">
 
       <div class="summary-icon">
         ↗
       </div>
 
-      <div>
+      <div class="summary-info">
 
         <div class="small">
           Pemasukan
@@ -199,16 +240,18 @@
 
       </div>
 
-    </div>
+    </button>
 
 
-    <div class="summary-card expense">
+    <button
+      class="summary-card expense"
+      onclick="showPage('add');setTransactionType('PENGELUARAN')">
 
       <div class="summary-icon">
         ↘
       </div>
 
-      <div>
+      <div class="summary-info">
 
         <div class="small">
           Pengeluaran
@@ -224,16 +267,18 @@
 
       </div>
 
-    </div>
+    </button>
 
 
-    <div class="summary-card sales">
+    <button
+      class="summary-card sales"
+      onclick="showPage('penjualan')">
 
       <div class="summary-icon">
         🛒
       </div>
 
-      <div>
+      <div class="summary-info">
 
         <div class="small">
           Penjualan
@@ -249,16 +294,18 @@
 
       </div>
 
-    </div>
+    </button>
 
 
-    <div class="summary-card debt">
+    <button
+      class="summary-card debt"
+      onclick="showPage('hutang')">
 
       <div class="summary-icon">
         💳
       </div>
 
-      <div>
+      <div class="summary-info">
 
         <div class="small">
           Hutang
@@ -274,14 +321,122 @@
 
       </div>
 
-    </div>
+    </button>
+
+
+  </div>
+
+
+  <!-- AKSI CEPAT -->
+
+  <div class="section-title-row">
+
+    <h2>
+      Akses Cepat
+    </h2>
+
+  </div>
+
+
+  <div class="quick-grid">
+
+
+    <button
+      class="quick-card"
+      onclick="quickTransaction('PEMASUKAN')">
+
+      <span class="quick-icon">
+        💰
+      </span>
+
+      <span>
+        Pemasukan
+      </span>
+
+    </button>
+
+
+    <button
+      class="quick-card"
+      onclick="quickTransaction('PENGELUARAN')">
+
+      <span class="quick-icon">
+        💸
+      </span>
+
+      <span>
+        Pengeluaran
+      </span>
+
+    </button>
+
+
+    <button
+      class="quick-card"
+      onclick="showPage('penjualan')">
+
+      <span class="quick-icon">
+        🛒
+      </span>
+
+      <span>
+        Penjualan
+      </span>
+
+    </button>
+
+
+    <button
+      class="quick-card"
+      onclick="showPage('belanja')">
+
+      <span class="quick-icon">
+        📦
+      </span>
+
+      <span>
+        Belanja Stok
+      </span>
+
+    </button>
+
+
+    <button
+      class="quick-card"
+      onclick="openModal('hutangModal')">
+
+      <span class="quick-icon">
+        💳
+      </span>
+
+      <span>
+        Hutang
+      </span>
+
+    </button>
+
+
+    <button
+      class="quick-card"
+      onclick="showPage('report')">
+
+      <span class="quick-icon">
+        📊
+      </span>
+
+      <span>
+        Laporan
+      </span>
+
+    </button>
+
 
   </div>
 
 
   <!-- TRANSAKSI TERBARU -->
 
-  <div class="section-head">
+  <div class="section-title-row">
 
     <h2>
       Transaksi Terbaru
@@ -314,39 +469,35 @@
 
 <!-- =====================================================
      TRANSAKSI
-     PERBAIKAN:
-     sebelumnya id="page-add"
-     sekarang id="page-transaksi"
 ===================================================== -->
 
 <section
-  id="page-transaksi"
+  id="page-add"
   class="page">
-
 
   <div class="page-title">
 
     <h1>
-      Transaksi
+      Tambah Transaksi
     </h1>
 
     <p>
-      Pemasukan dan pengeluaran
+      Catat pemasukan atau pengeluaran
     </p>
 
   </div>
 
-
-  <!-- PILIH JENIS -->
 
   <div class="type-tabs">
 
     <button
       id="tabIncome"
       class="type-tab active"
+      type="button"
       onclick="setTransactionType('PEMASUKAN')">
 
-      + Pemasukan
+      <span>+</span>
+      Pemasukan
 
     </button>
 
@@ -354,23 +505,23 @@
     <button
       id="tabExpense"
       class="type-tab"
+      type="button"
       onclick="setTransactionType('PENGELUARAN')">
 
-      − Pengeluaran
+      <span>−</span>
+      Pengeluaran
 
     </button>
 
   </div>
 
 
-  <!-- FORM TRANSAKSI -->
-
   <form
     id="transactionForm"
     class="form-card">
 
 
-    <label>
+    <label for="trxTanggal">
       Tanggal
     </label>
 
@@ -380,7 +531,7 @@
       required>
 
 
-    <label>
+    <label for="trxKategori">
       Kategori
     </label>
 
@@ -395,7 +546,7 @@
     </select>
 
 
-    <label>
+    <label for="trxKeterangan">
       Keterangan
     </label>
 
@@ -406,7 +557,7 @@
       required>
 
 
-    <label>
+    <label for="trxNominal">
       Nominal
     </label>
 
@@ -415,11 +566,11 @@
       type="number"
       inputmode="numeric"
       min="0"
-      placeholder="0"
+      placeholder="Rp 0"
       required>
 
 
-    <label>
+    <label for="trxRekening">
       Rekening / Kas
     </label>
 
@@ -430,46 +581,14 @@
 
 
     <button
-      class="primary-btn"
+      class="primary-btn big-btn"
       type="submit">
 
       Simpan Transaksi
 
     </button>
 
-
   </form>
-
-
-  <!-- DATA TRANSAKSI LANGSUNG TERLIHAT -->
-
-  <div class="section-head">
-
-    <h2>
-      Data Transaksi
-    </h2>
-
-    <button
-      class="text-btn"
-      onclick="showPage('history')">
-
-      Semua
-
-    </button>
-
-  </div>
-
-
-  <div
-    id="transactionPageList"
-    class="transaction-list">
-
-    <div class="empty">
-      Belum ada transaksi.
-    </div>
-
-  </div>
-
 
 </section>
 
@@ -481,7 +600,6 @@
 <section
   id="page-barang"
   class="page">
-
 
   <div class="page-title">
 
@@ -496,13 +614,32 @@
   </div>
 
 
-  <button
-    class="primary-btn"
-    onclick="openModal('barangModal')">
+  <div class="page-action">
 
-    + Tambah Barang
+    <button
+      class="primary-btn"
+      onclick="openModal('barangModal')">
 
-  </button>
+      + Tambah Barang
+
+    </button>
+
+  </div>
+
+
+  <div class="search-box">
+
+    <span>
+      🔎
+    </span>
+
+    <input
+      id="barangSearch"
+      type="search"
+      placeholder="Cari nama barang..."
+      oninput="filterBarang(this.value)">
+
+  </div>
 
 
   <div
@@ -515,7 +652,6 @@
 
   </div>
 
-
 </section>
 
 
@@ -527,7 +663,6 @@
   id="page-penjualan"
   class="page">
 
-
   <div class="page-title">
 
     <h1>
@@ -535,7 +670,7 @@
     </h1>
 
     <p>
-      Tetap bisa jual saat offline
+      Catat penjualan toko
     </p>
 
   </div>
@@ -546,7 +681,7 @@
     class="form-card">
 
 
-    <label>
+    <label for="jualBarang">
       Barang
     </label>
 
@@ -561,30 +696,45 @@
     </select>
 
 
-    <label>
+    <label for="jualQty">
       Jumlah
     </label>
 
     <input
       id="jualQty"
       type="number"
+      inputmode="numeric"
       min="1"
       value="1"
       required>
 
 
-    <label>
+    <label for="jualHarga">
       Harga Jual
     </label>
 
     <input
       id="jualHarga"
       type="number"
+      inputmode="numeric"
       min="0"
       required>
 
 
-    <label>
+    <div class="total-preview">
+
+      <span>
+        Total Penjualan
+      </span>
+
+      <strong id="jualTotalPreview">
+        Rp 0
+      </strong>
+
+    </div>
+
+
+    <label for="jualPelanggan">
       Pelanggan
     </label>
 
@@ -595,16 +745,14 @@
 
 
     <button
-      class="primary-btn"
+      class="primary-btn big-btn"
       type="submit">
 
-      Simpan Penjualan
+      🛒 Simpan Penjualan
 
     </button>
 
-
   </form>
-
 
 </section>
 
@@ -616,7 +764,6 @@
 <section
   id="page-belanja"
   class="page">
-
 
   <div class="page-title">
 
@@ -636,7 +783,7 @@
     class="form-card">
 
 
-    <label>
+    <label for="belanjaBarang">
       Barang
     </label>
 
@@ -651,49 +798,63 @@
     </select>
 
 
-    <label>
+    <label for="belanjaQty">
       Jumlah
     </label>
 
     <input
       id="belanjaQty"
       type="number"
+      inputmode="numeric"
       min="1"
       value="1"
       required>
 
 
-    <label>
+    <label for="belanjaHarga">
       Harga Modal
     </label>
 
     <input
       id="belanjaHarga"
       type="number"
+      inputmode="numeric"
       min="0"
       required>
 
 
-    <label>
+    <div class="total-preview">
+
+      <span>
+        Total Belanja
+      </span>
+
+      <strong id="belanjaTotalPreview">
+        Rp 0
+      </strong>
+
+    </div>
+
+
+    <label for="belanjaSupplier">
       Supplier
     </label>
 
     <input
       id="belanjaSupplier"
-      type="text">
+      type="text"
+      placeholder="Nama supplier">
 
 
     <button
-      class="primary-btn"
+      class="primary-btn big-btn"
       type="submit">
 
-      Simpan Belanja
+      📦 Simpan Belanja
 
     </button>
 
-
   </form>
-
 
 </section>
 
@@ -706,7 +867,6 @@
   id="page-hutang"
   class="page">
 
-
   <div class="page-title">
 
     <h1>
@@ -714,7 +874,7 @@
     </h1>
 
     <p>
-      Tetap bisa dicatat saat offline
+      Kelola hutang dan jatuh tempo
     </p>
 
   </div>
@@ -739,7 +899,6 @@
 
   </div>
 
-
 </section>
 
 
@@ -751,7 +910,6 @@
   id="page-history"
   class="page">
 
-
   <div class="page-title">
 
     <h1>
@@ -759,8 +917,23 @@
     </h1>
 
     <p>
-      Semua data transaksi
+      Semua transaksi
     </p>
+
+  </div>
+
+
+  <div class="search-box">
+
+    <span>
+      🔎
+    </span>
+
+    <input
+      id="historySearch"
+      type="search"
+      placeholder="Cari transaksi..."
+      oninput="filterHistory(this.value)">
 
   </div>
 
@@ -775,7 +948,6 @@
 
   </div>
 
-
 </section>
 
 
@@ -786,7 +958,6 @@
 <section
   id="page-report"
   class="page">
-
 
   <div class="page-title">
 
@@ -803,9 +974,18 @@
 
   <div class="report-filter">
 
+    <label>
+      Mulai
+    </label>
+
     <input
       id="reportStart"
       type="date">
+
+
+    <label>
+      Sampai
+    </label>
 
     <input
       id="reportEnd"
@@ -813,10 +993,10 @@
 
 
     <button
-      class="primary-btn"
+      class="primary-btn big-btn"
       onclick="loadReport()">
 
-      Tampilkan Laporan
+      📊 Tampilkan Laporan
 
     </button>
 
@@ -830,7 +1010,6 @@
     Pilih periode laporan.
 
   </div>
-
 
 </section>
 
@@ -846,7 +1025,7 @@
 
 
   <button
-    class="nav-circle nav-home active"
+    class="nav-item active"
     onclick="showPage('dashboard')">
 
     <span class="nav-icon">
@@ -860,11 +1039,9 @@
   </button>
 
 
-  <!-- PERBAIKAN: transaksi sekarang benar -->
-
   <button
-    class="nav-circle nav-transaksi"
-    onclick="showPage('transaksi')">
+    class="nav-item"
+    onclick="showPage('add')">
 
     <span class="nav-icon">
       ↗
@@ -876,8 +1053,6 @@
 
   </button>
 
-
-  <!-- TOMBOL + -->
 
   <button
     class="nav-plus"
@@ -892,7 +1067,7 @@
 
 
   <button
-    class="nav-circle nav-barang"
+    class="nav-item"
     onclick="showPage('barang')">
 
     <span class="nav-icon">
@@ -907,7 +1082,7 @@
 
 
   <button
-    class="nav-circle nav-more"
+    class="nav-item"
     onclick="showMoreMenu()">
 
     <span class="nav-icon">
@@ -925,6 +1100,68 @@
 
 
 <!-- =====================================================
+     QUICK ADD
+===================================================== -->
+
+<div
+  id="quickAddMenu"
+  class="quick-add">
+
+
+  <button
+    class="quick-income"
+    onclick="quickTransaction('PEMASUKAN')">
+
+    <span>💰</span>
+    Pemasukan
+
+  </button>
+
+
+  <button
+    class="quick-expense"
+    onclick="quickTransaction('PENGELUARAN')">
+
+    <span>💸</span>
+    Pengeluaran
+
+  </button>
+
+
+  <button
+    class="quick-sale"
+    onclick="showPage('penjualan');closeQuickAdd()">
+
+    <span>🛒</span>
+    Penjualan
+
+  </button>
+
+
+  <button
+    class="quick-buy"
+    onclick="showPage('belanja');closeQuickAdd()">
+
+    <span>📦</span>
+    Belanja
+
+  </button>
+
+
+  <button
+    class="quick-debt"
+    onclick="openModal('hutangModal');closeQuickAdd()">
+
+    <span>💳</span>
+    Hutang
+
+  </button>
+
+
+</div>
+
+
+<!-- =====================================================
      MORE MENU
 ===================================================== -->
 
@@ -933,16 +1170,32 @@
   class="drawer hidden">
 
 
+  <div
+    class="drawer-overlay"
+    onclick="closeMoreMenu()">
+  </div>
+
+
   <div class="drawer-panel">
 
 
     <div class="drawer-head">
 
-      <h2>
-        Menu
-      </h2>
+      <div>
+
+        <div class="drawer-title">
+          Menu CatatKu
+        </div>
+
+        <div class="drawer-sub">
+          Semua fitur aplikasi
+        </div>
+
+      </div>
+
 
       <button
+        class="close-btn"
         onclick="closeMoreMenu()">
 
         ×
@@ -953,41 +1206,71 @@
 
 
     <button
+      class="drawer-item"
       onclick="openFromMenu('belanja')">
 
-      🛍️ Belanja Stok
+      <span>🛍️</span>
+
+      <div>
+        <strong>Belanja Stok</strong>
+        <small>Pembelian barang toko</small>
+      </div>
 
     </button>
 
 
     <button
+      class="drawer-item"
       onclick="openFromMenu('hutang')">
 
-      💳 Hutang & Cicilan
+      <span>💳</span>
+
+      <div>
+        <strong>Hutang & Cicilan</strong>
+        <small>Hutang dan jatuh tempo</small>
+      </div>
 
     </button>
 
 
     <button
+      class="drawer-item"
       onclick="openFromMenu('history')">
 
-      📋 Riwayat
+      <span>📋</span>
+
+      <div>
+        <strong>Riwayat</strong>
+        <small>Semua transaksi</small>
+      </div>
 
     </button>
 
 
     <button
+      class="drawer-item"
       onclick="openFromMenu('report')">
 
-      📊 Laporan
+      <span>📊</span>
+
+      <div>
+        <strong>Laporan</strong>
+        <small>Ringkasan keuangan</small>
+      </div>
 
     </button>
 
 
     <button
-      onclick="syncOffline()">
+      class="drawer-item"
+      onclick="syncOffline();closeMoreMenu()">
 
-      🔄 Sinkronkan Data
+      <span>🔄</span>
+
+      <div>
+        <strong>Sinkronkan Data</strong>
+        <small>Kirim data ke Google Sheet</small>
+      </div>
 
     </button>
 
@@ -1011,11 +1294,21 @@
 
     <div class="modal-head">
 
-      <h2>
-        Tambah Barang
-      </h2>
+      <div>
+
+        <h2>
+          Tambah Barang
+        </h2>
+
+        <p>
+          Masukkan data barang toko
+        </p>
+
+      </div>
+
 
       <button
+        class="close-btn"
         onclick="closeModal('barangModal')">
 
         ×
@@ -1029,51 +1322,56 @@
       id="barangForm">
 
 
-      <label>
+      <label for="barangNama">
         Nama Barang
       </label>
 
       <input
         id="barangNama"
         required
-        placeholder="LED 12W">
+        placeholder="Contoh: LED 12W">
 
 
-      <label>
+      <label for="barangModalPrice">
         Harga Modal
       </label>
 
       <input
         id="barangModalPrice"
         type="number"
+        inputmode="numeric"
         min="0"
-        required>
+        required
+        placeholder="0">
 
 
-      <label>
+      <label for="barangJualPrice">
         Harga Jual
       </label>
 
       <input
         id="barangJualPrice"
         type="number"
+        inputmode="numeric"
         min="0"
-        required>
+        required
+        placeholder="0">
 
 
-      <label>
+      <label for="barangStok">
         Stok Awal
       </label>
 
       <input
         id="barangStok"
         type="number"
+        inputmode="numeric"
         min="0"
         value="0">
 
 
       <button
-        class="primary-btn"
+        class="primary-btn big-btn"
         type="submit">
 
         Simpan Barang
@@ -1102,11 +1400,21 @@
 
     <div class="modal-head">
 
-      <h2>
-        Tambah Hutang
-      </h2>
+      <div>
+
+        <h2>
+          Tambah Hutang
+        </h2>
+
+        <p>
+          Catat hutang baru
+        </p>
+
+      </div>
+
 
       <button
+        class="close-btn"
         onclick="closeModal('hutangModal')">
 
         ×
@@ -1120,27 +1428,30 @@
       id="hutangForm">
 
 
-      <label>
+      <label for="hutangNama">
         Nama / Pihak
       </label>
 
       <input
         id="hutangNama"
-        required>
+        required
+        placeholder="Contoh: Supplier A">
 
 
-      <label>
+      <label for="hutangNominal">
         Nominal
       </label>
 
       <input
         id="hutangNominal"
         type="number"
+        inputmode="numeric"
         min="0"
-        required>
+        required
+        placeholder="Rp 0">
 
 
-      <label>
+      <label for="hutangTempo">
         Jatuh Tempo
       </label>
 
@@ -1149,16 +1460,17 @@
         type="date">
 
 
-      <label>
+      <label for="hutangKeterangan">
         Keterangan
       </label>
 
       <input
-        id="hutangKeterangan">
+        id="hutangKeterangan"
+        placeholder="Opsional">
 
 
       <button
-        class="primary-btn"
+        class="primary-btn big-btn"
         type="submit">
 
         Simpan Hutang
@@ -1183,170 +1495,214 @@
 </div>
 
 
-<!-- =====================================================
-     APP JS
-===================================================== -->
-
 <script src="app.js"></script>
 
 
-<!-- =====================================================
-     TAMBAHAN:
-     Render data transaksi pada halaman Transaksi
-===================================================== -->
-
 <script>
 
-function renderTransactionPage() {
+/* =====================================================
+   TAMBAHAN UI MOBILE
+===================================================== */
 
-  const el =
-    document.getElementById(
-      "transactionPageList"
-    );
+function filterBarang(keyword) {
 
-  if (!el) return;
+  keyword =
+    String(keyword || "")
+      .toLowerCase()
+      .trim();
 
+  document
+    .querySelectorAll("#barangList .product-item")
+    .forEach(item => {
 
-  const rows =
-    Array.isArray(appData.history)
-      ? appData.history
-      : [];
-
-
-  /*
-   * Khusus pemasukan dan pengeluaran
-   */
-
-  const transactions =
-    rows.filter(item => {
-
-      const entity =
-        String(
-          item.entity || ""
-        ).toUpperCase();
-
-      const jenis =
-        String(
-          item.jenis ||
-          item.tipe ||
-          ""
-        ).toUpperCase();
-
-      return (
-        entity === "TRANSAKSI" &&
-        (
-          jenis === "PEMASUKAN" ||
-          jenis === "PENGELUARAN"
-        )
-      );
+      item.style.display =
+        item.textContent
+          .toLowerCase()
+          .includes(keyword)
+            ? ""
+            : "none";
 
     });
-
-
-  if (!transactions.length) {
-
-    el.innerHTML =
-      `<div class="empty">
-        Belum ada data pemasukan/pengeluaran.
-      </div>`;
-
-    return;
-
-  }
-
-
-  el.innerHTML =
-    transactions
-      .slice(0, 100)
-      .map(transactionHTML)
-      .join("");
 
 }
 
 
-/*
- * Bungkus renderAll lama agar
- * halaman transaksi ikut diperbarui.
- */
+function filterHistory(keyword) {
 
-const _renderAllAsli =
-  window.renderAll;
+  keyword =
+    String(keyword || "")
+      .toLowerCase()
+      .trim();
+
+  document
+    .querySelectorAll("#historyList .transaction-item")
+    .forEach(item => {
+
+      item.style.display =
+        item.textContent
+          .toLowerCase()
+          .includes(keyword)
+            ? ""
+            : "none";
+
+    });
+
+}
 
 
-window.renderAll =
-  function() {
+/* TOTAL PENJUALAN */
+
+function updateJualTotal() {
+
+  const qty =
+    Number(
+      document.getElementById("jualQty")?.value
+    ) || 0;
+
+  const harga =
+    Number(
+      document.getElementById("jualHarga")?.value
+    ) || 0;
+
+  const el =
+    document.getElementById("jualTotalPreview");
+
+  if (el) {
+
+    el.textContent =
+      rupiah(qty * harga);
+
+  }
+
+}
+
+
+/* TOTAL BELANJA */
+
+function updateBelanjaTotal() {
+
+  const qty =
+    Number(
+      document.getElementById("belanjaQty")?.value
+    ) || 0;
+
+  const harga =
+    Number(
+      document.getElementById("belanjaHarga")?.value
+    ) || 0;
+
+  const el =
+    document.getElementById("belanjaTotalPreview");
+
+  if (el) {
+
+    el.textContent =
+      rupiah(qty * harga);
+
+  }
+
+}
+
+
+/* EVENT TOTAL */
+
+document.addEventListener(
+  "input",
+  function(e) {
 
     if (
-      typeof _renderAllAsli ===
-      "function"
+      e.target.id === "jualQty" ||
+      e.target.id === "jualHarga"
     ) {
 
-      _renderAllAsli();
+      updateJualTotal();
 
     }
 
-    renderTransactionPage();
-
-  };
-
-
-/*
- * Bungkus renderHistory
- * agar setelah simpan transaksi,
- * data langsung terlihat.
- */
-
-const _renderHistoryAsli =
-  window.renderHistory;
-
-
-window.renderHistory =
-  function() {
 
     if (
-      typeof _renderHistoryAsli ===
-      "function"
+      e.target.id === "belanjaQty" ||
+      e.target.id === "belanjaHarga"
     ) {
 
-      _renderHistoryAsli();
+      updateBelanjaTotal();
 
     }
 
-    renderTransactionPage();
-
-  };
-
-
-/*
- * Pastikan saat membuka halaman
- * transaksi data langsung dirender.
- */
-
-const _showPageAsli =
-  window.showPage;
+  }
+);
 
 
-window.showPage =
-  function(name) {
+/* KETIKA PILIH BARANG BELANJA */
+
+document.addEventListener(
+  "change",
+  function(e) {
 
     if (
-      typeof _showPageAsli ===
-      "function"
+      e.target.id === "belanjaBarang"
     ) {
 
-      _showPageAsli(name);
+      const barang =
+        appData.barang.find(
+          x =>
+            String(x.id) ===
+            String(e.target.value)
+        );
+
+      if (barang) {
+
+        const harga =
+          document.getElementById(
+            "belanjaHarga"
+          );
+
+        if (harga) {
+
+          harga.value =
+            barang.hargaModal || 0;
+
+        }
+
+      }
+
+      updateBelanjaTotal();
 
     }
 
+  }
+);
+
+
+/* KLIK LUAR QUICK MENU */
+
+document.addEventListener(
+  "click",
+  function(e) {
+
+    const menu =
+      document.getElementById(
+        "quickAddMenu"
+      );
+
+    const plus =
+      document.querySelector(
+        ".nav-plus"
+      );
+
     if (
-      name === "transaksi"
+      menu &&
+      menu.classList.contains("show") &&
+      !menu.contains(e.target) &&
+      !plus.contains(e.target)
     ) {
 
-      renderTransactionPage();
+      closeQuickAdd();
 
     }
 
-  };
+  }
+);
 
 </script>
 
