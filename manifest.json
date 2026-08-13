@@ -1,0 +1,19 @@
+{
+  "name": "CatatKu",
+  "short_name": "CatatKu",
+  "description": "Wallet keuangan pribadi dan toko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#2563eb",
+  "background_color": "#f5f7fb",
+  "icons": [
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
