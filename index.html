@@ -1103,36 +1103,44 @@ async function loadKategori(){
   }
 }
 
-function renderKategori(){
-  const el = document.getElementById('kategoriList');
-  if(!DATA.kategori.length){
-    el.innerHTML = '<div class="empty">Belum ada kategori.</div>';
-    return;
+async function loadKategori(){
+  try{
+    const res = await api('kategori');
+    // Pastikan data kategori berupa array
+    DATA.kategori = Array.isArray(res) ? res : [];
+    populateSelects();
+    renderKategori();
+  }catch(err){
+    console.error('Gagal memuat kategori:', err);
   }
-  el.innerHTML = DATA.kategori.map(k => `
-    <div style="padding:10px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-      <div>
-        <strong>${esc(k.Nama)}</strong>
-        <small style="color:#64748b; display:block;">Jenis: ${esc(k.Jenis)}</small>
-      </div>
-    </div>
-  `).join('');
 }
 
 function populateSelects(){
-  const katOptions = DATA.kategori.map(k => `<option value="${esc(k.Nama)}">${esc(k.Nama)} (${esc(k.Jenis)})</option>`).join('');
+  if (!DATA.kategori || !DATA.kategori.length) return;
+
+  // Menyesuaikan dengan struktur key objek dari backend ('Nama Kategori' atau 'Nama')
+  const katOptions = DATA.kategori.map(k => {
+    const namaKat = k['Nama Kategori'] || k.Nama || '';
+    const jenisKat = k.Jenis || '';
+    return `<option value="${esc(namaKat)}">${esc(namaKat)} (${esc(jenisKat)})</option>`;
+  }).join('');
+
   const masukKat = document.getElementById('masukKategori');
   const keluarKat = document.getElementById('keluarKategori');
   const barangKat = document.getElementById('barangKategori');
+
   if(masukKat) masukKat.innerHTML = katOptions;
   if(keluarKat) keluarKat.innerHTML = katOptions;
   if(barangKat) barangKat.innerHTML = katOptions;
 
-  const barangOptions = DATA.barang.map(b => `<option value="${esc(b.Nama)}">${esc(b.Nama)} (Stok: ${b.Stok || 0})</option>`).join('');
-  const jualBarang = document.getElementById('jualBarang');
-  const belanjaBarang = document.getElementById('belanjaBarang');
-  if(jualBarang) jualBarang.innerHTML = barangOptions;
-  if(belanjaBarang) belanjaBarang.innerHTML = '<option value="">-- Barang Baru / Lainnya --</option>' + barangOptions;
+  // Populate select untuk barang di kasir dan belanja
+  if(DATA.barang && DATA.barang.length) {
+    const barangOptions = DATA.barang.map(b => `<option value="${esc(b.ID || b.Nama)}">${esc(b.['Nama Barang'] || b.Nama)} (Stok: ${b.Stok || 0})</option>`).join('');
+    const jualBarang = document.getElementById('jualBarang');
+    const belanjaBarang = document.getElementById('belanjaBarang');
+    if(jualBarang) jualBarang.innerHTML = barangOptions;
+    if(belanjaBarang) belanjaBarang.innerHTML = '<option value="">-- Barang Baru / Lainnya --</option>' + barangOptions;
+  }
 }
 
 async function loadBarang(){
