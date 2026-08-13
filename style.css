@@ -821,3 +821,216 @@ select:focus {
   }
 
 }
+/* =====================================================
+   MENU BAWAH - LEBIH BESAR & WARNA BERBEDA
+   ===================================================== */
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+
+  height: 78px;
+  padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+
+  box-shadow:
+    0 -5px 20px rgba(0,0,0,.10);
+}
+
+
+/* Semua tombol */
+
+.bottom-nav button,
+.bottom-nav .nav-item {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 4px;
+
+  border: 0;
+  border-radius: 14px;
+
+  background: transparent;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform .15s ease,
+    background .15s ease;
+}
+
+
+/* ICON LEBIH BESAR */
+
+.bottom-nav button .icon,
+.bottom-nav .nav-item .icon,
+.bottom-nav button svg,
+.bottom-nav .nav-item svg {
+  width: 27px;
+  height: 27px;
+
+  font-size: 27px;
+
+  line-height: 1;
+}
+
+
+/* =====================================================
+   WARNA TIAP MENU
+   Sesuaikan nama class jika berbeda
+   ===================================================== */
+
+/* Dashboard */
+
+.bottom-nav button:nth-child(1),
+.bottom-nav .nav-item:nth-child(1) {
+  color: #2563eb;
+}
+
+.bottom-nav button:nth-child(1).active,
+.bottom-nav .nav-item:nth-child(1).active {
+  background: #dbeafe;
+}
+
+
+/* Transaksi */
+
+.bottom-nav button:nth-child(2),
+.bottom-nav .nav-item:nth-child(2) {
+  color: #16a34a;
+}
+
+.bottom-nav button:nth-child(2).active,
+.bottom-nav .nav-item:nth-child(2).active {
+  background: #dcfce7;
+}
+
+
+/* Barang */
+
+.bottom-nav button:nth-child(3),
+.bottom-nav .nav-item:nth-child(3) {
+  color: #f59e0b;
+}
+
+.bottom-nav button:nth-child(3).active,
+.bottom-nav .nav-item:nth-child(3).active {
+  background: #fef3c7;
+}
+
+
+/* Hutang */
+
+.bottom-nav button:nth-child(4),
+.bottom-nav .nav-item:nth-child(4) {
+  color: #ef4444;
+}
+
+.bottom-nav button:nth-child(4).active,
+.bottom-nav .nav-item:nth-child(4).active {
+  background: #fee2e2;
+}
+
+
+/* Lainnya */
+
+.bottom-nav button:nth-child(5),
+.bottom-nav .nav-item:nth-child(5) {
+  color: #7c3aed;
+}
+
+.bottom-nav button:nth-child(5).active,
+.bottom-nav .nav-item:nth-child(5).active {
+  background: #ede9fe;
+}
+
+
+/* Efek tekan HP */
+
+.bottom-nav button:active,
+.bottom-nav .nav-item:active {
+  transform: scale(.92);
+}
+
+
+/* =====================================================
+   BADGE / NOTIFIKASI
+   ===================================================== */
+
+.bottom-nav .badge {
+  position: absolute;
+
+  top: 4px;
+  right: 18%;
+
+  min-width: 18px;
+  height: 18px;
+
+  padding: 0 5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 20px;
+
+  background: #ef4444;
+  color: white;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+/* =====================================================
+   AGAR KONTEN TIDAK TERTUTUP MENU
+   ===================================================== */
+
+body {
+  padding-bottom: 90px;
+}
+
+
+/* =====================================================
+   HP KECIL
+   ===================================================== */
+
+@media (max-width: 380px) {
+
+  .bottom-nav {
+    height: 72px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .bottom-nav button,
+  .bottom-nav .nav-item {
+    font-size: 10px;
+    border-radius: 11px;
+  }
+
+  .bottom-nav button svg,
+  .bottom-nav .nav-item svg,
+  .bottom-nav button .icon,
+  .bottom-nav .nav-item .icon {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+  }
+
+}
