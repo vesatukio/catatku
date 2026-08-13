@@ -36,32 +36,47 @@ async function loadHistoryDashboard(){
 
 function renderHistoryDashboard(){
   const el = document.getElementById('historyDashboard');
-  if(!DATA.history.length){
-    el.innerHTML = '<div class="empty">Belum ada transaksi.</div>';
+  const btnToggle = document.getElementById('btnToggleHistory');
+
+  if(!DATA.history || !DATA.history.length){
+    el.innerHTML = '<div style="font-size: 15px; color: var(--text-muted); text-align: center; padding: 12px;">Belum ada transaksi.</div>';
+    if(btnToggle) btnToggle.style.display = 'none';
     return;
   }
-  el.innerHTML = DATA.history.slice(0,5).map(t => {
+
+  const dataTampil = tampilkanSemuaHistoryFlag ? DATA.history : DATA.history.slice(0, 5);
+
+  el.innerHTML = dataTampil.map((t, index) => {
     const masuk = t.Jenis === 'Masuk';
+    const warnaNominal = masuk ? 'var(--success)' : 'var(--danger)';
+    const tanda = masuk ? '+' : '-';
+    
+    // Asumsikan t.id atau index digunakan sebagai pengenal data
+    const idData = t.id !== undefined ? t.id : index;
+
     return `
-      <div style="padding:10px 0; border-bottom:1px solid #eee">
-        <div style="display:flex; justify-content:space-between">
-          <strong>${esc(t.Keterangan || t.Kategori)}</strong>
-          <strong class="${masuk ? 'green' : 'red'}">${masuk ? '+' : '-'}${rupiah(t.Jumlah)}</strong>
+      <div style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong style="color: var(--text-main); font-size: 16px;">${esc(t.Keterangan || t.Kategori)}</strong>
+          <strong style="color: ${warnaNominal}; font-size: 16px;">${tanda}${rupiah(t.Jumlah)}</strong>
         </div>
-        <small style="color:#64748b">${esc(t.Sumber)} · ${esc(t.Metode)} · ${esc(t.Tanggal)}</small>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+          <small style="color: var(--text-muted); font-size: 13px;">${esc(t.Sumber)} · ${esc(t.Metode)} · ${esc(t.Tanggal)}</small>
+          <div>
+            <button onclick="editTransaksi('${idData}')" style="background: #e0e7ff; color: #1d4ed8; border: none; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin-right: 4px;">Edit</button>
+            <button onclick="hapusTransaksi('${idData}')" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;">Hapus</button>
+          </div>
+        </div>
       </div>
     `;
   }).join('');
-}
 
-async function loadNotifikasiDashboard(){
-  try{
-    const notif = await api('notifikasi');
-    const el = document.getElementById('dashboardAlert');
-    if(notif && notif.length){
-      el.innerHTML = `<div class="alert">⚠️ Ada ${notif.length} pemberitahuan / tagihan jatuh tempo!</div>`;
+  if(btnToggle) {
+    if(DATA.history.length > 5) {
+      btnToggle.style.display = 'block';
+      btnToggle.innerText = tampilkanSemuaHistoryFlag ? 'Sembunyikan' : `Lihat Semua (${DATA.history.length})`;
     } else {
-      el.innerHTML = '';
+      btnToggle.style.display = 'none';
     }
-  }catch(err){}
+  }
 }
