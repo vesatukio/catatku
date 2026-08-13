@@ -1,1049 +1,701 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-
-<meta name="theme-color" content="#2563eb">
-<meta name="apple-mobile-web-app-capable" content="yes">
-
-<title>CatatKu — Keuangan Pribadi & Toko</title>
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#2563eb">
-<link rel="apple-touch-icon" href="./icon-192.png">
-
+<!-- =====================================================
+     CATATKU - RINGKASAN + AKSI CEPAT + MENU LAINNYA
+====================================================== -->
 
 <style>
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
 
-body{
-  font-family:Arial,sans-serif;
-  background:#f4f6f8;
-  color:#172033;
-  padding-bottom:75px;
-}
+/* =====================================================
+   RINGKASAN DATA
+====================================================== */
 
-button,input,select,textarea{
-  font:inherit;
-}
+.summary-row {
+  width: 100%;
+  box-sizing: border-box;
 
-button{
-  cursor:pointer;
-  border:0;
-}
+  display: grid;
+  grid-template-columns:
+    1.2fr 1fr 1fr 1fr;
 
-.header{
-  position:sticky;
-  top:0;
-  z-index:20;
-  background:#2563eb;
-  color:white;
-  padding:15px;
-  box-shadow:0 2px 8px #0002;
-}
+  gap: 5px;
 
-.header-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
+  background: #ffffff;
 
-.logo{
-  font-size:21px;
-  font-weight:bold;
-}
+  border-radius: 16px;
 
-.subtitle{
-  font-size:12px;
-  opacity:.85;
-  margin-top:3px;
-}
+  padding: 10px 7px;
 
-.icon-btn{
-  width:40px;
-  height:40px;
-  border-radius:50%;
-  background:#ffffff22;
-  color:white;
-  font-size:20px;
-}
+  margin: 0 0 15px 0;
 
-.container{
-  max-width:1000px;
-  margin:auto;
-  padding:14px;
+  box-shadow:
+    0 4px 15px rgba(0,0,0,.07);
 }
 
-.page{
-  display:none;
-}
+.summary-item {
+  min-width: 0;
 
-.page.active{
-  display:block;
-}
+  text-align: center;
 
-.card{
-  background:white;
-  border-radius:16px;
-  padding:15px;
-  margin-bottom:14px;
-  box-shadow:0 2px 10px #0000000d;
-}
+  padding: 3px 2px;
 
-.balance{
-  background:linear-gradient(135deg,#2563eb,#1d4ed8);
-  color:white;
+  border-right:
+    1px solid #e5e7eb;
 }
 
-.balance-label{
-  font-size:13px;
-  opacity:.85;
+.summary-item:last-child {
+  border-right: none;
 }
 
-.balance-value{
-  font-size:29px;
-  font-weight:bold;
-  margin-top:7px;
-}
+.summary-item span {
+  display: block;
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-}
+  font-size: 10px;
 
-.stat{
-  background:white;
-  border-radius:14px;
-  padding:14px;
-  box-shadow:0 2px 8px #0000000c;
-}
+  line-height: 14px;
 
-.stat-title{
-  font-size:12px;
-  color:#64748b;
-}
+  color: #64748b;
 
-.stat-value{
-  font-size:18px;
-  font-weight:bold;
-  margin-top:7px;
-}
+  white-space: nowrap;
 
-.green{
-  color:#16a34a;
-}
+  overflow: hidden;
 
-.red{
-  color:#dc2626;
+  text-overflow: ellipsis;
 }
 
-.orange{
-  color:#ea580c;
-}
+.summary-item strong {
+  display: block;
 
-.blue{
-  color:#2563eb;
-}
+  margin-top: 2px;
 
-.section-title{
-  font-size:18px;
-  font-weight:bold;
-  margin:5px 0 12px;
-}
+  font-size: 12px;
 
-.actions{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-}
+  line-height: 17px;
 
-.action{
-  background:white;
-  padding:15px;
-  border-radius:14px;
-  text-align:left;
-  box-shadow:0 2px 8px #0000000c;
-  font-weight:bold;
-}
+  font-weight: 800;
 
-.action small{
-  display:block;
-  color:#64748b;
-  margin-top:5px;
-  font-weight:normal;
-}
+  color: #0f172a;
 
-.form-group{
-  margin-bottom:12px;
-}
+  white-space: nowrap;
 
-label{
-  display:block;
-  font-size:13px;
-  font-weight:bold;
-  margin-bottom:5px;
-}
+  overflow: hidden;
 
-input,
-select,
-textarea{
-  width:100%;
-  padding:12px;
-  border:1px solid #dbe1e8;
-  border-radius:10px;
-  background:white;
-  outline:none;
+  text-overflow: ellipsis;
 }
 
-input:focus,
-select:focus,
-textarea:focus{
-  border-color:#2563eb;
-}
 
-textarea{
-  min-height:80px;
-  resize:vertical;
-}
+/* =====================================================
+   AKSI CEPAT
+====================================================== */
 
-.btn{
-  width:100%;
-  padding:13px;
-  border-radius:11px;
-  font-weight:bold;
-  margin-top:5px;
-}
+.quick-section {
+  width: 100%;
 
-.btn-primary{
-  background:#2563eb;
-  color:white;
+  margin: 0 0 15px 0;
 }
 
-.btn-success{
-  background:#16a34a;
-  color:white;
-}
+.section-title {
+  display: flex;
 
-.btn-danger{
-  background:#dc2626;
-  color:white;
-}
+  align-items: center;
 
-.btn-secondary{
-  background:#e5e7eb;
-  color:#111827;
-}
+  justify-content: space-between;
 
-.btn-warning{
-  background:#f59e0b;
-  color:white;
+  margin-bottom: 11px;
 }
 
-.row{
-  display:flex;
-  gap:8px;
-}
+.section-title h2 {
+  margin: 0;
 
-.row>*{
-  flex:1;
-}
+  font-size: 19px;
 
-.table-wrap{
-  overflow-x:auto;
-}
+  line-height: 24px;
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:600px;
-}
+  font-weight: 800;
 
-th,td{
-  padding:10px 8px;
-  border-bottom:1px solid #e5e7eb;
-  text-align:left;
-  font-size:12px;
+  color: #0f172a;
 }
 
-th{
-  background:#f8fafc;
-}
+.section-title p {
+  margin: 3px 0 0;
 
-.badge{
-  display:inline-block;
-  padding:5px 8px;
-  border-radius:20px;
-  font-size:11px;
-  font-weight:bold;
-}
+  font-size: 12px;
 
-.badge-green{
-  background:#dcfce7;
-  color:#166534;
-}
+  line-height: 16px;
 
-.badge-red{
-  background:#fee2e2;
-  color:#991b1b;
+  color: #64748b;
 }
 
-.badge-orange{
-  background:#ffedd5;
-  color:#9a3412;
-}
+
+/* =====================================================
+   GRID TOMBOL
+====================================================== */
 
-.badge-blue{
-  background:#dbeafe;
-  color:#1e40af;
+.quick-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
 }
+
+
+/* =====================================================
+   TOMBOL UTAMA
+====================================================== */
 
-.empty{
-  text-align:center;
-  color:#64748b;
-  padding:25px;
+.quick-card {
+  position: relative;
+
+  width: 100%;
+
+  min-height: 128px;
+
+  box-sizing: border-box;
+
+  border: 0;
+
+  border-radius: 19px;
+
+  padding: 17px;
+
+  color: #ffffff;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 8px 18px rgba(0,0,0,.12);
+
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease;
 }
+
+.quick-card::after {
+  content: "";
 
-.loading{
-  text-align:center;
-  padding:25px;
-  color:#64748b;
+  position: absolute;
+
+  width: 80px;
+  height: 80px;
+
+  right: -25px;
+  top: -25px;
+
+  background:
+    rgba(255,255,255,.12);
+
+  border-radius: 50%;
 }
+
+.quick-card:active {
+  transform: scale(.96);
 
-.bottom-nav{
-  position:fixed;
-  left:0;
-  right:0;
-  bottom:0;
-  z-index:30;
-  height:65px;
-  background:white;
-  border-top:1px solid #e5e7eb;
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  box-shadow:0 -3px 15px #00000010;
+  box-shadow:
+    0 4px 10px rgba(0,0,0,.10);
 }
+
+
+/* =====================================================
+   IKON
+====================================================== */
 
-.nav-btn{
-  background:white;
-  color:#64748b;
-  font-size:10px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:3px;
+.quick-icon {
+  display: block;
+
+  font-size: 35px;
+
+  line-height: 40px;
+
+  margin-bottom: 7px;
 }
+
+
+/* =====================================================
+   NAMA
+====================================================== */
+
+.quick-name {
+  display: block;
+
+  font-size: 17px;
+
+  line-height: 21px;
 
-.nav-btn span{
-  font-size:21px;
+  font-weight: 800;
+
+  letter-spacing: .1px;
 }
+
+
+/* =====================================================
+   KETERANGAN
+====================================================== */
+
+.quick-desc {
+  display: block;
 
-.nav-btn.active{
-  color:#2563eb;
-  font-weight:bold;
+  margin-top: 3px;
+
+  font-size: 11px;
+
+  line-height: 15px;
+
+  opacity: .92;
 }
+
 
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:100;
-  background:#0008;
-  padding:15px;
-  overflow:auto;
+/* =====================================================
+   WARNA PEMASUKAN
+====================================================== */
+
+.quick-card.pemasukan {
+  background:
+    linear-gradient(
+      135deg,
+      #15803d,
+      #22c55e
+    );
 }
+
 
-.modal.show{
-  display:block;
+/* =====================================================
+   WARNA PENGELUARAN
+====================================================== */
+
+.quick-card.pengeluaran {
+  background:
+    linear-gradient(
+      135deg,
+      #dc2626,
+      #f43f5e
+    );
 }
+
 
-.modal-box{
-  background:white;
-  border-radius:18px;
-  max-width:600px;
-  margin:30px auto;
-  padding:18px;
+/* =====================================================
+   WARNA PENJUALAN
+====================================================== */
+
+.quick-card.penjualan {
+  background:
+    linear-gradient(
+      135deg,
+      #1d4ed8,
+      #3b82f6
+    );
 }
+
 
-.modal-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:15px;
+/* =====================================================
+   WARNA BARANG
+====================================================== */
+
+.quick-card.barang {
+  background:
+    linear-gradient(
+      135deg,
+      #6d28d9,
+      #a855f7
+    );
 }
+
 
-.close{
-  background:#f1f5f9;
-  width:35px;
-  height:35px;
-  border-radius:50%;
+/* =====================================================
+   MENU LAINNYA
+====================================================== */
+
+.menu-dropdown {
+  width: 100%;
+
+  margin:
+    14px 0 90px 0;
 }
+
+
+/* =====================================================
+   TOMBOL DROPDOWN
+====================================================== */
+
+.dropdown-button {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 0;
+
+  background: #ffffff;
+
+  color: #0f172a;
+
+  padding: 15px 16px;
+
+  border-radius: 16px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  font-size: 15px;
 
-.menu-list{
-  display:grid;
-  gap:8px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 4px 15px rgba(0,0,0,.07);
+
+  transition:
+    background .15s ease,
+    transform .15s ease;
 }
+
+.dropdown-button:active {
+  transform: scale(.98);
 
-.menu-item{
-  padding:14px;
-  background:#f8fafc;
-  border-radius:12px;
-  font-weight:bold;
+  background: #f8fafc;
 }
+
+
+/* =====================================================
+   ISI DROPDOWN
+====================================================== */
+
+.dropdown-content {
+  display: none;
+
+  width: 100%;
 
-.alert{
-  background:#fff7ed;
-  border:1px solid #fed7aa;
-  color:#9a3412;
-  padding:12px;
-  border-radius:12px;
-  margin-bottom:12px;
+  box-sizing: border-box;
+
+  margin-top: 8px;
+
+  padding: 7px;
+
+  background: #ffffff;
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 5px 18px rgba(0,0,0,.08);
+
+  animation:
+    menuDown .18s ease;
 }
 
-.search{
-  margin-bottom:10px;
+.dropdown-content.show {
+  display: block;
 }
+
+
+@keyframes menuDown {
 
-@media(min-width:700px){
+  from {
+    opacity: 0;
 
-  .grid{
-    grid-template-columns:repeat(4,1fr);
+    transform:
+      translateY(-5px);
   }
 
-  .actions{
-    grid-template-columns:repeat(4,1fr);
-  }
+  to {
+    opacity: 1;
 
-  .bottom-nav{
-    max-width:700px;
-    left:50%;
-    transform:translateX(-50%);
-    border-radius:15px 15px 0 0;
+    transform:
+      translateY(0);
   }
 
 }
+
+
+/* =====================================================
+   ITEM MENU
+====================================================== */
+
+.dropdown-content button {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #1e293b;
+
+  padding: 13px 12px;
+
+  border-radius: 11px;
+
+  text-align: left;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+}
+
+.dropdown-content button:hover {
+  background: #f1f5f9;
+}
+
+.dropdown-content button:active {
+  background: #e2e8f0;
+
+  transform: scale(.99);
+}
+
+
+/* =====================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 360px) {
+
+  .quick-grid {
+    gap: 9px;
+  }
+
+  .quick-card {
+    min-height: 115px;
+
+    padding: 14px;
+
+    border-radius: 17px;
+  }
+
+  .quick-icon {
+    font-size: 31px;
+
+    line-height: 36px;
+  }
+
+  .quick-name {
+    font-size: 15px;
+  }
+
+  .quick-desc {
+    font-size: 10px;
+  }
+
+  .summary-row {
+    padding: 8px 4px;
+  }
+
+  .summary-item strong {
+    font-size: 11px;
+  }
+
+}
+
+
+/* =====================================================
+   TABLET / DESKTOP
+====================================================== */
+
+@media (min-width: 600px) {
+
+  .quick-grid {
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+  }
+
+  .quick-card {
+    min-height: 145px;
+  }
+
+}
+
 </style>
-</head>
 
-<body>
 
-<header class="header">
+<!-- =====================================================
+     DATA RINGKAS
+     LETAKKAN DI ATAS AKSI CEPAT
+====================================================== -->
 
-  <div class="header-row">
+<div class="summary-row">
+
+  <div class="summary-item">
+
+    <span>Saldo</span>
+
+    <strong id="saldo">
+      Rp0
+    </strong>
+
+  </div>
+
+
+  <div class="summary-item">
+
+    <span>Masuk</span>
+
+    <strong id="pemasukan">
+      Rp0
+    </strong>
+
+  </div>
+
+
+  <div class="summary-item">
+
+    <span>Keluar</span>
+
+    <strong id="pengeluaran">
+      Rp0
+    </strong>
+
+  </div>
+
+
+  <div class="summary-item">
+
+    <span>Hutang</span>
+
+    <strong id="totalHutang">
+      Rp0
+    </strong>
+
+  </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     AKSI CEPAT
+====================================================== -->
+
+<section class="quick-section">
+
+  <div class="section-title">
 
     <div>
-      <div class="logo">💰 CatatKu</div>
-      <div class="subtitle">
-        Keuangan Pribadi & Toko
-      </div>
+
+      <h2>
+        Aksi Cepat
+      </h2>
+
+      <p>
+        Catat transaksi dengan cepat
+      </p>
+
     </div>
+
+  </div>
+
+
+  <div class="quick-grid">
+
+
+    <!-- PEMASUKAN -->
 
     <button
-      class="icon-btn"
-      onclick="showPage('notifikasi')">
-      🔔
-    </button>
-
-  </div>
-
-</header>
-
-
-<main class="container">
-
-
-<!-- ==================================================
-     DASHBOARD
-================================================== -->
-
-<section id="page-dashboard" class="page active">
-
-  <div class="card balance">
-
-    <div class="balance-label">
-      Saldo Total
-    </div>
-
-    <div id="saldo"
-         class="balance-value">
-      Rp 0
-    </div>
-
-  </div>
-
-
-  <div class="grid">
-
-    <div class="stat">
-
-      <div class="stat-title">
-        Pemasukan Hari Ini
-      </div>
-
-      <div id="masukHari"
-           class="stat-value green">
-        Rp 0
-      </div>
-
-    </div>
-
-
-    <div class="stat">
-
-      <div class="stat-title">
-        Pengeluaran Hari Ini
-      </div>
-
-      <div id="keluarHari"
-           class="stat-value red">
-        Rp 0
-      </div>
-
-    </div>
-
-
-    <div class="stat">
-
-      <div class="stat-title">
-        Saldo Pribadi
-      </div>
-
-      <div id="saldoPribadi"
-           class="stat-value blue">
-        Rp 0
-      </div>
-
-    </div>
-
-
-    <div class="stat">
-
-      <div class="stat-title">
-        Saldo Toko
-      </div>
-
-      <div id="saldoToko"
-           class="stat-value blue">
-        Rp 0
-      </div>
-
-    </div>
-
-
-    <div class="stat">
-
-      <div class="stat-title">
-        Total Hutang
-      </div>
-
-      <div id="totalHutang"
-           class="stat-value orange">
-        Rp 0
-      </div>
-
-    </div>
-
-
-    <div class="stat">
-
-      <div class="stat-title">
-        Nilai Stok
-      </div>
-
-      <div id="nilaiStok"
-           class="stat-value">
-        Rp 0
-      </div>
-
-    </div>
-
-
-    <div class="stat">
-
-      <div class="stat-title">
-        Jumlah Barang
-      </div>
-
-      <div id="jumlahBarang"
-           class="stat-value">
-        0
-      </div>
-
-    </div>
-
-
-    <div class="stat">
-
-      <div class="stat-title">
-        Laba Bulan Ini
-      </div>
-
-      <div id="labaBulan"
-           class="stat-value green">
-        Rp 0
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <div class="section-title">
-      Aksi Cepat
-    </div>
-
-    <div class="actions">
-
-      <button
-        class="action"
-        onclick="openModal('modalTransaksi')">
-        💰 Pemasukan
-        <small>Catat uang masuk</small>
-      </button>
-
-      <button
-        class="action"
-        onclick="openModal('modalPengeluaran')">
-        💸 Pengeluaran
-        <small>Catat uang keluar</small>
-      </button>
-
-      <button
-        class="action"
-        onclick="showPage('kasir')">
-        🛒 Penjualan
-        <small>Kasir toko</small>
-      </button>
-
-      <button
-        class="action"
-        onclick="showPage('barang')">
-        📦 Barang
-        <small>Stok & harga</small>
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div id="dashboardAlert"></div>
-
-
-  <div class="card">
-
-    <div class="section-title">
-      Transaksi Terbaru
-    </div>
-
-    <div id="historyDashboard">
-      <div class="loading">
-        Memuat...
-      </div>
-    </div>
-
-  </div>
-
-</section>
-
-
-
-<!-- ==================================================
-     TRANSAKSI
-================================================== -->
-
-<section id="page-transaksi" class="page">
-
-  <div class="section-title">
-    💰 Keuangan
-  </div>
-
-  <div class="card">
-
-    <button
-      class="btn btn-success"
-      onclick="openModal('modalTransaksi')">
-      ➕ Tambah Pemasukan
-    </button>
-
-    <button
-      class="btn btn-danger"
-      onclick="openModal('modalPengeluaran')">
-      ➖ Tambah Pengeluaran
-    </button>
-
-  </div>
-
-
-  <div class="card">
-
-    <div class="section-title">
-      History Transaksi
-    </div>
-
-    <input
-      class="search"
-      id="searchHistory"
-      placeholder="🔎 Cari transaksi..."
-      oninput="renderHistory()">
-
-    <div id="historyList"></div>
-
-  </div>
-
-</section>
-
-
-
-<!-- ==================================================
-     KASIR
-================================================== -->
-
-<section id="page-kasir" class="page">
-
-  <div class="section-title">
-    🛒 Kasir / Penjualan
-  </div>
-
-  <div class="card">
-
-    <div class="form-group">
-
-      <label>Barang</label>
-
-      <select id="jualBarang"></select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Qty</label>
-
-      <input
-        type="number"
-        id="jualQty"
-        value="1"
-        min="1">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Harga Jual</label>
-
-      <input
-        type="number"
-        id="jualHarga">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Metode Pembayaran</label>
-
-      <select id="jualMetode">
-
-        <option>Cash</option>
-        <option>Transfer</option>
-        <option>QRIS</option>
-        <option>Bank</option>
-
-      </select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Catatan</label>
-
-      <textarea id="jualCatatan"></textarea>
-
-    </div>
-
-
-    <button
-      class="btn btn-primary"
-      onclick="simpanPenjualan()">
-
-      💾 Simpan Penjualan
+      type="button"
+      class="quick-card pemasukan"
+      onclick="bukaTransaksi('Masuk')">
+
+      <span class="quick-icon">
+        💰
+      </span>
+
+      <span class="quick-name">
+        Pemasukan
+      </span>
+
+      <span class="quick-desc">
+        Catat uang masuk
+      </span>
 
     </button>
 
-  </div>
 
 
-  <div class="card">
-
-    <div class="section-title">
-      Penjualan Terbaru
-    </div>
-
-    <div id="penjualanList"></div>
-
-  </div>
-
-</section>
-
-
-
-<!-- ==================================================
-     BARANG
-================================================== -->
-
-<section id="page-barang" class="page">
-
-  <div class="section-title">
-    📦 Barang & Stok
-  </div>
-
-  <button
-    class="btn btn-primary"
-    onclick="openModal('modalBarang')">
-
-    ➕ Tambah Barang
-
-  </button>
-
-
-  <div class="card">
-
-    <input
-      class="search"
-      id="searchBarang"
-      placeholder="🔎 Cari barang..."
-      oninput="renderBarang()">
-
-    <div id="barangList"></div>
-
-  </div>
-
-</section>
-
-
-
-<!-- ==================================================
-     BELANJA
-================================================== -->
-
-<section id="page-belanja" class="page">
-
-  <div class="section-title">
-    🧾 Belanja Stok
-  </div>
-
-  <div class="card">
-
-    <div class="form-group">
-
-      <label>Barang</label>
-
-      <select id="belanjaBarang"></select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Nama Barang</label>
-
-      <input id="belanjaNama">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Qty</label>
-
-      <input
-        type="number"
-        id="belanjaQty"
-        min="1"
-        value="1">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Harga Modal</label>
-
-      <input
-        type="number"
-        id="belanjaHarga"
-        min="0">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Supplier</label>
-
-      <input id="belanjaSupplier">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Dibayar</label>
-
-      <input
-        type="number"
-        id="belanjaDibayar"
-        min="0"
-        value="0">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Jatuh Tempo</label>
-
-      <input
-        type="date"
-        id="belanjaTempo">
-
-    </div>
-
+    <!-- PENGELUARAN -->
 
     <button
-      class="btn btn-primary"
-      onclick="simpanBelanja()">
+      type="button"
+      class="quick-card pengeluaran"
+      onclick="bukaTransaksi('Keluar')">
 
-      💾 Simpan Belanja
+      <span class="quick-icon">
+        💸
+      </span>
+
+      <span class="quick-name">
+        Pengeluaran
+      </span>
+
+      <span class="quick-desc">
+        Catat uang keluar
+      </span>
 
     </button>
 
-  </div>
 
 
-  <div class="card">
+    <!-- PENJUALAN -->
 
-    <div class="section-title">
-      Riwayat Belanja
-    </div>
+    <button
+      type="button"
+      class="quick-card penjualan"
+      onclick="bukaPenjualan()">
 
-    <div id="belanjaList"></div>
+      <span class="quick-icon">
+        🛒
+      </span>
 
-  </div>
+      <span class="quick-name">
+        Penjualan
+      </span>
 
-</section>
+      <span class="quick-desc">
+        Kasir toko
+      </span>
 
-
-
-<!-- ==================================================
-     HUTANG
-================================================== -->
-
-<section id="page-hutang" class="page">
-
-  <div class="section-title">
-    💳 Hutang & Tagihan
-  </div>
-
-  <button
-    class="btn btn-primary"
-    onclick="openModal('modalHutang')">
-
-    ➕ Tambah Hutang / Tagihan
-
-  </button>
-
-
-  <div id="hutangList"
-       class="card">
-
-  </div>
-
-</section>
+    </button>
 
 
 
-<!-- ==================================================
-     NOTIFIKASI
-================================================== -->
+    <!-- BARANG -->
 
-<section id="page-notifikasi" class="page">
+    <button
+      type="button"
+      class="quick-card barang"
+      onclick="bukaBarang()">
 
-  <div class="section-title">
-    🔔 Notifikasi Tagihan
-  </div>
+      <span class="quick-icon">
+        📦
+      </span>
 
-  <div id="notifikasiList"></div>
+      <span class="quick-name">
+        Barang
+      </span>
 
-</section>
+      <span class="quick-desc">
+        Stok & harga
+      </span>
 
+    </button>
 
-
-<!-- ==================================================
-     LAPORAN
-================================================== -->
-
-<section id="page-laporan" class="page">
-
-  <div class="section-title">
-    📊 Laporan
-  </div>
-
-
-  <div class="card">
-
-    <div class="actions">
-
-      <button
-        class="action"
-        onclick="loadLaporan('hari')">
-
-        📅 Hari Ini
-
-      </button>
-
-      <button
-        class="action"
-        onclick="loadLaporan('minggu')">
-
-        📆 Minggu Ini
-
-      </button>
-
-      <button
-        class="action"
-        onclick="loadLaporan('bulan')">
-
-        🗓️ Bulan Ini
-
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div id="laporanResult"></div>
-
-
-  <div class="card">
-
-    <div class="section-title">
-      Laba Rugi Bulan Ini
-    </div>
-
-    <div id="labaResult"></div>
 
   </div>
 
@@ -1051,199 +703,121 @@ th{
 
 
 
-<!-- ==================================================
-     PENGATURAN
-================================================== -->
+<!-- =====================================================
+     MENU LAINNYA
+====================================================== -->
 
-<section id="page-pengaturan" class="page">
+<div class="menu-dropdown">
 
-  <div class="section-title">
-    ⚙️ Pengaturan
-  </div>
-
-  <div class="card">
-
-    <div class="menu-list">
-
-      <button
-        class="menu-item"
-        onclick="showPage('kategori')">
-
-        🏷️ Kelola Kategori
-
-      </button>
-
-      <button
-        class="menu-item"
-        onclick="setupCheck()">
-
-        🔄 Periksa Database
-
-      </button>
-
-      <button
-        class="menu-item"
-        onclick="location.reload()">
-
-        ♻️ Refresh Data
-
-      </button>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-
-<!-- ==================================================
-     KATEGORI
-================================================== -->
-
-<section id="page-kategori" class="page">
-
-  <div class="section-title">
-    🏷️ Kategori
-  </div>
-
-  <div class="card">
-
-    <div id="kategoriList"></div>
-
-  </div>
-
-</section>
-
-</main>
-
-
-
-<!-- ==================================================
-     BOTTOM NAV
-================================================== -->
-
-<nav class="bottom-nav">
 
   <button
-    class="nav-btn active"
-    data-page="dashboard"
-    onclick="showPage('dashboard')">
+    type="button"
+    class="dropdown-button"
+    onclick="toggleMenuLainnya()">
 
-    <span>🏠</span>
-    Home
+    <span>
+      ☰ &nbsp; Menu Lainnya
+    </span>
+
+    <span id="dropdownArrow">
+      ⌄
+    </span>
 
   </button>
 
 
-  <button
-    class="nav-btn"
-    data-page="transaksi"
-    onclick="showPage('transaksi')">
-
-    <span>💰</span>
-    Keuangan
-
-  </button>
+  <div
+    id="menuLainnya"
+    class="dropdown-content">
 
 
-  <button
-    class="nav-btn"
-    data-page="kasir"
-    onclick="showPage('kasir')">
+    <button
+      type="button"
+      onclick="bukaBelanja()">
 
-    <span>🛒</span>
-    Toko
+      <span>🛒</span>
 
-  </button>
+      <span>Belanja</span>
 
-
-  <button
-    class="nav-btn"
-    data-page="laporan"
-    onclick="showPage('laporan')">
-
-    <span>📊</span>
-    Laporan
-
-  </button>
+    </button>
 
 
-  <button
-    class="nav-btn"
-    onclick="openMenu()">
+    <button
+      type="button"
+      onclick="bukaHutang()">
 
-    <span>☰</span>
-    Menu
+      <span>💳</span>
 
-  </button>
+      <span>Hutang</span>
 
-</nav>
-
+    </button>
 
 
-<!-- ==================================================
-     MENU MODAL
-================================================== -->
+    <button
+      type="button"
+      onclick="bukaTagihan()">
 
-<div
-  id="modalMenu"
-  class="modal">
+      <span>🧾</span>
 
-  <div class="modal-box">
+      <span>Tagihan</span>
 
-    <div class="modal-header">
-
-      <h3>Menu CatatKu</h3>
-
-      <button
-        class="close"
-        onclick="closeModal('modalMenu')">
-        ✕
-      </button>
-
-    </div>
+    </button>
 
 
-    <div class="menu-list">
+    <button
+      type="button"
+      onclick="bukaLaporan()">
 
-      <button
-        class="menu-item"
-        onclick="goMenu('barang')">
-        📦 Barang & Stok
-      </button>
+      <span>📊</span>
 
-      <button
-        class="menu-item"
-        onclick="goMenu('belanja')">
-        🧾 Belanja Stok
-      </button>
+      <span>Laporan</span>
 
-      <button
-        class="menu-item"
-        onclick="goMenu('hutang')">
-        💳 Hutang & Tagihan
-      </button>
+    </button>
 
-      <button
-        class="menu-item"
-        onclick="goMenu('notifikasi')">
-        🔔 Notifikasi
-      </button>
 
-      <button
-        class="menu-item"
-        onclick="goMenu('kategori')">
-        🏷️ Kategori
-      </button>
+    <button
+      type="button"
+      onclick="bukaLabaRugi()">
 
-      <button
-        class="menu-item"
-        onclick="goMenu('pengaturan')">
-        ⚙️ Pengaturan
-      </button>
+      <span>📈</span>
 
-    </div>
+      <span>Laba / Rugi</span>
+
+    </button>
+
+
+    <button
+      type="button"
+      onclick="bukaNotifikasi()">
+
+      <span>🔔</span>
+
+      <span>Notifikasi</span>
+
+    </button>
+
+
+    <button
+      type="button"
+      onclick="bukaKategori()">
+
+      <span>🏷️</span>
+
+      <span>Kategori</span>
+
+    </button>
+
+
+    <button
+      type="button"
+      onclick="bukaPengaturan()">
+
+      <span>⚙️</span>
+
+      <span>Pengaturan</span>
+
+    </button>
+
 
   </div>
 
@@ -1251,2888 +825,105 @@ th{
 
 
 
-<!-- ==================================================
-     MODAL PEMASUKAN
-================================================== -->
-
-<div
-  id="modalTransaksi"
-  class="modal">
-
-  <div class="modal-box">
-
-    <div class="modal-header">
-
-      <h3>💰 Pemasukan</h3>
-
-      <button
-        class="close"
-        onclick="closeModal('modalTransaksi')">
-        ✕
-      </button>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Tanggal</label>
-
-      <input
-        type="datetime-local"
-        id="masukTanggal">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Kategori</label>
-
-      <select id="masukKategori"></select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Keterangan</label>
-
-      <input id="masukKeterangan">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Jumlah</label>
-
-      <input
-        type="number"
-        id="masukJumlah"
-        min="0">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Metode</label>
-
-      <select id="masukMetode">
-
-        <option>Cash</option>
-        <option>Transfer</option>
-        <option>QRIS</option>
-        <option>Bank</option>
-
-      </select>
-
-    </div>
-
-
-    <button
-      class="btn btn-success"
-      onclick="simpanPemasukan()">
-
-      💾 Simpan
-
-    </button>
-
-  </div>
-
-</div>
-
-
-
-<!-- ==================================================
-     MODAL PENGELUARAN
-================================================== -->
-
-<div
-  id="modalPengeluaran"
-  class="modal">
-
-  <div class="modal-box">
-
-    <div class="modal-header">
-
-      <h3>💸 Pengeluaran</h3>
-
-      <button
-        class="close"
-        onclick="closeModal('modalPengeluaran')">
-        ✕
-      </button>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Tanggal</label>
-
-      <input
-        type="datetime-local"
-        id="keluarTanggal">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Sumber</label>
-
-      <select id="keluarSumber">
-
-        <option>Pribadi</option>
-        <option>Toko</option>
-
-      </select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Kategori</label>
-
-      <select id="keluarKategori"></select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Keterangan</label>
-
-      <input id="keluarKeterangan">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Jumlah</label>
-
-      <input
-        type="number"
-        id="keluarJumlah"
-        min="0">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Metode</label>
-
-      <select id="keluarMetode">
-
-        <option>Cash</option>
-        <option>Transfer</option>
-        <option>QRIS</option>
-        <option>Bank</option>
-
-      </select>
-
-    </div>
-
-
-    <button
-      class="btn btn-danger"
-      onclick="simpanPengeluaran()">
-
-      💾 Simpan
-
-    </button>
-
-  </div>
-
-</div>
-
-
-
-<!-- ==================================================
-     MODAL BARANG
-================================================== -->
-
-<div
-  id="modalBarang"
-  class="modal">
-
-  <div class="modal-box">
-
-    <div class="modal-header">
-
-      <h3>📦 Tambah Barang</h3>
-
-      <button
-        class="close"
-        onclick="closeModal('modalBarang')">
-        ✕
-      </button>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Nama Barang</label>
-
-      <input id="barangNama">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Kategori</label>
-
-      <select id="barangKategori"></select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Satuan</label>
-
-      <input
-        id="barangSatuan"
-        value="pcs">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Harga Modal</label>
-
-      <input
-        type="number"
-        id="barangModal">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Harga Jual</label>
-
-      <input
-        type="number"
-        id="barangJual">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Stok Awal</label>
-
-      <input
-        type="number"
-        id="barangStok"
-        value="0">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Stok Minimum</label>
-
-      <input
-        type="number"
-        id="barangMinimum"
-        value="0">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Supplier</label>
-
-      <input id="barangSupplier">
-
-    </div>
-
-
-    <button
-      class="btn btn-primary"
-      onclick="simpanBarang()">
-
-      💾 Simpan Barang
-
-    </button>
-
-  </div>
-
-</div>
-
-
-
-<!-- ==================================================
-     MODAL HUTANG
-================================================== -->
-
-<div
-  id="modalHutang"
-  class="modal">
-
-  <div class="modal-box">
-
-    <div class="modal-header">
-
-      <h3>💳 Hutang / Tagihan</h3>
-
-      <button
-        class="close"
-        onclick="closeModal('modalHutang')">
-        ✕
-      </button>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Jenis</label>
-
-      <select id="hutangJenis">
-
-        <option>Hutang</option>
-        <option>Tagihan</option>
-        <option>Hutang Supplier</option>
-
-      </select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Pihak</label>
-
-      <input id="hutangPihak">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Keterangan</label>
-
-      <input id="hutangKeterangan">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Total</label>
-
-      <input
-        type="number"
-        id="hutangTotal">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Dibayar</label>
-
-      <input
-        type="number"
-        id="hutangDibayar"
-        value="0">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Jatuh Tempo</label>
-
-      <input
-        type="date"
-        id="hutangTempo">
-
-    </div>
-
-
-    <button
-      class="btn btn-primary"
-      onclick="simpanHutang()">
-
-      💾 Simpan
-
-    </button>
-
-  </div>
-
-</div>
-
-
+<!-- =====================================================
+     JAVASCRIPT MENU DROPDOWN
+====================================================== -->
 
 <script>
 
-/* ==================================================
-   KONFIGURASI
-================================================== */
+function toggleMenuLainnya() {
 
-const API_URL =
-'https://script.google.com/macros/s/AKfycbyW1qBf0LX3qPtSwRrvaxIuiIcHMFkuy9PViZ-YZrTfZeM6WqCNlfcNJN1CVzE7M1F3/exec';
-
-const API_KEY =
-'CATATKU-2026-PRIBADI';
-
-
-/* ==================================================
-   DATA CACHE
-================================================== */
-
-let DATA = {
-
-  dashboard:null,
-
-  history:[],
-
-  barang:[],
-
-  penjualan:[],
-
-  belanja:[],
-
-  hutang:[],
-
-  kategori:[],
-
-  notifikasi:[]
-
-};
-
-
-/* ==================================================
-   UTIL
-================================================== */
-
-function rupiah(n){
-
-  return 'Rp ' +
-    Number(n || 0)
-      .toLocaleString('id-ID');
-
-}
-
-
-function esc(v){
-
-  return String(v ?? '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
-
-}
-
-
-function todayDate(){
-
-  const d =
-    new Date();
-
-  const pad =
-    n => String(n).padStart(2,'0');
-
-  return d.getFullYear() +
-    '-' +
-    pad(d.getMonth()+1) +
-    '-' +
-    pad(d.getDate());
-
-}
-
-
-function datetimeLocal(){
-
-  const d =
-    new Date();
-
-  const pad =
-    n => String(n).padStart(2,'0');
-
-  return d.getFullYear() +
-    '-' +
-    pad(d.getMonth()+1) +
-    '-' +
-    pad(d.getDate()) +
-    'T' +
-    pad(d.getHours()) +
-    ':' +
-    pad(d.getMinutes());
-
-}
-
-
-/* ==================================================
-   API
-================================================== */
-
-async function api(action,payload){
-
-  let url =
-    API_URL +
-    '?action=' +
-    encodeURIComponent(action) +
-    '&key=' +
-    encodeURIComponent(API_KEY);
-
-
-  if(payload){
-
-    url +=
-      '&payload=' +
-      encodeURIComponent(
-        JSON.stringify(payload)
-      );
-
-  }
-
-
-  const response =
-    await fetch(url,{
-
-      method:'GET',
-
-      cache:'no-store'
-
-    });
-
-
-  if(!response.ok){
-
-    throw new Error(
-      'HTTP Error ' +
-      response.status
-    );
-
-  }
-
-
-  const json =
-    await response.json();
-
-
-  if(!json.success){
-
-    throw new Error(
-      json.error ||
-      'Terjadi kesalahan.'
-    );
-
-  }
-
-
-  return json.data;
-
-}
-
-
-/* ==================================================
-   NAVIGASI
-================================================== */
-
-function showPage(page){
-
-  document
-    .querySelectorAll('.page')
-    .forEach(p =>
-      p.classList.remove('active')
-    );
-
-
-  const target =
+  const menu =
     document.getElementById(
-      'page-' + page
+      "menuLainnya"
     );
 
-
-  if(target){
-
-    target.classList.add('active');
-
-  }
-
-
-  document
-    .querySelectorAll('.nav-btn')
-    .forEach(btn => {
-
-      btn.classList.toggle(
-        'active',
-        btn.dataset.page === page
-      );
-
-    });
-
-
-  if(page === 'dashboard')
-    loadDashboard();
-
-  if(page === 'transaksi')
-    loadHistory();
-
-  if(page === 'barang')
-    loadBarang();
-
-  if(page === 'kasir')
-    loadKasir();
-
-  if(page === 'belanja')
-    loadBelanja();
-
-  if(page === 'hutang')
-    loadHutang();
-
-  if(page === 'notifikasi')
-    loadNotifikasi();
-
-  if(page === 'kategori')
-    loadKategori();
-
-  if(page === 'laporan')
-    loadLaporan('bulan');
-
-}
-
-
-function openMenu(){
-
-  openModal('modalMenu');
-
-}
-
-
-function goMenu(page){
-
-  closeModal('modalMenu');
-
-  showPage(page);
-
-}
-
-
-/* ==================================================
-   MODAL
-================================================== */
-
-function openModal(id){
-
-  document
-    .getElementById(id)
-    .classList.add('show');
-
-}
-
-
-function closeModal(id){
-
-  document
-    .getElementById(id)
-    .classList.remove('show');
-
-}
-
-
-/* ==================================================
-   DASHBOARD
-================================================== */
-
-async function loadDashboard(){
-
-  try{
-
-    const d =
-      await api('dashboard');
-
-    DATA.dashboard =
-      d;
-
-
-    document.getElementById('saldo')
-      .textContent =
-      rupiah(d.saldo);
-
-
-    document.getElementById('masukHari')
-      .textContent =
-      rupiah(d.pemasukanHariIni);
-
-
-    document.getElementById('keluarHari')
-      .textContent =
-      rupiah(d.pengeluaranHariIni);
-
-
-    document.getElementById('saldoPribadi')
-      .textContent =
-      rupiah(d.saldoPribadi);
-
-
-    document.getElementById('saldoToko')
-      .textContent =
-      rupiah(d.saldoToko);
-
-
-    document.getElementById('totalHutang')
-      .textContent =
-      rupiah(d.totalHutang);
-
-
-    document.getElementById('nilaiStok')
-      .textContent =
-      rupiah(d.nilaiStok);
-
-
-    document.getElementById('jumlahBarang')
-      .textContent =
-      Number(d.jumlahBarang || 0);
-
-
-    loadLabaBulan();
-
-    loadHistoryDashboard();
-
-    loadNotifikasiDashboard();
-
-  }catch(err){
-
-    showError(err);
-
-  }
-
-}
-
-
-async function loadLabaBulan(){
-
-  try{
-
-    const d =
-      await api(
-        'laporanLaba',
-        {
-          mulai:
-            firstDayMonth(),
-          akhir:
-            todayDate()
-        }
-      );
-
-
-    document.getElementById('labaBulan')
-      .textContent =
-      rupiah(d.labaKotor);
-
-  }catch(err){}
-
-}
-
-
-function firstDayMonth(){
-
-  const d =
-    new Date();
-
-  d.setDate(1);
-
-  const pad =
-    n => String(n).padStart(2,'0');
-
-  return d.getFullYear() +
-    '-' +
-    pad(d.getMonth()+1) +
-    '-01';
-
-}
-
-
-/* ==================================================
-   HISTORY
-================================================== */
-
-async function loadHistory(){
-
-  try{
-
-    DATA.history =
-      await api(
-        'history',
-        null
-      );
-
-    renderHistory();
-
-  }catch(err){
-
-    showError(err);
-
-  }
-
-}
-
-
-async function loadHistoryDashboard(){
-
-  try{
-
-    const data =
-      await api('history');
-
-    DATA.history =
-      data;
-
-    renderHistoryDashboard();
-
-  }catch(err){}
-
-}
-
-
-function renderHistoryDashboard(){
-
-  const el =
+  const arrow =
     document.getElementById(
-      'historyDashboard'
+      "dropdownArrow"
     );
 
 
-  if(!DATA.history.length){
-
-    el.innerHTML =
-      '<div class="empty">Belum ada transaksi.</div>';
-
+  if (!menu) {
     return;
-
   }
 
 
-  el.innerHTML =
-    DATA.history
-      .slice(0,5)
-      .map(t => {
-
-        const masuk =
-          t.Jenis === 'Masuk';
-
-        return `
-
-          <div style="
-            padding:10px 0;
-            border-bottom:1px solid #eee">
-
-            <div style="
-              display:flex;
-              justify-content:space-between">
-
-              <strong>
-                ${esc(t.Keterangan || t.Kategori)}
-              </strong>
-
-              <strong class="${
-                masuk ? 'green' : 'red'
-              }">
-
-                ${masuk ? '+' : '-'}
-                ${rupiah(t.Jumlah)}
-
-              </strong>
-
-            </div>
-
-            <small style="color:#64748b">
-
-              ${esc(t.Sumber)}
-              ·
-              ${esc(t.Metode)}
-              ·
-              ${esc(t.Tanggal)}
-
-            </small>
-
-          </div>
-
-        `;
-
-      })
-      .join('');
-
-}
-
-
-function renderHistory(){
-
-  const el =
-    document.getElementById(
-      'historyList'
-    );
-
-
-  const q =
-    String(
-      document.getElementById(
-        'searchHistory'
-      )?.value || ''
-    ).toLowerCase();
-
-
-  const data =
-    DATA.history.filter(t => {
-
-      return (
-        String(t.Keterangan || '')
-          .toLowerCase()
-          .includes(q) ||
-
-        String(t.Kategori || '')
-          .toLowerCase()
-          .includes(q) ||
-
-        String(t.Sumber || '')
-          .toLowerCase()
-          .includes(q)
-      );
-
-    });
-
-
-  if(!data.length){
-
-    el.innerHTML =
-      '<div class="empty">Tidak ada data.</div>';
-
-    return;
-
-  }
-
-
-  el.innerHTML = `
-
-    <div class="table-wrap">
-
-      <table>
-
-        <thead>
-
-          <tr>
-            <th>Tanggal</th>
-            <th>Keterangan</th>
-            <th>Sumber</th>
-            <th>Jenis</th>
-            <th>Jumlah</th>
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          ${data.map(t => `
-
-            <tr>
-
-              <td>${esc(t.Tanggal)}</td>
-
-              <td>
-                ${esc(t.Keterangan)}
-              </td>
-
-              <td>
-                ${esc(t.Sumber)}
-              </td>
-
-              <td>
-                <span class="
-                  badge
-                  ${
-                    t.Jenis === 'Masuk'
-                    ? 'badge-green'
-                    : 'badge-red'
-                  }">
-
-                  ${esc(t.Jenis)}
-
-                </span>
-              </td>
-
-              <td>
-                ${rupiah(t.Jumlah)}
-              </td>
-
-            </tr>
-
-          `).join('')}
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-  `;
-
-}
-
-
-/* ==================================================
-   KATEGORI
-================================================== */
-
-async function loadKategori(){
-
-  try{
-
-    DATA.kategori =
-      await api('kategori');
-
-
-    isiSelectKategori(
-      'masukKategori',
-      'Pribadi'
-    );
-
-    isiSelectKategori(
-      'keluarKategori',
-      'Pribadi'
-    );
-
-    isiSelectKategori(
-      'barangKategori',
-      'Toko'
-    );
-
-
-    const el =
-      document.getElementById(
-        'kategoriList'
-      );
-
-
-    if(!DATA.kategori.length){
-
-      el.innerHTML =
-        '<div class="empty">Belum ada kategori.</div>';
-
-      return;
-
-    }
-
-
-    el.innerHTML = `
-
-      <div class="table-wrap">
-
-      <table>
-
-      <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nama</th>
-        <th>Jenis</th>
-        <th>Aktif</th>
-      </tr>
-      </thead>
-
-      <tbody>
-
-      ${DATA.kategori.map(k => `
-
-        <tr>
-
-          <td>${esc(k.ID)}</td>
-
-          <td>${esc(k['Nama Kategori'])}</td>
-
-          <td>${esc(k.Jenis)}</td>
-
-          <td>${esc(k.Aktif)}</td>
-
-        </tr>
-
-      `).join('')}
-
-      </tbody>
-
-      </table>
-
-      </div>
-
-    `;
-
-  }catch(err){
-
-    showError(err);
-
-  }
-
-}
-
-
-function isiSelectKategori(id,jenis){
-
-  const el =
-    document.getElementById(id);
-
-  if(!el) return;
-
-
-  let data =
-    DATA.kategori.filter(k =>
-      k.Aktif === 'YA'
-    );
-
-
-  if(jenis){
-
-    const filtered =
-      data.filter(k =>
-        k.Jenis === jenis
-      );
-
-    if(filtered.length)
-      data = filtered;
-
-  }
-
-
-  el.innerHTML =
-    data.map(k => `
-
-      <option value="${esc(k['Nama Kategori'])}">
-        ${esc(k['Nama Kategori'])}
-      </option>
-
-    `).join('');
-
-}
-
-
-/* ==================================================
-   BARANG
-================================================== */
-
-async function loadBarang(){
-
-  try{
-
-    DATA.barang =
-      await api('barang');
-
-
-    renderBarang();
-
-    isiSelectBarang();
-
-  }catch(err){
-
-    showError(err);
-
-  }
-
-}
-
-
-function renderBarang(){
-
-  const el =
-    document.getElementById(
-      'barangList'
-    );
-
-
-  const q =
-    String(
-      document.getElementById(
-        'searchBarang'
-      )?.value || ''
-    ).toLowerCase();
-
-
-  const data =
-    DATA.barang.filter(b => {
-
-      return (
-        String(b['Nama Barang'] || '')
-          .toLowerCase()
-          .includes(q) ||
-
-        String(b.Kategori || '')
-          .toLowerCase()
-          .includes(q)
-      );
-
-    });
-
-
-  if(!data.length){
-
-    el.innerHTML =
-      '<div class="empty">Belum ada barang.</div>';
-
-    return;
-
-  }
-
-
-  el.innerHTML = `
-
-    <div class="table-wrap">
-
-    <table>
-
-    <thead>
-
-    <tr>
-
-      <th>Barang</th>
-      <th>Modal</th>
-      <th>Jual</th>
-      <th>Stok</th>
-      <th>Nilai</th>
-
-    </tr>
-
-    </thead>
-
-    <tbody>
-
-    ${data.map(b => {
-
-      const stok =
-        Number(b.Stok || 0);
-
-      const min =
-        Number(b['Stok Minimum'] || 0);
-
-      return `
-
-        <tr>
-
-          <td>
-
-            <strong>
-              ${esc(b['Nama Barang'])}
-            </strong>
-
-            <br>
-
-            <small>
-              ${esc(b.Kategori)}
-            </small>
-
-          </td>
-
-          <td>
-            ${rupiah(b['Harga Modal'])}
-          </td>
-
-          <td>
-            ${rupiah(b['Harga Jual'])}
-          </td>
-
-          <td>
-
-            <span class="
-              badge
-              ${
-                stok <= min
-                ? 'badge-red'
-                : 'badge-green'
-              }">
-
-              ${stok}
-
-            </span>
-
-          </td>
-
-          <td>
-            ${rupiah(b['Nilai Stok'])}
-          </td>
-
-        </tr>
-
-      `;
-
-    }).join('')}
-
-    </tbody>
-
-    </table>
-
-    </div>
-
-  `;
-
-}
-
-
-function isiSelectBarang(){
-
-  const ids =
-    [
-      'jualBarang',
-      'belanjaBarang'
-    ];
-
-
-  ids.forEach(id => {
-
-    const el =
-      document.getElementById(id);
-
-    if(!el) return;
-
-
-    el.innerHTML =
-      '<option value="">-- Pilih Barang --</option>' +
-
-      DATA.barang.map(b => `
-
-        <option value="${esc(b.ID)}">
-
-          ${esc(b['Nama Barang'])}
-          — Stok ${esc(b.Stok)}
-
-        </option>
-
-      `).join('');
-
-  });
-
-}
-
-
-/* ==================================================
-   KASIR
-================================================== */
-
-async function loadKasir(){
-
-  if(!DATA.barang.length)
-    await loadBarang();
-
-
-  const el =
-    document.getElementById(
-      'penjualanList'
-    );
-
-
-  try{
-
-    DATA.penjualan =
-      await api('penjualan');
-
-
-    DATA.penjualan =
-      DATA.penjualan
-        .slice()
-        .reverse()
-        .slice(0,20);
-
-
-    if(!DATA.penjualan.length){
-
-      el.innerHTML =
-        '<div class="empty">Belum ada penjualan.</div>';
-
-      return;
-
-    }
-
-
-    el.innerHTML = `
-
-      <div class="table-wrap">
-
-      <table>
-
-      <thead>
-
-      <tr>
-
-        <th>Tanggal</th>
-        <th>Barang</th>
-        <th>Qty</th>
-        <th>Omzet</th>
-        <th>Laba</th>
-
-      </tr>
-
-      </thead>
-
-      <tbody>
-
-      ${DATA.penjualan.map(p => `
-
-        <tr>
-
-          <td>${esc(p.Tanggal)}</td>
-
-          <td>${esc(p['Nama Barang'])}</td>
-
-          <td>${esc(p.Qty)}</td>
-
-          <td>${rupiah(p.Omzet)}</td>
-
-          <td class="green">
-            ${rupiah(p['Laba Kotor'])}
-          </td>
-
-        </tr>
-
-      `).join('')}
-
-      </tbody>
-
-      </table>
-
-      </div>
-
-    `;
-
-  }catch(err){
-
-    showError(err);
-
-  }
-
-}
-
-
-/* ==================================================
-   BELANJA
-================================================== */
-
-async function loadBelanja(){
-
-  try{
-
-    DATA.belanja =
-      await api('belanja');
-
-
-    const el =
-      document.getElementById(
-        'belanjaList'
-      );
-
-
-    const data =
-      DATA.belanja
-        .slice()
-        .reverse()
-        .slice(0,30);
-
-
-    if(!data.length){
-
-      el.innerHTML =
-        '<div class="empty">Belum ada belanja.</div>';
-
-      return;
-
-    }
-
-
-    el.innerHTML = `
-
-      <div class="table-wrap">
-
-      <table>
-
-      <thead>
-
-      <tr>
-
-        <th>Tanggal</th>
-        <th>Barang</th>
-        <th>Qty</th>
-        <th>Total</th>
-        <th>Sisa</th>
-        <th>Status</th>
-
-      </tr>
-
-      </thead>
-
-      <tbody>
-
-      ${data.map(b => `
-
-        <tr>
-
-          <td>${esc(b.Tanggal)}</td>
-
-          <td>${esc(b['Nama Barang'])}</td>
-
-          <td>${esc(b.Qty)}</td>
-
-          <td>${rupiah(b.Total)}</td>
-
-          <td>${rupiah(b.Sisa)}</td>
-
-          <td>
-
-            <span class="badge
-              ${
-                b.Status === 'LUNAS'
-                ? 'badge-green'
-                : 'badge-orange'
-              }">
-
-              ${esc(b.Status)}
-
-            </span>
-
-          </td>
-
-        </tr>
-
-      `).join('')}
-
-      </tbody>
-
-      </table>
-
-      </div>
-
-    `;
-
-  }catch(err){
-
-    showError(err);
-
-  }
-
-}
-
-
-/* ==================================================
-   HUTANG
-================================================== */
-
-async function loadHutang(){
-
-  try{
-
-    DATA.hutang =
-      await api('hutang');
-
-
-    const el =
-      document.getElementById(
-        'hutangList'
-      );
-
-
-    const data =
-      DATA.hutang
-        .slice()
-        .reverse();
-
-
-    if(!data.length){
-
-      el.innerHTML =
-        '<div class="empty">Belum ada hutang/tagihan.</div>';
-
-      return;
-
-    }
-
-
-    el.innerHTML = `
-
-      <div class="table-wrap">
-
-      <table>
-
-      <thead>
-
-      <tr>
-
-        <th>Pihak</th>
-        <th>Jenis</th>
-        <th>Total</th>
-        <th>Sisa</th>
-        <th>Tempo</th>
-        <th>Status</th>
-        <th>Aksi</th>
-
-      </tr>
-
-      </thead>
-
-      <tbody>
-
-      ${data.map(h => `
-
-        <tr>
-
-          <td>
-            <strong>
-              ${esc(h.Pihak)}
-            </strong>
-            <br>
-            <small>
-              ${esc(h.Keterangan)}
-            </small>
-          </td>
-
-          <td>
-            ${esc(h.Jenis)}
-          </td>
-
-          <td>
-            ${rupiah(h.Total)}
-          </td>
-
-          <td>
-            ${rupiah(h.Sisa)}
-          </td>
-
-          <td>
-            ${esc(h['Jatuh Tempo'])}
-          </td>
-
-          <td>
-
-            <span class="badge
-              ${
-                h.Status === 'LUNAS'
-                ? 'badge-green'
-                : 'badge-red'
-              }">
-
-              ${esc(h.Status)}
-
-            </span>
-
-          </td>
-
-          <td>
-
-            ${
-              h.Status !== 'LUNAS'
-              ? `
-                <button
-                  class="btn btn-success"
-                  style="padding:7px"
-                  onclick='bayarHutangPrompt(${JSON.stringify(h)})'>
-
-                  Bayar
-
-                </button>
-              `
-              : ''
-            }
-
-          </td>
-
-        </tr>
-
-      `).join('')}
-
-      </tbody>
-
-      </table>
-
-      </div>
-
-    `;
-
-  }catch(err){
-
-    showError(err);
-
-  }
-
-}
-
-
-async function bayarHutangPrompt(h){
-
-  const jumlah =
-    prompt(
-      'Masukkan jumlah pembayaran:',
-      Number(h.Sisa || 0)
-    );
-
-
-  if(jumlah === null)
-    return;
-
-
-  const n =
-    Number(jumlah);
-
-
-  if(!n || n <= 0){
-
-    alert('Jumlah tidak valid.');
-
-    return;
-
-  }
-
-
-  try{
-
-    await api(
-      'bayarHutang',
-      {
-        id:h.ID,
-        jumlah:n,
-        metode:'Cash',
-        sumber:
-          String(h.Jenis)
-            .toLowerCase()
-            .includes('supplier')
-          ? 'Toko'
-          : 'Pribadi'
-      }
-    );
-
-
-    alert('Pembayaran berhasil.');
-
-    loadHutang();
-
-    loadDashboard();
-
-  }catch(err){
-
-    alert(err.message);
-
-  }
-
-}
-
-
-/* ==================================================
-   NOTIFIKASI
-================================================== */
-
-async function loadNotifikasi(){
-
-  try{
-
-    DATA.notifikasi =
-      await api('notifikasi');
-
-
-    renderNotifikasi();
-
-  }catch(err){
-
-    showError(err);
-
-  }
-
-}
-
-
-function renderNotifikasi(){
-
-  const el =
-    document.getElementById(
-      'notifikasiList'
-    );
-
-
-  if(!DATA.notifikasi.length){
-
-    el.innerHTML = `
-
-      <div class="card">
-
-        <div class="empty">
-          ✅ Tidak ada tagihan yang jatuh tempo dalam 7 hari.
-        </div>
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  el.innerHTML =
-    DATA.notifikasi.map(h => `
-
-      <div class="alert">
-
-        <strong>
-          ${esc(h.Pihak)}
-        </strong>
-
-        <br>
-
-        ${esc(h.Keterangan)}
-
-        <br>
-
-        Sisa:
-        <strong>
-          ${rupiah(h.Sisa)}
-        </strong>
-
-        <br>
-
-        Jatuh tempo:
-        ${esc(h['Jatuh Tempo'])}
-
-        <button
-          class="btn btn-success"
-          onclick='bayarHutangPrompt(${JSON.stringify(h)})'>
-
-          Bayar
-
-        </button>
-
-      </div>
-
-    `).join('');
-
-}
-
-
-async function loadNotifikasiDashboard(){
-
-  try{
-
-    const data =
-      await api('notifikasi');
-
-
-    const el =
-      document.getElementById(
-        'dashboardAlert'
-      );
-
-
-    if(!data.length){
-
-      el.innerHTML='';
-
-      return;
-
-    }
-
-
-    el.innerHTML = `
-
-      <div class="alert">
-
-        🔔 Ada
-        <strong>${data.length}</strong>
-        hutang/tagihan yang perlu diperhatikan.
-
-        <button
-          class="btn btn-warning"
-          onclick="showPage('notifikasi')">
-
-          Lihat Tagihan
-
-        </button>
-
-      </div>
-
-    `;
-
-  }catch(err){}
-
-}
-
-
-/* ==================================================
-   LAPORAN
-================================================== */
-
-async function loadLaporan(jenis){
-
-  let data;
-
-
-  try{
-
-    if(jenis === 'hari'){
-
-      data =
-        await api(
-          'laporan',
-          {
-            mulai:todayDate(),
-            akhir:todayDate()
-          }
-        );
-
-    }
-
-
-    if(jenis === 'minggu'){
-
-      const now =
-        new Date();
-
-      const day =
-        now.getDay() || 7;
-
-      const start =
-        new Date(now);
-
-      start.setDate(
-        now.getDate() -
-        day +
-        1
-      );
-
-
-      data =
-        await api(
-          'laporan',
-          {
-            mulai:
-              formatDate(start),
-            akhir:
-              todayDate()
-          }
-        );
-
-    }
-
-
-    if(jenis === 'bulan'){
-
-      data =
-        await api(
-          'laporan',
-          {
-            mulai:
-              firstDayMonth(),
-            akhir:
-              todayDate()
-          }
-        );
-
-    }
-
-
-    document.getElementById(
-      'laporanResult'
-    ).innerHTML = `
-
-      <div class="grid">
-
-        <div class="stat">
-
-          <div class="stat-title">
-            Pemasukan
-          </div>
-
-          <div class="stat-value green">
-            ${rupiah(data.masuk)}
-          </div>
-
-        </div>
-
-        <div class="stat">
-
-          <div class="stat-title">
-            Pengeluaran
-          </div>
-
-          <div class="stat-value red">
-            ${rupiah(data.keluar)}
-          </div>
-
-        </div>
-
-        <div class="stat">
-
-          <div class="stat-title">
-            Bersih
-          </div>
-
-          <div class="stat-value blue">
-            ${rupiah(data.bersih)}
-          </div>
-
-        </div>
-
-        <div class="stat">
-
-          <div class="stat-title">
-            Bersih Toko
-          </div>
-
-          <div class="stat-value">
-            ${rupiah(data.bersihToko)}
-          </div>
-
-        </div>
-
-        <div class="stat">
-
-          <div class="stat-title">
-            Bersih Pribadi
-          </div>
-
-          <div class="stat-value">
-            ${rupiah(data.bersihPribadi)}
-          </div>
-
-        </div>
-
-      </div>
-
-    `;
-
-
-    const laba =
-      await api(
-        'laporanLaba',
-        {
-          mulai:
-            jenis === 'bulan'
-            ? firstDayMonth()
-            : todayDate(),
-
-          akhir:
-            todayDate()
-        }
-      );
-
-
-    document.getElementById(
-      'labaResult'
-    ).innerHTML = `
-
-      <div class="grid">
-
-        <div class="stat">
-
-          <div class="stat-title">
-            Omzet
-          </div>
-
-          <div class="stat-value">
-            ${rupiah(laba.omzet)}
-          </div>
-
-        </div>
-
-        <div class="stat">
-
-          <div class="stat-title">
-            HPP
-          </div>
-
-          <div class="stat-value red">
-            ${rupiah(laba.hpp)}
-          </div>
-
-        </div>
-
-        <div class="stat">
-
-          <div class="stat-title">
-            Laba Kotor
-          </div>
-
-          <div class="stat-value green">
-            ${rupiah(laba.labaKotor)}
-          </div>
-
-        </div>
-
-      </div>
-
-    `;
-
-  }catch(err){
-
-    showError(err);
-
-  }
-
-}
-
-
-function formatDate(d){
-
-  const pad =
-    n => String(n).padStart(2,'0');
-
-  return d.getFullYear() +
-    '-' +
-    pad(d.getMonth()+1) +
-    '-' +
-    pad(d.getDate());
-
-}
-
-
-/* ==================================================
-   SIMPAN PEMASUKAN
-================================================== */
-
-async function simpanPemasukan(){
-
-  const jumlah =
-    Number(
-      document.getElementById(
-        'masukJumlah'
-      ).value
-    );
-
-
-  if(jumlah <= 0){
-
-    alert('Jumlah harus lebih dari 0.');
-
-    return;
-
-  }
-
-
-  try{
-
-    await api(
-      'tambahTransaksi',
-      {
-
-        tanggal:
-          document.getElementById(
-            'masukTanggal'
-          ).value,
-
-        sumber:'Pribadi',
-
-        jenis:'Masuk',
-
-        kategori:
-          document.getElementById(
-            'masukKategori'
-          ).value,
-
-        keterangan:
-          document.getElementById(
-            'masukKeterangan'
-          ).value,
-
-        jumlah:jumlah,
-
-        metode:
-          document.getElementById(
-            'masukMetode'
-          ).value
-
-      }
-    );
-
-
-    closeModal('modalTransaksi');
-
-    alert('Pemasukan berhasil disimpan.');
-
-    resetPemasukan();
-
-    loadDashboard();
-
-  }catch(err){
-
-    alert(err.message);
-
-  }
-
-}
-
-
-function resetPemasukan(){
-
-  document.getElementById(
-    'masukJumlah'
-  ).value='';
-
-  document.getElementById(
-    'masukKeterangan'
-  ).value='';
-
-}
-
-
-/* ==================================================
-   SIMPAN PENGELUARAN
-================================================== */
-
-async function simpanPengeluaran(){
-
-  const jumlah =
-    Number(
-      document.getElementById(
-        'keluarJumlah'
-      ).value
-    );
-
-
-  if(jumlah <= 0){
-
-    alert('Jumlah harus lebih dari 0.');
-
-    return;
-
-  }
-
-
-  try{
-
-    await api(
-      'tambahTransaksi',
-      {
-
-        tanggal:
-          document.getElementById(
-            'keluarTanggal'
-          ).value,
-
-        sumber:
-          document.getElementById(
-            'keluarSumber'
-          ).value,
-
-        jenis:'Keluar',
-
-        kategori:
-          document.getElementById(
-            'keluarKategori'
-          ).value,
-
-        keterangan:
-          document.getElementById(
-            'keluarKeterangan'
-          ).value,
-
-        jumlah:jumlah,
-
-        metode:
-          document.getElementById(
-            'keluarMetode'
-          ).value
-
-      }
-    );
-
-
-    closeModal('modalPengeluaran');
-
-    alert('Pengeluaran berhasil disimpan.');
-
-    document.getElementById(
-      'keluarJumlah'
-    ).value='';
-
-    document.getElementById(
-      'keluarKeterangan'
-    ).value='';
-
-    loadDashboard();
-
-  }catch(err){
-
-    alert(err.message);
-
-  }
-
-}
-
-
-/* ==================================================
-   SIMPAN BARANG
-================================================== */
-
-async function simpanBarang(){
-
-  const nama =
-    document.getElementById(
-      'barangNama'
-    ).value.trim();
-
-
-  if(!nama){
-
-    alert('Nama barang wajib diisi.');
-
-    return;
-
-  }
-
-
-  try{
-
-    await api(
-      'tambahBarang',
-      {
-
-        nama:nama,
-
-        kategori:
-          document.getElementById(
-            'barangKategori'
-          ).value,
-
-        satuan:
-          document.getElementById(
-            'barangSatuan'
-          ).value || 'pcs',
-
-        hargaModal:
-          Number(
-            document.getElementById(
-              'barangModal'
-            ).value || 0
-          ),
-
-        hargaJual:
-          Number(
-            document.getElementById(
-              'barangJual'
-            ).value || 0
-          ),
-
-        stok:
-          Number(
-            document.getElementById(
-              'barangStok'
-            ).value || 0
-          ),
-
-        stokMinimum:
-          Number(
-            document.getElementById(
-              'barangMinimum'
-            ).value || 0
-          ),
-
-        supplier:
-          document.getElementById(
-            'barangSupplier'
-          ).value
-
-      }
-    );
-
-
-    closeModal('modalBarang');
-
-    alert('Barang berhasil ditambahkan.');
-
-    loadBarang();
-
-    loadDashboard();
-
-  }catch(err){
-
-    alert(err.message);
-
-  }
-
-}
-
-
-/* ==================================================
-   SIMPAN PENJUALAN
-================================================== */
-
-async function simpanPenjualan(){
-
-  const barangId =
-    document.getElementById(
-      'jualBarang'
-    ).value;
-
-
-  const qty =
-    Number(
-      document.getElementById(
-        'jualQty'
-      ).value
-    );
-
-
-  if(!barangId){
-
-    alert('Pilih barang.');
-
-    return;
-
-  }
-
-
-  if(qty <= 0){
-
-    alert('Qty tidak valid.');
-
-    return;
-
-  }
-
-
-  const barang =
-    DATA.barang.find(
-      b => String(b.ID) ===
-      String(barangId)
-    );
-
-
-  if(!barang){
-
-    alert('Barang tidak ditemukan.');
-
-    return;
-
-  }
-
-
-  let harga =
-    Number(
-      document.getElementById(
-        'jualHarga'
-      ).value
-    );
-
-
-  if(!harga){
-
-    harga =
-      Number(
-        barang['Harga Jual'] || 0
-      );
-
-  }
-
-
-  try{
-
-    await api(
-      'tambahPenjualan',
-      {
-
-        barangId:barangId,
-
-        qty:qty,
-
-        hargaJual:harga,
-
-        metode:
-          document.getElementById(
-            'jualMetode'
-          ).value,
-
-        catatan:
-          document.getElementById(
-            'jualCatatan'
-          ).value
-
-      }
-    );
-
-
-    alert('Penjualan berhasil disimpan.');
-
-    document.getElementById(
-      'jualQty'
-    ).value=1;
-
-    document.getElementById(
-      'jualCatatan'
-    ).value='';
-
-
-    loadKasir();
-
-    loadBarang();
-
-    loadDashboard();
-
-  }catch(err){
-
-    alert(err.message);
-
-  }
-
-}
-
-
-/* ==================================================
-   SIMPAN BELANJA
-================================================== */
-
-async function simpanBelanja(){
-
-  const barangId =
-    document.getElementById(
-      'belanjaBarang'
-    ).value;
-
-
-  const qty =
-    Number(
-      document.getElementById(
-        'belanjaQty'
-      ).value
-    );
-
-
-  const harga =
-    Number(
-      document.getElementById(
-        'belanjaHarga'
-      ).value
-    );
-
-
-  if(qty <= 0){
-
-    alert('Qty tidak valid.');
-
-    return;
-
-  }
-
-
-  if(harga < 0){
-
-    alert('Harga tidak valid.');
-
-    return;
-
-  }
-
-
-  const barang =
-    DATA.barang.find(
-      b =>
-        String(b.ID) ===
-        String(barangId)
-    );
-
-
-  try{
-
-    await api(
-      'tambahBelanja',
-      {
-
-        barangId:
-          barangId,
-
-        namaBarang:
-          document.getElementById(
-            'belanjaNama'
-          ).value ||
-          barang?.['Nama Barang'] ||
-          '',
-
-        kategori:
-          barang?.Kategori ||
-          'Belanja Barang',
-
-        qty:qty,
-
-        harga:harga,
-
-        dibayar:
-          Number(
-            document.getElementById(
-              'belanjaDibayar'
-            ).value || 0
-          ),
-
-        supplier:
-          document.getElementById(
-            'belanjaSupplier'
-          ).value,
-
-        metode:'Cash',
-
-        jatuhTempo:
-          document.getElementById(
-            'belanjaTempo'
-          ).value
-
-      }
-    );
-
-
-    alert('Belanja berhasil disimpan.');
-
-    loadBelanja();
-
-    loadBarang();
-
-    loadHutang();
-
-    loadDashboard();
-
-  }catch(err){
-
-    alert(err.message);
-
-  }
-
-}
-
-
-/* ==================================================
-   SIMPAN HUTANG
-================================================== */
-
-async function simpanHutang(){
-
-  const total =
-    Number(
-      document.getElementById(
-        'hutangTotal'
-      ).value
-    );
-
-
-  const dibayar =
-    Number(
-      document.getElementById(
-        'hutangDibayar'
-      ).value || 0
-    );
-
-
-  if(total <= 0){
-
-    alert('Total harus lebih dari 0.');
-
-    return;
-
-  }
-
-
-  try{
-
-    await api(
-      'tambahHutang',
-      {
-
-        jenis:
-          document.getElementById(
-            'hutangJenis'
-          ).value,
-
-        pihak:
-          document.getElementById(
-            'hutangPihak'
-          ).value,
-
-        keterangan:
-          document.getElementById(
-            'hutangKeterangan'
-          ).value,
-
-        total:total,
-
-        dibayar:dibayar,
-
-        jatuhTempo:
-          document.getElementById(
-            'hutangTempo'
-          ).value
-
-      }
-    );
-
-
-    closeModal('modalHutang');
-
-    alert('Hutang/tagihan berhasil disimpan.');
-
-    loadHutang();
-
-    loadDashboard();
-
-  }catch(err){
-
-    alert(err.message);
-
-  }
-
-}
-
-
-/* ==================================================
-   SETUP
-================================================== */
-
-function setupCheck(){
-
-  alert(
-    'Database dikontrol oleh Kode.gs Google Apps Script. ' +
-    'Jika semua sheet sudah ada, tidak perlu setup ulang.'
-  );
-
-}
-
-
-/* ==================================================
-   ERROR
-================================================== */
-
-function showError(err){
-
-  console.error(err);
-
-  alert(
-    err?.message ||
-    'Terjadi kesalahan saat mengambil data.'
-  );
-
-}
-
-
-/* ==================================================
-   INIT
-================================================== */
-
-async function init(){
-
-  document.getElementById(
-    'masukTanggal'
-  ).value =
-    datetimeLocal();
-
-
-  document.getElementById(
-    'keluarTanggal'
-  ).value =
-    datetimeLocal();
-
-
-  try{
-
-    await loadKategori();
-
-    await loadBarang();
-
-    await loadDashboard();
-
-  }catch(err){
-
-    showError(err);
-
-  }
-
-}
-
-
-document
-  .getElementById('jualBarang')
-  ?.addEventListener(
-    'change',
-    function(){
-
-      const barang =
-        DATA.barang.find(
-          b =>
-            String(b.ID) ===
-            String(this.value)
-        );
-
-
-      if(barang){
-
-        document.getElementById(
-          'jualHarga'
-        ).value =
-          Number(
-            barang['Harga Jual'] || 0
-          );
-
-      }
-
-    }
+  menu.classList.toggle(
+    "show"
   );
 
 
-document
-  .getElementById('belanjaBarang')
-  ?.addEventListener(
-    'change',
-    function(){
+  if (
+    menu.classList.contains(
+      "show"
+    )
+  ) {
 
-      const barang =
-        DATA.barang.find(
-          b =>
-            String(b.ID) ===
-            String(this.value)
-        );
+    if (arrow) {
+      arrow.textContent = "⌃";
+    }
+
+  } else {
+
+    if (arrow) {
+      arrow.textContent = "⌄";
+    }
+
+  }
+
+}
 
 
-      if(barang){
+/* =====================================================
+   TUTUP DROPDOWN JIKA KLIK DI LUAR
+====================================================== */
 
-        document.getElementById(
-          'belanjaNama'
-        ).value =
-          barang['Nama Barang'] || '';
+document.addEventListener(
+  "click",
+  function(event) {
+
+    const box =
+      document.querySelector(
+        ".menu-dropdown"
+      );
+
+    const menu =
+      document.getElementById(
+        "menuLainnya"
+      );
+
+    const arrow =
+      document.getElementById(
+        "dropdownArrow"
+      );
 
 
-        document.getElementById(
-          'belanjaHarga'
-        ).value =
-          Number(
-            barang['Harga Modal'] || 0
-          );
+    if (
+      !box ||
+      !menu
+    ) {
+      return;
+    }
 
+
+    if (
+      !box.contains(
+        event.target
+      )
+    ) {
+
+      menu.classList.remove(
+        "show"
+      );
+
+      if (arrow) {
+        arrow.textContent = "⌄";
       }
 
     }
-  );
 
-
-init();
-
-
-/* ==================================================
-   SERVICE WORKER
-================================================== */
-
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .then(() => console.log("CatatKu siap digunakan"))
-      .catch(err =>
-        console.error("Service Worker gagal:", err)
-      );
-  });
-}
-</script>
+  }
+);
 
 </script>
-
-</body>
-</html>
