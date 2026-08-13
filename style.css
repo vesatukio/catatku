@@ -1,4 +1,86 @@
 /* ==================================================
+   GELANGGANG UTAMA & TATA LETAK
+================================================== */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f4f6f8;
+  color: #1f2937;
+  margin: 0;
+  padding: 0;
+  padding-bottom: 70px;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Saldo Utama */
+.balance {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+}
+
+.balance-label {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.balance-value {
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+/* Grid Statistik (Kotak-kotak kecil di atas) */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat {
+  background: #ffffff;
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.stat-title {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+.stat-value.green { color: #16a34a; }
+.stat-value.red { color: #dc2626; }
+.stat-value.blue { color: #2563eb; }
+.stat-value.orange { color: #ea580c; }
+
+/* Judul Section */
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #111827;
+}
+
+/* ==================================================
    AKSI CEPAT (Tampil Mencolok & Timbul)
 ================================================== */
 .actions {
@@ -31,28 +113,24 @@
   opacity: 0.9;
 }
 
-/* 1. Pemasukan - Hijau Segar Timbul */
 .action.action-pemasukan {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #ffffff;
   box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35);
 }
 
-/* 2. Pengeluaran - Merah Menyala Timbul */
 .action.action-pengeluaran {
   background: linear-gradient(135deg, #ef4444, #dc2626);
   color: #ffffff;
   box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
 }
 
-/* 3. Penjualan - Biru Dinamis Timbul */
 .action.action-penjualan {
   background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: #ffffff;
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
 }
 
-/* 4. Barang - Orange/Amber Eksklusif Timbul */
 .action.action-barang {
   background: linear-gradient(135deg, #f97316, #ea580c);
   color: #ffffff;
