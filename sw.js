@@ -1,21 +1,19 @@
 const CACHE_NAME = "catatku-v1";
 
-const FILES = [
+const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./sw.js",
+  "./icon-192.png",
   "./icon-512.png"
 ];
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache =>
-      cache.addAll(FILES)
-    )
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(FILES_TO_CACHE))
+      .then(() => self.skipWaiting())
   );
-
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", event => {
@@ -26,15 +24,16 @@ self.addEventListener("activate", event => {
           .filter(key => key !== CACHE_NAME)
           .map(key => caches.delete(key))
       )
-    )
+    ).then(() => self.clients.claim())
   );
-
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", event => {
 
-  if (event.request.method !== "GET") {
+  // API GAS jangan di-cache
+  if (
+    event.request.url.includes("script.google.com")
+  ) {
     return;
   }
 
@@ -49,19 +48,25 @@ self.addEventListener("fetch", event => {
         return fetch(event.request)
           .then(response => {
 
-            const copy =
-              response.clone();
+            if (
+              !response ||
+              response.status !== 200 ||
+              response.type === "opaque"
+            ) {
+              return response;
+            }
+
+            const copy = response.clone();
 
             caches.open(CACHE_NAME)
-              .then(cache =>
+              .then(cache => {
                 cache.put(
                   event.request,
                   copy
-                )
-              );
+                );
+              });
 
             return response;
-
           })
           .catch(() =>
             caches.match("./index.html")
@@ -69,5 +74,4 @@ self.addEventListener("fetch", event => {
 
       })
   );
-
 });
