@@ -25,9 +25,7 @@
   name="description"
   content="CatatKu - Keuangan Pribadi dan Toko">
 
-<title>
-CatatKu — Keuangan Pribadi & Toko
-</title>
+<title>CatatKu — Keuangan Pribadi & Toko</title>
 
 <link
   rel="manifest"
@@ -43,7 +41,9 @@ CatatKu — Keuangan Pribadi & Toko
 <body>
 
 
-<!-- LOADING -->
+<!-- =====================================================
+     LOADING
+===================================================== -->
 
 <div
   id="loading"
@@ -58,7 +58,9 @@ CatatKu — Keuangan Pribadi & Toko
 </div>
 
 
-<!-- HEADER -->
+<!-- =====================================================
+     HEADER
+===================================================== -->
 
 <header class="topbar">
 
@@ -77,16 +79,14 @@ CatatKu — Keuangan Pribadi & Toko
 
   <div class="header-actions">
 
-    <div
-      class="connection-status">
+    <div class="connection-status">
 
       <span
         id="onlineDot"
         class="online-dot">
       </span>
 
-      <span
-        id="onlineText">
+      <span id="onlineText">
         ...
       </span>
 
@@ -106,16 +106,14 @@ CatatKu — Keuangan Pribadi & Toko
 </header>
 
 
-<!-- SYNC BAR -->
+<!-- =====================================================
+     SYNC BAR
+===================================================== -->
 
-<div
-  class="sync-bar">
+<div class="sync-bar">
 
-  <span
-    id="syncText">
-
+  <span id="syncText">
     Data tersimpan otomatis
-
   </span>
 
 
@@ -141,7 +139,9 @@ CatatKu — Keuangan Pribadi & Toko
 <main class="container">
 
 
-<!-- DASHBOARD -->
+<!-- =====================================================
+     DASHBOARD
+===================================================== -->
 
 <section
   id="page-dashboard"
@@ -177,11 +177,9 @@ CatatKu — Keuangan Pribadi & Toko
   <div class="summary-grid">
 
 
-    <div
-      class="summary-card income">
+    <div class="summary-card income">
 
-      <div
-        class="summary-icon">
+      <div class="summary-icon">
         ↗
       </div>
 
@@ -204,11 +202,9 @@ CatatKu — Keuangan Pribadi & Toko
     </div>
 
 
-    <div
-      class="summary-card expense">
+    <div class="summary-card expense">
 
-      <div
-        class="summary-icon">
+      <div class="summary-icon">
         ↘
       </div>
 
@@ -231,11 +227,9 @@ CatatKu — Keuangan Pribadi & Toko
     </div>
 
 
-    <div
-      class="summary-card sales">
+    <div class="summary-card sales">
 
-      <div
-        class="summary-icon">
+      <div class="summary-icon">
         🛒
       </div>
 
@@ -258,11 +252,9 @@ CatatKu — Keuangan Pribadi & Toko
     </div>
 
 
-    <div
-      class="summary-card debt">
+    <div class="summary-card debt">
 
-      <div
-        class="summary-icon">
+      <div class="summary-icon">
         💳
       </div>
 
@@ -286,6 +278,8 @@ CatatKu — Keuangan Pribadi & Toko
 
   </div>
 
+
+  <!-- TRANSAKSI TERBARU -->
 
   <div class="section-head">
 
@@ -318,24 +312,32 @@ CatatKu — Keuangan Pribadi & Toko
 </section>
 
 
-<!-- CATAT -->
+<!-- =====================================================
+     TRANSAKSI
+     PERBAIKAN:
+     sebelumnya id="page-add"
+     sekarang id="page-transaksi"
+===================================================== -->
 
 <section
-  id="page-add"
+  id="page-transaksi"
   class="page">
+
 
   <div class="page-title">
 
     <h1>
-      Tambah Transaksi
+      Transaksi
     </h1>
 
     <p>
-      Bisa digunakan tanpa internet
+      Pemasukan dan pengeluaran
     </p>
 
   </div>
 
+
+  <!-- PILIH JENIS -->
 
   <div class="type-tabs">
 
@@ -360,6 +362,8 @@ CatatKu — Keuangan Pribadi & Toko
 
   </div>
 
+
+  <!-- FORM TRANSAKSI -->
 
   <form
     id="transactionForm"
@@ -433,16 +437,51 @@ CatatKu — Keuangan Pribadi & Toko
 
     </button>
 
+
   </form>
+
+
+  <!-- DATA TRANSAKSI LANGSUNG TERLIHAT -->
+
+  <div class="section-head">
+
+    <h2>
+      Data Transaksi
+    </h2>
+
+    <button
+      class="text-btn"
+      onclick="showPage('history')">
+
+      Semua
+
+    </button>
+
+  </div>
+
+
+  <div
+    id="transactionPageList"
+    class="transaction-list">
+
+    <div class="empty">
+      Belum ada transaksi.
+    </div>
+
+  </div>
+
 
 </section>
 
 
-<!-- BARANG -->
+<!-- =====================================================
+     BARANG
+===================================================== -->
 
 <section
   id="page-barang"
   class="page">
+
 
   <div class="page-title">
 
@@ -476,14 +515,18 @@ CatatKu — Keuangan Pribadi & Toko
 
   </div>
 
+
 </section>
 
 
-<!-- PENJUALAN -->
+<!-- =====================================================
+     PENJUALAN
+===================================================== -->
 
 <section
   id="page-penjualan"
   class="page">
+
 
   <div class="page-title">
 
@@ -559,16 +602,21 @@ CatatKu — Keuangan Pribadi & Toko
 
     </button>
 
+
   </form>
+
 
 </section>
 
 
-<!-- BELANJA -->
+<!-- =====================================================
+     BELANJA
+===================================================== -->
 
 <section
   id="page-belanja"
   class="page">
+
 
   <div class="page-title">
 
@@ -643,16 +691,21 @@ CatatKu — Keuangan Pribadi & Toko
 
     </button>
 
+
   </form>
+
 
 </section>
 
 
-<!-- HUTANG -->
+<!-- =====================================================
+     HUTANG
+===================================================== -->
 
 <section
   id="page-hutang"
   class="page">
+
 
   <div class="page-title">
 
@@ -686,14 +739,18 @@ CatatKu — Keuangan Pribadi & Toko
 
   </div>
 
+
 </section>
 
 
-<!-- RIWAYAT -->
+<!-- =====================================================
+     RIWAYAT
+===================================================== -->
 
 <section
   id="page-history"
   class="page">
+
 
   <div class="page-title">
 
@@ -702,7 +759,7 @@ CatatKu — Keuangan Pribadi & Toko
     </h1>
 
     <p>
-      Data transaksi
+      Semua data transaksi
     </p>
 
   </div>
@@ -718,14 +775,18 @@ CatatKu — Keuangan Pribadi & Toko
 
   </div>
 
+
 </section>
 
 
-<!-- LAPORAN -->
+<!-- =====================================================
+     LAPORAN
+===================================================== -->
 
 <section
   id="page-report"
   class="page">
+
 
   <div class="page-title">
 
@@ -770,44 +831,62 @@ CatatKu — Keuangan Pribadi & Toko
 
   </div>
 
+
 </section>
 
 
 </main>
 
 
-<!-- BOTTOM NAV -->
+<!-- =====================================================
+     BOTTOM NAV
+===================================================== -->
 
 <nav class="bottom-nav">
+
 
   <button
     class="nav-circle nav-home active"
     onclick="showPage('dashboard')">
 
-    <span class="nav-icon">⌂</span>
-    <span>Beranda</span>
+    <span class="nav-icon">
+      ⌂
+    </span>
+
+    <span>
+      Beranda
+    </span>
 
   </button>
 
+
+  <!-- PERBAIKAN: transaksi sekarang benar -->
 
   <button
     class="nav-circle nav-transaksi"
     onclick="showPage('transaksi')">
 
-    <span class="nav-icon">↗</span>
-    <span>Transaksi</span>
+    <span class="nav-icon">
+      ↗
+    </span>
+
+    <span>
+      Transaksi
+    </span>
 
   </button>
 
 
-  <!-- TOMBOL + BESAR -->
+  <!-- TOMBOL + -->
 
   <button
     class="nav-plus"
     onclick="openQuickAdd()"
     aria-label="Tambah">
 
-    <span>+</span>
+    <span>
+      +
+    </span>
 
   </button>
 
@@ -816,8 +895,13 @@ CatatKu — Keuangan Pribadi & Toko
     class="nav-circle nav-barang"
     onclick="showPage('barang')">
 
-    <span class="nav-icon">▣</span>
-    <span>Barang</span>
+    <span class="nav-icon">
+      ▣
+    </span>
+
+    <span>
+      Barang
+    </span>
 
   </button>
 
@@ -826,15 +910,23 @@ CatatKu — Keuangan Pribadi & Toko
     class="nav-circle nav-more"
     onclick="showMoreMenu()">
 
-    <span class="nav-icon">☰</span>
-    <span>Lainnya</span>
+    <span class="nav-icon">
+      ☰
+    </span>
+
+    <span>
+      Lainnya
+    </span>
 
   </button>
+
 
 </nav>
 
 
-<!-- MORE MENU -->
+<!-- =====================================================
+     MORE MENU
+===================================================== -->
 
 <div
   id="moreMenu"
@@ -905,7 +997,9 @@ CatatKu — Keuangan Pribadi & Toko
 </div>
 
 
-<!-- MODAL BARANG -->
+<!-- =====================================================
+     MODAL BARANG
+===================================================== -->
 
 <div
   id="barangModal"
@@ -994,7 +1088,9 @@ CatatKu — Keuangan Pribadi & Toko
 </div>
 
 
-<!-- MODAL HUTANG -->
+<!-- =====================================================
+     MODAL HUTANG
+===================================================== -->
 
 <div
   id="hutangModal"
@@ -1077,7 +1173,9 @@ CatatKu — Keuangan Pribadi & Toko
 </div>
 
 
-<!-- TOAST -->
+<!-- =====================================================
+     TOAST
+===================================================== -->
 
 <div
   id="toast"
@@ -1085,8 +1183,171 @@ CatatKu — Keuangan Pribadi & Toko
 </div>
 
 
-<script
-  src="app.js">
+<!-- =====================================================
+     APP JS
+===================================================== -->
+
+<script src="app.js"></script>
+
+
+<!-- =====================================================
+     TAMBAHAN:
+     Render data transaksi pada halaman Transaksi
+===================================================== -->
+
+<script>
+
+function renderTransactionPage() {
+
+  const el =
+    document.getElementById(
+      "transactionPageList"
+    );
+
+  if (!el) return;
+
+
+  const rows =
+    Array.isArray(appData.history)
+      ? appData.history
+      : [];
+
+
+  /*
+   * Khusus pemasukan dan pengeluaran
+   */
+
+  const transactions =
+    rows.filter(item => {
+
+      const entity =
+        String(
+          item.entity || ""
+        ).toUpperCase();
+
+      const jenis =
+        String(
+          item.jenis ||
+          item.tipe ||
+          ""
+        ).toUpperCase();
+
+      return (
+        entity === "TRANSAKSI" &&
+        (
+          jenis === "PEMASUKAN" ||
+          jenis === "PENGELUARAN"
+        )
+      );
+
+    });
+
+
+  if (!transactions.length) {
+
+    el.innerHTML =
+      `<div class="empty">
+        Belum ada data pemasukan/pengeluaran.
+      </div>`;
+
+    return;
+
+  }
+
+
+  el.innerHTML =
+    transactions
+      .slice(0, 100)
+      .map(transactionHTML)
+      .join("");
+
+}
+
+
+/*
+ * Bungkus renderAll lama agar
+ * halaman transaksi ikut diperbarui.
+ */
+
+const _renderAllAsli =
+  window.renderAll;
+
+
+window.renderAll =
+  function() {
+
+    if (
+      typeof _renderAllAsli ===
+      "function"
+    ) {
+
+      _renderAllAsli();
+
+    }
+
+    renderTransactionPage();
+
+  };
+
+
+/*
+ * Bungkus renderHistory
+ * agar setelah simpan transaksi,
+ * data langsung terlihat.
+ */
+
+const _renderHistoryAsli =
+  window.renderHistory;
+
+
+window.renderHistory =
+  function() {
+
+    if (
+      typeof _renderHistoryAsli ===
+      "function"
+    ) {
+
+      _renderHistoryAsli();
+
+    }
+
+    renderTransactionPage();
+
+  };
+
+
+/*
+ * Pastikan saat membuka halaman
+ * transaksi data langsung dirender.
+ */
+
+const _showPageAsli =
+  window.showPage;
+
+
+window.showPage =
+  function(name) {
+
+    if (
+      typeof _showPageAsli ===
+      "function"
+    ) {
+
+      _showPageAsli(name);
+
+    }
+
+    if (
+      name === "transaksi"
+    ) {
+
+      renderTransactionPage();
+
+    }
+
+  };
+
 </script>
 
 
