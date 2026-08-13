@@ -1,17 +1,20 @@
 {
   "name": "CatatKu — Keuangan Pribadi & Toko",
   "short_name": "CatatKu",
-  "description": "Aplikasi pencatatan keuangan pribadi dan toko.",
-  "lang": "id-ID",
-  "dir": "ltr",
+  "start_url": "./index.html",
   "display": "standalone",
-  "orientation": "portrait",
-  "start_url": "./",
-  "scope": "./",
-  "theme_color": "#2563eb",
   "background_color": "#f4f6f8",
+  "theme_color": "#2563eb",
   "icons": [
-    {"src":"./assets/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
-    {"src":"./assets/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }
