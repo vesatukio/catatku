@@ -1,1364 +1,1717 @@
-```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-
-  <meta name="viewport"
-        content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-
-  <title>CatatKu</title>
-
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/png" href="./icon-512.png">
-  <link rel="apple-touch-icon" href="./icon-512.png">
-
-  <meta name="theme-color" content="#2563eb">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-
-  <style>
-    *{
-      box-sizing:border-box;
-      -webkit-tap-highlight-color:transparent;
-    }
-
-    html,
-    body{
-      margin:0;
-      padding:0;
-      width:100%;
-      min-height:100%;
-    }
-
-    body{
-      font-family:Arial,Helvetica,sans-serif;
-      background:#f5f7fb;
-      color:#172033;
-      padding-bottom:82px;
-      overflow-x:hidden;
-    }
-
-    button,
-    input,
-    select{
-      font:inherit;
-    }
-
-    button{
-      cursor:pointer;
-    }
-
-    .app{
-      width:100%;
-      max-width:600px;
-      margin:auto;
-    }
-
-    .header{
-      background:#fff;
-      padding:15px;
-      position:sticky;
-      top:0;
-      z-index:20;
-      border-bottom:1px solid #eee;
-    }
-
-    .brand-row{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-
-    .brand-logo{
-      width:42px;
-      height:42px;
-      border-radius:12px;
-      object-fit:cover;
-      background:#eef2f7;
-      flex:0 0 42px;
-    }
-
-    .brand{
-      font-size:21px;
-      font-weight:800;
-    }
-
-    .subtitle{
-      color:#7b8494;
-      font-size:12px;
-      margin-top:2px;
-    }
-
-    .page{
-      display:none;
-      padding:14px;
-    }
-
-    .page.active{
-      display:block;
-    }
-
-    .wallet{
-      background:#172033;
-      color:#fff;
-      border-radius:22px;
-      padding:20px;
-      margin-bottom:14px;
-      box-shadow:0 8px 25px rgba(0,0,0,.12);
-    }
-
-    .wallet-label{
-      font-size:12px;
-      opacity:.72;
-    }
-
-    .saldo{
-      font-size:32px;
-      font-weight:800;
-      margin:7px 0 17px;
-    }
-
-    .wallet-row{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-
-    .wallet-box{
-      padding:11px;
-      background:rgba(255,255,255,.10);
-      border-radius:14px;
-    }
-
-    .wallet-box small{
-      display:block;
-      font-size:11px;
-      opacity:.7;
-      margin-bottom:4px;
-    }
-
-    .wallet-box b{
-      font-size:14px;
-    }
-
-    .stats{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-bottom:14px;
-    }
-
-    .card,
-    .stat{
-      background:#fff;
-      border-radius:17px;
-      box-shadow:0 2px 10px rgba(0,0,0,.04);
-    }
-
-    .card{
-      padding:15px;
-      margin-bottom:14px;
-    }
-
-    .stat{
-      padding:14px;
-    }
-
-    .stat small{
-      display:block;
-      color:#7c8594;
-      margin-bottom:5px;
-    }
-
-    .stat b{
-      font-size:17px;
-    }
-
-    .card-title{
-      font-size:16px;
-      font-weight:800;
-      margin-bottom:12px;
-    }
-
-    .quick{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:8px;
-    }
-
-    .quick button{
-      border:0;
-      border-radius:15px;
-      min-height:76px;
-      padding:10px 4px;
-      color:#172033;
-    }
-
-    .quick-icon{
-      width:40px;
-      height:40px;
-      margin:0 auto 5px;
-      border-radius:12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:21px;
-    }
-
-    .quick span{
-      display:block;
-      font-size:11px;
-      font-weight:700;
-    }
-
-    .quick-transaksi{background:#ecfdf5}
-    .quick-transaksi .quick-icon{background:#bbf7d0}
-
-    .quick-penjualan{background:#eff6ff}
-    .quick-penjualan .quick-icon{background:#bfdbfe}
-
-    .quick-belanja{background:#fff7ed}
-    .quick-belanja .quick-icon{background:#fed7aa}
-
-    .quick-hutang{background:#fef2f2}
-    .quick-hutang .quick-icon{background:#fecaca}
-
-    .quick-tagihan{background:#faf5ff}
-    .quick-tagihan .quick-icon{background:#e9d5ff}
-
-    .quick-laporan{background:#f3f4f6}
-    .quick-laporan .quick-icon{background:#d1d5db}
-
-    .form-group{
-      margin-bottom:12px;
-    }
-
-    label{
-      display:block;
-      font-size:12px;
-      font-weight:700;
-      color:#687386;
-      margin-bottom:6px;
-    }
-
-    input,
-    select{
-      width:100%;
-      padding:12px;
-      border:1px solid #dfe4eb;
-      border-radius:12px;
-      background:#fff;
-      outline:none;
-    }
-
-    input:focus,
-    select:focus{
-      border-color:#2563eb;
-    }
-
-    .grid2{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-
-    .jenis{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-    }
-
-    .metode{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:8px;
-    }
-
-    .jenis button,
-    .metode button{
-      border:1px solid #ddd;
-      background:#fff;
-      border-radius:12px;
-      padding:11px;
-    }
-
-    .jenis button.active,
-    .metode button.active{
-      background:#172033;
-      color:#fff;
-      border-color:#172033;
-    }
-
-    .btn{
-      width:100%;
-      border:0;
-      background:#172033;
-      color:#fff;
-      padding:13px;
-      border-radius:13px;
-      font-weight:800;
-    }
-
-    .btn.secondary{
-      background:#edf0f5;
-      color:#172033;
-    }
-
-    .history-item{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      padding:13px 0;
-      border-bottom:1px solid #eee;
-    }
-
-    .history-item:last-child{
-      border-bottom:0;
-    }
-
-    .history-name,
-    .list-title{
-      font-weight:800;
-      font-size:14px;
-    }
-
-    .history-meta,
-    .list-info{
-      font-size:11px;
-      color:#8992a2;
-      margin-top:4px;
-      line-height:1.5;
-    }
-
-    .masuk{
-      color:#159447;
-      font-weight:800;
-      white-space:nowrap;
-    }
-
-    .keluar{
-      color:#d63a3a;
-      font-weight:800;
-      white-space:nowrap;
-    }
-
-    .list-item{
-      padding:13px 0;
-      border-bottom:1px solid #eee;
-    }
-
-    .list-item:last-child{
-      border-bottom:0;
-    }
-
-    .badge{
-      display:inline-block;
-      margin-top:6px;
-      padding:5px 8px;
-      border-radius:8px;
-      font-size:10px;
-      font-weight:800;
-    }
-
-    .badge.warning{
-      background:#fff0cf;
-      color:#9b6a00;
-    }
-
-    .badge.danger{
-      background:#ffe5e5;
-      color:#c92d2d;
-    }
-
-    .empty,
-    .loading{
-      text-align:center;
-      padding:22px 10px;
-      color:#8a93a2;
-      font-size:13px;
-    }
-
-    .bottom{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      background:#fff;
-      border-top:1px solid #e6e8ed;
-      z-index:50;
-      padding:7px 5px;
-    }
-
-    .bottom-inner{
-      width:100%;
-      max-width:600px;
-      margin:auto;
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-    }
-
-    .nav{
-      border:0;
-      background:none;
-      color:#87909f;
-      padding:6px 2px;
-      font-size:10px;
-    }
-
-    .nav .ico{
-      display:block;
-      font-size:20px;
-      margin-bottom:3px;
-    }
-
-    .nav.active{
-      color:#172033;
-      font-weight:800;
-    }
-
-    .toast{
-      position:fixed;
-      left:14px;
-      right:14px;
-      bottom:85px;
-      background:#172033;
-      color:#fff;
-      padding:12px;
-      border-radius:12px;
-      text-align:center;
-      display:none;
-      z-index:100;
-      font-size:13px;
-    }
-
-    .toast.show{
-      display:block;
-    }
-
-    @media(max-width:380px){
-      .quick{
-        grid-template-columns:repeat(2,1fr);
-      }
-
-      .metode{
-        grid-template-columns:1fr 1fr;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<title>CatatKu — Keuangan Pribadi & Toko</title>
+
+<link rel="manifest" href="manifest.json">
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:#f4f6f8;
+  color:#172033;
+  padding-bottom:75px;
+}
+
+button,input,select,textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+  border:0;
+}
+
+.header{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:#2563eb;
+  color:white;
+  padding:15px;
+  box-shadow:0 2px 8px #0002;
+}
+
+.header-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.logo{
+  font-size:21px;
+  font-weight:bold;
+}
+
+.subtitle{
+  font-size:12px;
+  opacity:.85;
+  margin-top:3px;
+}
+
+.icon-btn{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:#ffffff22;
+  color:white;
+  font-size:20px;
+}
+
+.container{
+  max-width:1000px;
+  margin:auto;
+  padding:14px;
+}
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+.card{
+  background:white;
+  border-radius:16px;
+  padding:15px;
+  margin-bottom:14px;
+  box-shadow:0 2px 10px #0000000d;
+}
+
+.balance{
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  color:white;
+}
+
+.balance-label{
+  font-size:13px;
+  opacity:.85;
+}
+
+.balance-value{
+  font-size:29px;
+  font-weight:bold;
+  margin-top:7px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.stat{
+  background:white;
+  border-radius:14px;
+  padding:14px;
+  box-shadow:0 2px 8px #0000000c;
+}
+
+.stat-title{
+  font-size:12px;
+  color:#64748b;
+}
+
+.stat-value{
+  font-size:18px;
+  font-weight:bold;
+  margin-top:7px;
+}
+
+.green{
+  color:#16a34a;
+}
+
+.red{
+  color:#dc2626;
+}
+
+.orange{
+  color:#ea580c;
+}
+
+.blue{
+  color:#2563eb;
+}
+
+.section-title{
+  font-size:18px;
+  font-weight:bold;
+  margin:5px 0 12px;
+}
+
+.actions{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.action{
+  background:white;
+  padding:15px;
+  border-radius:14px;
+  text-align:left;
+  box-shadow:0 2px 8px #0000000c;
+  font-weight:bold;
+}
+
+.action small{
+  display:block;
+  color:#64748b;
+  margin-top:5px;
+  font-weight:normal;
+}
+
+.form-group{
+  margin-bottom:12px;
+}
+
+label{
+  display:block;
+  font-size:13px;
+  font-weight:bold;
+  margin-bottom:5px;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  padding:12px;
+  border:1px solid #dbe1e8;
+  border-radius:10px;
+  background:white;
+  outline:none;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:#2563eb;
+}
+
+textarea{
+  min-height:80px;
+  resize:vertical;
+}
+
+.btn{
+  width:100%;
+  padding:13px;
+  border-radius:11px;
+  font-weight:bold;
+  margin-top:5px;
+}
+
+.btn-primary{
+  background:#2563eb;
+  color:white;
+}
+
+.btn-success{
+  background:#16a34a;
+  color:white;
+}
+
+.btn-danger{
+  background:#dc2626;
+  color:white;
+}
+
+.btn-secondary{
+  background:#e5e7eb;
+  color:#111827;
+}
+
+.btn-warning{
+  background:#f59e0b;
+  color:white;
+}
+
+.row{
+  display:flex;
+  gap:8px;
+}
+
+.row>*{
+  flex:1;
+}
+
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:600px;
+}
+
+th,td{
+  padding:10px 8px;
+  border-bottom:1px solid #e5e7eb;
+  text-align:left;
+  font-size:12px;
+}
+
+th{
+  background:#f8fafc;
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:bold;
+}
+
+.badge-green{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.badge-red{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.badge-orange{
+  background:#ffedd5;
+  color:#9a3412;
+}
+
+.badge-blue{
+  background:#dbeafe;
+  color:#1e40af;
+}
+
+.empty{
+  text-align:center;
+  color:#64748b;
+  padding:25px;
+}
+
+.loading{
+  text-align:center;
+  padding:25px;
+  color:#64748b;
+}
+
+.bottom-nav{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:30;
+  height:65px;
+  background:white;
+  border-top:1px solid #e5e7eb;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  box-shadow:0 -3px 15px #00000010;
+}
+
+.nav-btn{
+  background:white;
+  color:#64748b;
+  font-size:10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+}
+
+.nav-btn span{
+  font-size:21px;
+}
+
+.nav-btn.active{
+  color:#2563eb;
+  font-weight:bold;
+}
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:#0008;
+  padding:15px;
+  overflow:auto;
+}
+
+.modal.show{
+  display:block;
+}
+
+.modal-box{
+  background:white;
+  border-radius:18px;
+  max-width:600px;
+  margin:30px auto;
+  padding:18px;
+}
+
+.modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.close{
+  background:#f1f5f9;
+  width:35px;
+  height:35px;
+  border-radius:50%;
+}
+
+.menu-list{
+  display:grid;
+  gap:8px;
+}
+
+.menu-item{
+  padding:14px;
+  background:#f8fafc;
+  border-radius:12px;
+  font-weight:bold;
+}
+
+.alert{
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  color:#9a3412;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:12px;
+}
+
+.search{
+  margin-bottom:10px;
+}
+
+@media(min-width:700px){
+
+  .grid{
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  .actions{
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  .bottom-nav{
+    max-width:700px;
+    left:50%;
+    transform:translateX(-50%);
+    border-radius:15px 15px 0 0;
+  }
+
+}
+</style>
 </head>
 
 <body>
 
-<div class="app">
+<header class="header">
 
-  <header class="header">
-    <div class="brand-row">
+  <div class="header-row">
 
-      <img
-        class="brand-logo"
-        src="./icon-512.png"
-        alt="CatatKu">
-
-      <div>
-        <div class="brand">
-          CatatKu
-        </div>
-
-        <div class="subtitle">
-          Keuangan pribadi & toko
-        </div>
-      </div>
-
-    </div>
-  </header>
-
-
-  <!-- HOME -->
-
-  <section id="home" class="page active">
-
-    <div class="wallet">
-
-      <div class="wallet-label">
-        Total Saldo
-      </div>
-
-      <div id="saldo" class="saldo">
-        Rp0
-      </div>
-
-      <div class="wallet-row">
-
-        <div class="wallet-box">
-          <small>Pemasukan Hari Ini</small>
-          <b id="pemasukanHariIni">Rp0</b>
-        </div>
-
-        <div class="wallet-box">
-          <small>Pengeluaran Hari Ini</small>
-          <b id="pengeluaranHariIni">Rp0</b>
-        </div>
-
+    <div>
+      <div class="logo">💰 CatatKu</div>
+      <div class="subtitle">
+        Keuangan Pribadi & Toko
       </div>
     </div>
-
-
-    <div class="stats">
-
-      <div class="stat">
-        <small>Saldo Pribadi</small>
-        <b id="saldoPribadi">Rp0</b>
-      </div>
-
-      <div class="stat">
-        <small>Saldo Toko</small>
-        <b id="saldoToko">Rp0</b>
-      </div>
-
-      <div class="stat">
-        <small>Total Hutang</small>
-        <b id="totalHutang">Rp0</b>
-      </div>
-
-      <div class="stat">
-        <small>Nilai Stok</small>
-        <b id="nilaiStok">Rp0</b>
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <div class="card-title">
-        Menu Cepat
-      </div>
-
-      <div class="quick">
-
-        <button
-          class="quick-transaksi"
-          onclick="openPage('transaksi')">
-          <div class="quick-icon">💰</div>
-          <span>Transaksi</span>
-        </button>
-
-        <button
-          class="quick-penjualan"
-          onclick="openPage('penjualan')">
-          <div class="quick-icon">🛒</div>
-          <span>Penjualan</span>
-        </button>
-
-        <button
-          class="quick-belanja"
-          onclick="openPage('belanja')">
-          <div class="quick-icon">📦</div>
-          <span>Belanja</span>
-        </button>
-
-        <button
-          class="quick-hutang"
-          onclick="openPage('hutang')">
-          <div class="quick-icon">💳</div>
-          <span>Hutang</span>
-        </button>
-
-        <button
-          class="quick-tagihan"
-          onclick="openPage('tagihan')">
-          <div class="quick-icon">🔔</div>
-          <span>Tagihan</span>
-        </button>
-
-        <button
-          class="quick-laporan"
-          onclick="openPage('laporan')">
-          <div class="quick-icon">📊</div>
-          <span>Laporan</span>
-        </button>
-
-      </div>
-    </div>
-
-
-    <div class="card">
-
-      <div class="card-title">
-        History Terbaru
-      </div>
-
-      <div id="history">
-        <div class="loading">
-          Memuat history...
-        </div>
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- TRANSAKSI -->
-
-  <section id="transaksi" class="page">
-
-    <div class="card">
-
-      <div class="card-title">
-        Tambah Transaksi
-      </div>
-
-      <div class="form-group">
-
-        <label>Sumber</label>
-
-        <select id="trxSumber">
-          <option value="Pribadi">Pribadi</option>
-          <option value="Toko">Toko</option>
-        </select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Jenis</label>
-
-        <div class="jenis">
-
-          <button
-            id="btnMasuk"
-            class="active"
-            onclick="pilihJenis('Masuk')">
-            Pemasukan
-          </button>
-
-          <button
-            id="btnKeluar"
-            onclick="pilihJenis('Keluar')">
-            Pengeluaran
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Kategori</label>
-
-        <select id="trxKategori">
-          <option value="">
-            Memuat kategori...
-          </option>
-        </select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Keterangan</label>
-
-        <input
-          id="trxKeterangan"
-          placeholder="Contoh: makan, gaji, listrik">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Jumlah</label>
-
-        <input
-          id="trxJumlah"
-          type="number"
-          inputmode="numeric"
-          placeholder="0">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Metode Pembayaran</label>
-
-        <div class="metode">
-
-          <button
-            class="active"
-            onclick="pilihMetode(this,'Cash')">
-            Cash
-          </button>
-
-          <button
-            onclick="pilihMetode(this,'Transfer')">
-            Transfer
-          </button>
-
-          <button
-            onclick="pilihMetode(this,'QRIS')">
-            QRIS
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <button
-        class="btn"
-        onclick="simpanTransaksi()">
-        Simpan Transaksi
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <!-- PENJUALAN -->
-
-  <section id="penjualan" class="page">
-
-    <div class="card">
-
-      <div class="card-title">
-        Penjualan Toko
-      </div>
-
-      <div class="form-group">
-
-        <label>Barang</label>
-
-        <select id="jualBarang">
-          <option value="">
-            Pilih barang
-          </option>
-        </select>
-
-      </div>
-
-
-      <div class="grid2">
-
-        <div class="form-group">
-
-          <label>Jumlah</label>
-
-          <input
-            id="jualQty"
-            type="number"
-            value="1"
-            min="1">
-
-        </div>
-
-        <div class="form-group">
-
-          <label>Harga Jual</label>
-
-          <input
-            id="jualHarga"
-            type="number"
-            placeholder="Otomatis">
-
-        </div>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Metode</label>
-
-        <div class="metode">
-
-          <button
-            class="active"
-            onclick="pilihMetode(this,'Cash')">
-            Cash
-          </button>
-
-          <button
-            onclick="pilihMetode(this,'Transfer')">
-            Transfer
-          </button>
-
-          <button
-            onclick="pilihMetode(this,'QRIS')">
-            QRIS
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <button
-        class="btn"
-        onclick="simpanPenjualan()">
-        Simpan Penjualan
-      </button>
-
-    </div>
-
-
-    <div class="card">
-
-      <div class="card-title">
-        Penjualan Terbaru
-      </div>
-
-      <div id="listPenjualan">
-        <div class="loading">Memuat...</div>
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- BELANJA -->
-
-  <section id="belanja" class="page">
-
-    <div class="card">
-
-      <div class="card-title">
-        Belanja Barang / Stok
-      </div>
-
-      <div class="form-group">
-
-        <label>Barang</label>
-
-        <select id="belanjaBarang">
-          <option value="">
-            Pilih barang
-          </option>
-        </select>
-
-      </div>
-
-
-      <div class="grid2">
-
-        <div class="form-group">
-
-          <label>Jumlah</label>
-
-          <input
-            id="belanjaQty"
-            type="number"
-            value="1">
-
-        </div>
-
-        <div class="form-group">
-
-          <label>Harga Modal</label>
-
-          <input
-            id="belanjaHarga"
-            type="number">
-
-        </div>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Supplier</label>
-
-        <input
-          id="belanjaSupplier"
-          placeholder="Nama supplier">
-
-      </div>
-
-
-      <div class="grid2">
-
-        <div class="form-group">
-
-          <label>Dibayar</label>
-
-          <input
-            id="belanjaDibayar"
-            type="number"
-            value="0">
-
-        </div>
-
-        <div class="form-group">
-
-          <label>Jatuh Tempo</label>
-
-          <input
-            id="belanjaJatuhTempo"
-            type="date">
-
-        </div>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Metode</label>
-
-        <div class="metode">
-
-          <button
-            class="active"
-            onclick="pilihMetode(this,'Cash')">
-            Cash
-          </button>
-
-          <button
-            onclick="pilihMetode(this,'Transfer')">
-            Transfer
-          </button>
-
-          <button
-            onclick="pilihMetode(this,'QRIS')">
-            QRIS
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <button
-        class="btn"
-        onclick="simpanBelanja()">
-        Simpan Belanja
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <!-- BARANG -->
-
-  <section id="barang" class="page">
-
-    <div class="card">
-
-      <div class="card-title">
-        Tambah Barang
-      </div>
-
-      <div class="form-group">
-
-        <label>Nama Barang</label>
-
-        <input
-          id="barangNama"
-          placeholder="Nama barang">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Kategori</label>
-
-        <select id="barangKategori">
-          <option value="">
-            Pilih kategori
-          </option>
-        </select>
-
-      </div>
-
-
-      <div class="grid2">
-
-        <input
-          id="barangModal"
-          type="number"
-          placeholder="Harga modal">
-
-        <input
-          id="barangJual"
-          type="number"
-          placeholder="Harga jual">
-
-      </div>
-
-      <br>
-
-      <div class="grid2">
-
-        <input
-          id="barangStok"
-          type="number"
-          placeholder="Stok">
-
-        <input
-          id="barangMinimum"
-          type="number"
-          placeholder="Stok minimum">
-
-      </div>
-
-      <br>
-
-      <input
-        id="barangSupplier"
-        placeholder="Supplier">
-
-      <br><br>
-
-      <button
-        class="btn"
-        onclick="simpanBarang()">
-        Simpan Barang
-      </button>
-
-    </div>
-
-
-    <div class="card">
-
-      <div class="card-title">
-        Daftar Barang
-      </div>
-
-      <div id="listBarang">
-        <div class="loading">Memuat barang...</div>
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- HUTANG -->
-
-  <section id="hutang" class="page">
-
-    <div class="card">
-
-      <div class="card-title">
-        Hutang
-      </div>
-
-      <div id="listHutang">
-        <div class="loading">Memuat hutang...</div>
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <div class="card-title">
-        Tambah Hutang
-      </div>
-
-      <div class="form-group">
-
-        <label>Jenis</label>
-
-        <select id="hutangJenis">
-
-          <option value="Hutang Supplier">
-            Hutang Supplier
-          </option>
-
-          <option value="Hutang Pribadi">
-            Hutang Pribadi
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Pihak</label>
-
-        <input
-          id="hutangPihak"
-          placeholder="Nama pihak">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Keterangan</label>
-
-        <input
-          id="hutangKeterangan"
-          placeholder="Keterangan hutang">
-
-      </div>
-
-
-      <div class="grid2">
-
-        <div class="form-group">
-
-          <label>Total</label>
-
-          <input
-            id="hutangTotal"
-            type="number">
-
-        </div>
-
-        <div class="form-group">
-
-          <label>Jatuh Tempo</label>
-
-          <input
-            id="hutangTempo"
-            type="date">
-
-        </div>
-
-      </div>
-
-
-      <button
-        class="btn"
-        onclick="simpanHutang()">
-        Simpan Hutang
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <!-- TAGIHAN -->
-
-  <section id="tagihan" class="page">
-
-    <div class="card">
-
-      <div class="card-title">
-        🔔 Tagihan
-      </div>
-
-      <div id="listTagihan">
-        <div class="loading">
-          Memuat tagihan...
-        </div>
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <div class="card-title">
-        Tambah Tagihan
-      </div>
-
-      <div class="form-group">
-
-        <label>Nama Tagihan</label>
-
-        <input
-          id="tagihanPihak"
-          placeholder="Contoh: Listrik">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Keterangan</label>
-
-        <input
-          id="tagihanKeterangan"
-          placeholder="Contoh: listrik bulan ini">
-
-      </div>
-
-
-      <div class="grid2">
-
-        <div class="form-group">
-
-          <label>Nominal</label>
-
-          <input
-            id="tagihanTotal"
-            type="number">
-
-        </div>
-
-        <div class="form-group">
-
-          <label>Jatuh Tempo</label>
-
-          <input
-            id="tagihanTempo"
-            type="date">
-
-        </div>
-
-      </div>
-
-
-      <button
-        class="btn"
-        onclick="simpanTagihan()">
-        Simpan Tagihan
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <!-- LAPORAN -->
-
-  <section id="laporan" class="page">
-
-    <div class="card">
-
-      <div class="card-title">
-        📊 Laporan Keuangan
-      </div>
-
-      <div class="quick">
-
-        <button
-          class="quick-laporan"
-          onclick="loadLaporan('hari')">
-          <div class="quick-icon">📅</div>
-          <span>Hari Ini</span>
-        </button>
-
-        <button
-          class="quick-laporan"
-          onclick="loadLaporan('minggu')">
-          <div class="quick-icon">📆</div>
-          <span>Minggu</span>
-        </button>
-
-        <button
-          class="quick-laporan"
-          onclick="loadLaporan('bulan')">
-          <div class="quick-icon">🗓️</div>
-          <span>Bulan</span>
-        </button>
-
-        <button
-          class="quick-laporan"
-          onclick="loadSemua()">
-          <div class="quick-icon">📊</div>
-          <span>Semua</span>
-        </button>
-
-      </div>
-    </div>
-
-
-    <div class="stats">
-
-      <div class="stat">
-        <small>Pemasukan</small>
-        <b id="lapMasuk">Rp0</b>
-      </div>
-
-      <div class="stat">
-        <small>Pengeluaran</small>
-        <b id="lapKeluar">Rp0</b>
-      </div>
-
-      <div class="stat">
-        <small>Bersih</small>
-        <b id="lapBersih">Rp0</b>
-      </div>
-
-      <div class="stat">
-        <small>Penjualan</small>
-        <b id="lapToko">Rp0</b>
-      </div>
-
-    </div>
-
-  </section>
-
-</div>
-
-
-<nav class="bottom">
-
-  <div class="bottom-inner">
 
     <button
-      class="nav active"
-      onclick="openPage('home')">
-      <span class="ico">🏠</span>
-      Home
-    </button>
-
-    <button
-      class="nav"
-      onclick="openPage('transaksi')">
-      <span class="ico">💰</span>
-      Transaksi
-    </button>
-
-    <button
-      class="nav"
-      onclick="openPage('penjualan')">
-      <span class="ico">🛒</span>
-      Jual
-    </button>
-
-    <button
-      class="nav"
-      onclick="openPage('barang')">
-      <span class="ico">📦</span>
-      Barang
-    </button>
-
-    <button
-      class="nav"
-      onclick="openPage('laporan')">
-      <span class="ico">📊</span>
-      Laporan
+      class="icon-btn"
+      onclick="showPage('notifikasi')">
+      🔔
     </button>
 
   </div>
 
+</header>
+
+
+<main class="container">
+
+
+<!-- ==================================================
+     DASHBOARD
+================================================== -->
+
+<section id="page-dashboard" class="page active">
+
+  <div class="card balance">
+
+    <div class="balance-label">
+      Saldo Total
+    </div>
+
+    <div id="saldo"
+         class="balance-value">
+      Rp 0
+    </div>
+
+  </div>
+
+
+  <div class="grid">
+
+    <div class="stat">
+
+      <div class="stat-title">
+        Pemasukan Hari Ini
+      </div>
+
+      <div id="masukHari"
+           class="stat-value green">
+        Rp 0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-title">
+        Pengeluaran Hari Ini
+      </div>
+
+      <div id="keluarHari"
+           class="stat-value red">
+        Rp 0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-title">
+        Saldo Pribadi
+      </div>
+
+      <div id="saldoPribadi"
+           class="stat-value blue">
+        Rp 0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-title">
+        Saldo Toko
+      </div>
+
+      <div id="saldoToko"
+           class="stat-value blue">
+        Rp 0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-title">
+        Total Hutang
+      </div>
+
+      <div id="totalHutang"
+           class="stat-value orange">
+        Rp 0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-title">
+        Nilai Stok
+      </div>
+
+      <div id="nilaiStok"
+           class="stat-value">
+        Rp 0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-title">
+        Jumlah Barang
+      </div>
+
+      <div id="jumlahBarang"
+           class="stat-value">
+        0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-title">
+        Laba Bulan Ini
+      </div>
+
+      <div id="labaBulan"
+           class="stat-value green">
+        Rp 0
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="section-title">
+      Aksi Cepat
+    </div>
+
+    <div class="actions">
+
+      <button
+        class="action"
+        onclick="openModal('modalTransaksi')">
+        💰 Pemasukan
+        <small>Catat uang masuk</small>
+      </button>
+
+      <button
+        class="action"
+        onclick="openModal('modalPengeluaran')">
+        💸 Pengeluaran
+        <small>Catat uang keluar</small>
+      </button>
+
+      <button
+        class="action"
+        onclick="showPage('kasir')">
+        🛒 Penjualan
+        <small>Kasir toko</small>
+      </button>
+
+      <button
+        class="action"
+        onclick="showPage('barang')">
+        📦 Barang
+        <small>Stok & harga</small>
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div id="dashboardAlert"></div>
+
+
+  <div class="card">
+
+    <div class="section-title">
+      Transaksi Terbaru
+    </div>
+
+    <div id="historyDashboard">
+      <div class="loading">
+        Memuat...
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ==================================================
+     TRANSAKSI
+================================================== -->
+
+<section id="page-transaksi" class="page">
+
+  <div class="section-title">
+    💰 Keuangan
+  </div>
+
+  <div class="card">
+
+    <button
+      class="btn btn-success"
+      onclick="openModal('modalTransaksi')">
+      ➕ Tambah Pemasukan
+    </button>
+
+    <button
+      class="btn btn-danger"
+      onclick="openModal('modalPengeluaran')">
+      ➖ Tambah Pengeluaran
+    </button>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="section-title">
+      History Transaksi
+    </div>
+
+    <input
+      class="search"
+      id="searchHistory"
+      placeholder="🔎 Cari transaksi..."
+      oninput="renderHistory()">
+
+    <div id="historyList"></div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ==================================================
+     KASIR
+================================================== -->
+
+<section id="page-kasir" class="page">
+
+  <div class="section-title">
+    🛒 Kasir / Penjualan
+  </div>
+
+  <div class="card">
+
+    <div class="form-group">
+
+      <label>Barang</label>
+
+      <select id="jualBarang"></select>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Qty</label>
+
+      <input
+        type="number"
+        id="jualQty"
+        value="1"
+        min="1">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Harga Jual</label>
+
+      <input
+        type="number"
+        id="jualHarga">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Metode Pembayaran</label>
+
+      <select id="jualMetode">
+
+        <option>Cash</option>
+        <option>Transfer</option>
+        <option>QRIS</option>
+        <option>Bank</option>
+
+      </select>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Catatan</label>
+
+      <textarea id="jualCatatan"></textarea>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="simpanPenjualan()">
+
+      💾 Simpan Penjualan
+
+    </button>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="section-title">
+      Penjualan Terbaru
+    </div>
+
+    <div id="penjualanList"></div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ==================================================
+     BARANG
+================================================== -->
+
+<section id="page-barang" class="page">
+
+  <div class="section-title">
+    📦 Barang & Stok
+  </div>
+
+  <button
+    class="btn btn-primary"
+    onclick="openModal('modalBarang')">
+
+    ➕ Tambah Barang
+
+  </button>
+
+
+  <div class="card">
+
+    <input
+      class="search"
+      id="searchBarang"
+      placeholder="🔎 Cari barang..."
+      oninput="renderBarang()">
+
+    <div id="barangList"></div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ==================================================
+     BELANJA
+================================================== -->
+
+<section id="page-belanja" class="page">
+
+  <div class="section-title">
+    🧾 Belanja Stok
+  </div>
+
+  <div class="card">
+
+    <div class="form-group">
+
+      <label>Barang</label>
+
+      <select id="belanjaBarang"></select>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Nama Barang</label>
+
+      <input id="belanjaNama">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Qty</label>
+
+      <input
+        type="number"
+        id="belanjaQty"
+        min="1"
+        value="1">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Harga Modal</label>
+
+      <input
+        type="number"
+        id="belanjaHarga"
+        min="0">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Supplier</label>
+
+      <input id="belanjaSupplier">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Dibayar</label>
+
+      <input
+        type="number"
+        id="belanjaDibayar"
+        min="0"
+        value="0">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Jatuh Tempo</label>
+
+      <input
+        type="date"
+        id="belanjaTempo">
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="simpanBelanja()">
+
+      💾 Simpan Belanja
+
+    </button>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="section-title">
+      Riwayat Belanja
+    </div>
+
+    <div id="belanjaList"></div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ==================================================
+     HUTANG
+================================================== -->
+
+<section id="page-hutang" class="page">
+
+  <div class="section-title">
+    💳 Hutang & Tagihan
+  </div>
+
+  <button
+    class="btn btn-primary"
+    onclick="openModal('modalHutang')">
+
+    ➕ Tambah Hutang / Tagihan
+
+  </button>
+
+
+  <div id="hutangList"
+       class="card">
+
+  </div>
+
+</section>
+
+
+
+<!-- ==================================================
+     NOTIFIKASI
+================================================== -->
+
+<section id="page-notifikasi" class="page">
+
+  <div class="section-title">
+    🔔 Notifikasi Tagihan
+  </div>
+
+  <div id="notifikasiList"></div>
+
+</section>
+
+
+
+<!-- ==================================================
+     LAPORAN
+================================================== -->
+
+<section id="page-laporan" class="page">
+
+  <div class="section-title">
+    📊 Laporan
+  </div>
+
+
+  <div class="card">
+
+    <div class="actions">
+
+      <button
+        class="action"
+        onclick="loadLaporan('hari')">
+
+        📅 Hari Ini
+
+      </button>
+
+      <button
+        class="action"
+        onclick="loadLaporan('minggu')">
+
+        📆 Minggu Ini
+
+      </button>
+
+      <button
+        class="action"
+        onclick="loadLaporan('bulan')">
+
+        🗓️ Bulan Ini
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div id="laporanResult"></div>
+
+
+  <div class="card">
+
+    <div class="section-title">
+      Laba Rugi Bulan Ini
+    </div>
+
+    <div id="labaResult"></div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ==================================================
+     PENGATURAN
+================================================== -->
+
+<section id="page-pengaturan" class="page">
+
+  <div class="section-title">
+    ⚙️ Pengaturan
+  </div>
+
+  <div class="card">
+
+    <div class="menu-list">
+
+      <button
+        class="menu-item"
+        onclick="showPage('kategori')">
+
+        🏷️ Kelola Kategori
+
+      </button>
+
+      <button
+        class="menu-item"
+        onclick="setupCheck()">
+
+        🔄 Periksa Database
+
+      </button>
+
+      <button
+        class="menu-item"
+        onclick="location.reload()">
+
+        ♻️ Refresh Data
+
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ==================================================
+     KATEGORI
+================================================== -->
+
+<section id="page-kategori" class="page">
+
+  <div class="section-title">
+    🏷️ Kategori
+  </div>
+
+  <div class="card">
+
+    <div id="kategoriList"></div>
+
+  </div>
+
+</section>
+
+</main>
+
+
+
+<!-- ==================================================
+     BOTTOM NAV
+================================================== -->
+
+<nav class="bottom-nav">
+
+  <button
+    class="nav-btn active"
+    data-page="dashboard"
+    onclick="showPage('dashboard')">
+
+    <span>🏠</span>
+    Home
+
+  </button>
+
+
+  <button
+    class="nav-btn"
+    data-page="transaksi"
+    onclick="showPage('transaksi')">
+
+    <span>💰</span>
+    Keuangan
+
+  </button>
+
+
+  <button
+    class="nav-btn"
+    data-page="kasir"
+    onclick="showPage('kasir')">
+
+    <span>🛒</span>
+    Toko
+
+  </button>
+
+
+  <button
+    class="nav-btn"
+    data-page="laporan"
+    onclick="showPage('laporan')">
+
+    <span>📊</span>
+    Laporan
+
+  </button>
+
+
+  <button
+    class="nav-btn"
+    onclick="openMenu()">
+
+    <span>☰</span>
+    Menu
+
+  </button>
+
 </nav>
 
 
-<div id="toast" class="toast"></div>
+
+<!-- ==================================================
+     MENU MODAL
+================================================== -->
+
+<div
+  id="modalMenu"
+  class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+
+      <h3>Menu CatatKu</h3>
+
+      <button
+        class="close"
+        onclick="closeModal('modalMenu')">
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="menu-list">
+
+      <button
+        class="menu-item"
+        onclick="goMenu('barang')">
+        📦 Barang & Stok
+      </button>
+
+      <button
+        class="menu-item"
+        onclick="goMenu('belanja')">
+        🧾 Belanja Stok
+      </button>
+
+      <button
+        class="menu-item"
+        onclick="goMenu('hutang')">
+        💳 Hutang & Tagihan
+      </button>
+
+      <button
+        class="menu-item"
+        onclick="goMenu('notifikasi')">
+        🔔 Notifikasi
+      </button>
+
+      <button
+        class="menu-item"
+        onclick="goMenu('kategori')">
+        🏷️ Kategori
+      </button>
+
+      <button
+        class="menu-item"
+        onclick="goMenu('pengaturan')">
+        ⚙️ Pengaturan
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ==================================================
+     MODAL PEMASUKAN
+================================================== -->
+
+<div
+  id="modalTransaksi"
+  class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+
+      <h3>💰 Pemasukan</h3>
+
+      <button
+        class="close"
+        onclick="closeModal('modalTransaksi')">
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Tanggal</label>
+
+      <input
+        type="datetime-local"
+        id="masukTanggal">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Kategori</label>
+
+      <select id="masukKategori"></select>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Keterangan</label>
+
+      <input id="masukKeterangan">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Jumlah</label>
+
+      <input
+        type="number"
+        id="masukJumlah"
+        min="0">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Metode</label>
+
+      <select id="masukMetode">
+
+        <option>Cash</option>
+        <option>Transfer</option>
+        <option>QRIS</option>
+        <option>Bank</option>
+
+      </select>
+
+    </div>
+
+
+    <button
+      class="btn btn-success"
+      onclick="simpanPemasukan()">
+
+      💾 Simpan
+
+    </button>
+
+  </div>
+
+</div>
+
+
+
+<!-- ==================================================
+     MODAL PENGELUARAN
+================================================== -->
+
+<div
+  id="modalPengeluaran"
+  class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+
+      <h3>💸 Pengeluaran</h3>
+
+      <button
+        class="close"
+        onclick="closeModal('modalPengeluaran')">
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Tanggal</label>
+
+      <input
+        type="datetime-local"
+        id="keluarTanggal">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Sumber</label>
+
+      <select id="keluarSumber">
+
+        <option>Pribadi</option>
+        <option>Toko</option>
+
+      </select>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Kategori</label>
+
+      <select id="keluarKategori"></select>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Keterangan</label>
+
+      <input id="keluarKeterangan">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Jumlah</label>
+
+      <input
+        type="number"
+        id="keluarJumlah"
+        min="0">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Metode</label>
+
+      <select id="keluarMetode">
+
+        <option>Cash</option>
+        <option>Transfer</option>
+        <option>QRIS</option>
+        <option>Bank</option>
+
+      </select>
+
+    </div>
+
+
+    <button
+      class="btn btn-danger"
+      onclick="simpanPengeluaran()">
+
+      💾 Simpan
+
+    </button>
+
+  </div>
+
+</div>
+
+
+
+<!-- ==================================================
+     MODAL BARANG
+================================================== -->
+
+<div
+  id="modalBarang"
+  class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+
+      <h3>📦 Tambah Barang</h3>
+
+      <button
+        class="close"
+        onclick="closeModal('modalBarang')">
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Nama Barang</label>
+
+      <input id="barangNama">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Kategori</label>
+
+      <select id="barangKategori"></select>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Satuan</label>
+
+      <input
+        id="barangSatuan"
+        value="pcs">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Harga Modal</label>
+
+      <input
+        type="number"
+        id="barangModal">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Harga Jual</label>
+
+      <input
+        type="number"
+        id="barangJual">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Stok Awal</label>
+
+      <input
+        type="number"
+        id="barangStok"
+        value="0">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Stok Minimum</label>
+
+      <input
+        type="number"
+        id="barangMinimum"
+        value="0">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Supplier</label>
+
+      <input id="barangSupplier">
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="simpanBarang()">
+
+      💾 Simpan Barang
+
+    </button>
+
+  </div>
+
+</div>
+
+
+
+<!-- ==================================================
+     MODAL HUTANG
+================================================== -->
+
+<div
+  id="modalHutang"
+  class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+
+      <h3>💳 Hutang / Tagihan</h3>
+
+      <button
+        class="close"
+        onclick="closeModal('modalHutang')">
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Jenis</label>
+
+      <select id="hutangJenis">
+
+        <option>Hutang</option>
+        <option>Tagihan</option>
+        <option>Hutang Supplier</option>
+
+      </select>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Pihak</label>
+
+      <input id="hutangPihak">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Keterangan</label>
+
+      <input id="hutangKeterangan">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Total</label>
+
+      <input
+        type="number"
+        id="hutangTotal">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Dibayar</label>
+
+      <input
+        type="number"
+        id="hutangDibayar"
+        value="0">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>Jatuh Tempo</label>
+
+      <input
+        type="date"
+        id="hutangTempo">
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="simpanHutang()">
+
+      💾 Simpan
+
+    </button>
+
+  </div>
+
+</div>
+
 
 
 <script>
 
-const GAS_API =
-  'https://script.google.com/macros/s/AKfycbyvVtSzNmQkLpVXoaieZoUBrFIPtA1JUTWZhkVpZfiQY01kTJDX_Y6TARwhOaF9OJ4/exec';
+/* ==================================================
+   KONFIGURASI
+================================================== */
+
+const API_URL =
+'https://script.google.com/macros/s/AKfycbyW1qBf0LX3qPtSwRrvaxIuiIcHMFkuy9PViZ-YZrTfZeM6WqCNlfcNJN1CVzE7M1F3/exec';
 
 const API_KEY =
-  'CATATKU-2026-PRIBADI';
+'CATATKU-2026-PRIBADI';
 
-let jenisTransaksi = 'Masuk';
-let metodePembayaran = 'Cash';
 
-let semuaBarang = [];
-let semuaKategori = [];
+/* ==================================================
+   DATA CACHE
+================================================== */
+
+let DATA = {
+
+  dashboard:null,
+
+  history:[],
+
+  barang:[],
+
+  penjualan:[],
+
+  belanja:[],
+
+  hutang:[],
+
+  kategori:[],
+
+  notifikasi:[]
+
+};
 
 
 /* ==================================================
@@ -1366,167 +1719,125 @@ let semuaKategori = [];
 ================================================== */
 
 function rupiah(n){
-  return 'Rp' +
+
+  return 'Rp ' +
     Number(n || 0)
       .toLocaleString('id-ID');
+
 }
 
-function toast(msg){
 
-  const el =
-    document.getElementById('toast');
+function esc(v){
 
-  el.textContent =
-    msg;
+  return String(v ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
 
-  el.classList.add('show');
-
-  setTimeout(function(){
-    el.classList.remove('show');
-  },2500);
 }
 
-function escapeHtml(text){
 
-  return String(
-    text == null ? '' : text
-  )
-  .replace(/&/g,'&amp;')
-  .replace(/</g,'&lt;')
-  .replace(/>/g,'&gt;')
-  .replace(/"/g,'&quot;')
-  .replace(/'/g,'&#039;');
+function todayDate(){
+
+  const d =
+    new Date();
+
+  const pad =
+    n => String(n).padStart(2,'0');
+
+  return d.getFullYear() +
+    '-' +
+    pad(d.getMonth()+1) +
+    '-' +
+    pad(d.getDate());
+
+}
+
+
+function datetimeLocal(){
+
+  const d =
+    new Date();
+
+  const pad =
+    n => String(n).padStart(2,'0');
+
+  return d.getFullYear() +
+    '-' +
+    pad(d.getMonth()+1) +
+    '-' +
+    pad(d.getDate()) +
+    'T' +
+    pad(d.getHours()) +
+    ':' +
+    pad(d.getMinutes());
+
 }
 
 
 /* ==================================================
-   API JSONP
+   API
 ================================================== */
 
-function apiCall(action, params){
+async function api(action,payload){
 
-  params =
-    params || {};
+  let url =
+    API_URL +
+    '?action=' +
+    encodeURIComponent(action) +
+    '&key=' +
+    encodeURIComponent(API_KEY);
 
-  return new Promise(
-    function(resolve,reject){
 
-      const callback =
-        'catatku_' +
-        Date.now() +
-        '_' +
-        Math.random()
-          .toString(36)
-          .slice(2);
+  if(payload){
 
-      const script =
-        document.createElement('script');
-
-      const query =
-        new URLSearchParams();
-
-      query.set(
-        'action',
-        action
+    url +=
+      '&payload=' +
+      encodeURIComponent(
+        JSON.stringify(payload)
       );
 
-      query.set(
-        'key',
-        API_KEY
-      );
-
-      query.set(
-        'callback',
-        callback
-      );
+  }
 
 
-      Object.keys(params)
-        .forEach(function(key){
+  const response =
+    await fetch(url,{
 
-          let value =
-            params[key];
+      method:'GET',
 
-          if(
-            value &&
-            typeof value === 'object'
-          ){
+      cache:'no-store'
 
-            value =
-              JSON.stringify(
-                value
-              );
-
-          }
-
-          query.set(
-            key,
-            String(value)
-          );
-
-        });
+    });
 
 
-      window[callback] =
-        function(result){
+  if(!response.ok){
 
-          delete window[callback];
+    throw new Error(
+      'HTTP Error ' +
+      response.status
+    );
 
-          script.remove();
-
-
-          if(
-            result &&
-            result.success
-          ){
-
-            resolve(
-              result.data
-            );
-
-          }else{
-
-            reject(
-              new Error(
-                result &&
-                result.error
-                  ? result.error
-                  : 'API gagal.'
-              )
-            );
-
-          }
-
-        };
+  }
 
 
-      script.onerror =
-        function(){
-
-          delete window[callback];
-
-          script.remove();
-
-          reject(
-            new Error(
-              'Tidak dapat terhubung ke Apps Script.'
-            )
-          );
-
-        };
+  const json =
+    await response.json();
 
 
-      script.src =
-        GAS_API +
-        '?' +
-        query.toString();
+  if(!json.success){
 
-      document.body.appendChild(
-        script
-      );
+    throw new Error(
+      json.error ||
+      'Terjadi kesalahan.'
+    );
 
-    }
-  );
+  }
+
+
+  return json.data;
+
 }
 
 
@@ -1534,57 +1845,105 @@ function apiCall(action, params){
    NAVIGASI
 ================================================== */
 
-function openPage(id){
+function showPage(page){
 
   document
     .querySelectorAll('.page')
-    .forEach(function(p){
+    .forEach(p =>
+      p.classList.remove('active')
+    );
 
-      p.classList.remove('active');
+
+  const target =
+    document.getElementById(
+      'page-' + page
+    );
+
+
+  if(target){
+
+    target.classList.add('active');
+
+  }
+
+
+  document
+    .querySelectorAll('.nav-btn')
+    .forEach(btn => {
+
+      btn.classList.toggle(
+        'active',
+        btn.dataset.page === page
+      );
 
     });
 
 
-  const page =
-    document.getElementById(id);
-
-  if(page){
-    page.classList.add('active');
-  }
-
-
-  if(id === 'home'){
+  if(page === 'dashboard')
     loadDashboard();
+
+  if(page === 'transaksi')
     loadHistory();
-  }
 
-  if(id === 'transaksi'){
-    loadKategori();
-  }
-
-  if(id === 'penjualan'){
+  if(page === 'barang')
     loadBarang();
-    loadPenjualan();
-  }
 
-  if(id === 'belanja'){
-    loadBarang();
-  }
+  if(page === 'kasir')
+    loadKasir();
 
-  if(id === 'barang'){
-    loadKategori();
-    loadBarang();
-  }
+  if(page === 'belanja')
+    loadBelanja();
 
-  if(id === 'hutang'){
+  if(page === 'hutang')
     loadHutang();
-  }
 
-  if(id === 'tagihan'){
-    loadTagihan();
-  }
+  if(page === 'notifikasi')
+    loadNotifikasi();
 
-  window.scrollTo(0,0);
+  if(page === 'kategori')
+    loadKategori();
+
+  if(page === 'laporan')
+    loadLaporan('bulan');
+
+}
+
+
+function openMenu(){
+
+  openModal('modalMenu');
+
+}
+
+
+function goMenu(page){
+
+  closeModal('modalMenu');
+
+  showPage(page);
+
+}
+
+
+/* ==================================================
+   MODAL
+================================================== */
+
+function openModal(id){
+
+  document
+    .getElementById(id)
+    .classList.add('show');
+
+}
+
+
+function closeModal(id){
+
+  document
+    .getElementById(id)
+    .classList.remove('show');
+
 }
 
 
@@ -1597,62 +1956,107 @@ async function loadDashboard(){
   try{
 
     const d =
-      await apiCall(
-        'dashboard'
-      );
+      await api('dashboard');
 
-    document.getElementById(
-      'saldo'
-    ).textContent =
+    DATA.dashboard =
+      d;
+
+
+    document.getElementById('saldo')
+      .textContent =
       rupiah(d.saldo);
 
-    document.getElementById(
-      'saldoPribadi'
-    ).textContent =
+
+    document.getElementById('masukHari')
+      .textContent =
+      rupiah(d.pemasukanHariIni);
+
+
+    document.getElementById('keluarHari')
+      .textContent =
+      rupiah(d.pengeluaranHariIni);
+
+
+    document.getElementById('saldoPribadi')
+      .textContent =
       rupiah(d.saldoPribadi);
 
-    document.getElementById(
-      'saldoToko'
-    ).textContent =
+
+    document.getElementById('saldoToko')
+      .textContent =
       rupiah(d.saldoToko);
 
-    document.getElementById(
-      'pemasukanHariIni'
-    ).textContent =
-      rupiah(
-        d.pemasukanHariIni
-      );
 
-    document.getElementById(
-      'pengeluaranHariIni'
-    ).textContent =
-      rupiah(
-        d.pengeluaranHariIni
-      );
+    document.getElementById('totalHutang')
+      .textContent =
+      rupiah(d.totalHutang);
 
-    document.getElementById(
-      'totalHutang'
-    ).textContent =
-      rupiah(
-        d.totalHutang
-      );
 
-    document.getElementById(
-      'nilaiStok'
-    ).textContent =
-      rupiah(
-        d.nilaiStok
-      );
+    document.getElementById('nilaiStok')
+      .textContent =
+      rupiah(d.nilaiStok);
 
-  }catch(e){
 
-    console.error(e);
+    document.getElementById('jumlahBarang')
+      .textContent =
+      Number(d.jumlahBarang || 0);
 
-    toast(
-      'Dashboard gagal dimuat'
-    );
+
+    loadLabaBulan();
+
+    loadHistoryDashboard();
+
+    loadNotifikasiDashboard();
+
+  }catch(err){
+
+    showError(err);
 
   }
+
+}
+
+
+async function loadLabaBulan(){
+
+  try{
+
+    const d =
+      await api(
+        'laporanLaba',
+        {
+          mulai:
+            firstDayMonth(),
+          akhir:
+            todayDate()
+        }
+      );
+
+
+    document.getElementById('labaBulan')
+      .textContent =
+      rupiah(d.labaKotor);
+
+  }catch(err){}
+
+}
+
+
+function firstDayMonth(){
+
+  const d =
+    new Date();
+
+  d.setDate(1);
+
+  const pad =
+    n => String(n).padStart(2,'0');
+
+  return d.getFullYear() +
+    '-' +
+    pad(d.getMonth()+1) +
+    '-01';
+
 }
 
 
@@ -1662,115 +2066,223 @@ async function loadDashboard(){
 
 async function loadHistory(){
 
-  const box =
-    document.getElementById(
-      'history'
-    );
+  try{
 
-  box.innerHTML =
-    '<div class="loading">Memuat history...</div>';
+    DATA.history =
+      await api(
+        'history',
+        null
+      );
 
+    renderHistory();
+
+  }catch(err){
+
+    showError(err);
+
+  }
+
+}
+
+
+async function loadHistoryDashboard(){
 
   try{
 
     const data =
-      await apiCall(
-        'history',
-        {
-          limit:20
-        }
-      );
+      await api('history');
+
+    DATA.history =
+      data;
+
+    renderHistoryDashboard();
+
+  }catch(err){}
+
+}
 
 
-    if(
-      !data ||
-      !data.length
-    ){
+function renderHistoryDashboard(){
 
-      box.innerHTML =
-        '<div class="empty">' +
-        'Belum ada transaksi.' +
-        '</div>';
-
-      return;
-    }
+  const el =
+    document.getElementById(
+      'historyDashboard'
+    );
 
 
-    box.innerHTML =
-      data
-        .map(function(t){
+  if(!DATA.history.length){
 
-          const masuk =
-            t.Jenis === 'Masuk';
+    el.innerHTML =
+      '<div class="empty">Belum ada transaksi.</div>';
 
-          return `
+    return;
 
-            <div class="history-item">
-
-              <div>
-
-                <div class="history-name">
-
-                  ${escapeHtml(
-                    t.Keterangan ||
-                    t.Kategori ||
-                    'Transaksi'
-                  )}
-
-                </div>
-
-                <div class="history-meta">
-
-                  ${escapeHtml(
-                    t.Tanggal || ''
-                  )}
-
-                  •
-                  ${escapeHtml(
-                    t.Sumber || ''
-                  )}
-
-                  •
-                  ${escapeHtml(
-                    t.Metode || ''
-                  )}
-
-                </div>
-
-              </div>
+  }
 
 
-              <div class="${
-                masuk
-                  ? 'masuk'
-                  : 'keluar'
+  el.innerHTML =
+    DATA.history
+      .slice(0,5)
+      .map(t => {
+
+        const masuk =
+          t.Jenis === 'Masuk';
+
+        return `
+
+          <div style="
+            padding:10px 0;
+            border-bottom:1px solid #eee">
+
+            <div style="
+              display:flex;
+              justify-content:space-between">
+
+              <strong>
+                ${esc(t.Keterangan || t.Kategori)}
+              </strong>
+
+              <strong class="${
+                masuk ? 'green' : 'red'
               }">
 
                 ${masuk ? '+' : '-'}
+                ${rupiah(t.Jumlah)}
 
-                ${rupiah(
-                  t.Jumlah
-                )}
-
-              </div>
+              </strong>
 
             </div>
 
-          `;
+            <small style="color:#64748b">
 
-        })
-        .join('');
+              ${esc(t.Sumber)}
+              ·
+              ${esc(t.Metode)}
+              ·
+              ${esc(t.Tanggal)}
 
-  }catch(e){
+            </small>
 
-    console.error(e);
+          </div>
 
-    box.innerHTML =
-      '<div class="empty">' +
-      'History gagal dimuat.' +
-      '</div>';
+        `;
+
+      })
+      .join('');
+
+}
+
+
+function renderHistory(){
+
+  const el =
+    document.getElementById(
+      'historyList'
+    );
+
+
+  const q =
+    String(
+      document.getElementById(
+        'searchHistory'
+      )?.value || ''
+    ).toLowerCase();
+
+
+  const data =
+    DATA.history.filter(t => {
+
+      return (
+        String(t.Keterangan || '')
+          .toLowerCase()
+          .includes(q) ||
+
+        String(t.Kategori || '')
+          .toLowerCase()
+          .includes(q) ||
+
+        String(t.Sumber || '')
+          .toLowerCase()
+          .includes(q)
+      );
+
+    });
+
+
+  if(!data.length){
+
+    el.innerHTML =
+      '<div class="empty">Tidak ada data.</div>';
+
+    return;
 
   }
+
+
+  el.innerHTML = `
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Tanggal</th>
+            <th>Keterangan</th>
+            <th>Sumber</th>
+            <th>Jenis</th>
+            <th>Jumlah</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${data.map(t => `
+
+            <tr>
+
+              <td>${esc(t.Tanggal)}</td>
+
+              <td>
+                ${esc(t.Keterangan)}
+              </td>
+
+              <td>
+                ${esc(t.Sumber)}
+              </td>
+
+              <td>
+                <span class="
+                  badge
+                  ${
+                    t.Jenis === 'Masuk'
+                    ? 'badge-green'
+                    : 'badge-red'
+                  }">
+
+                  ${esc(t.Jenis)}
+
+                </span>
+              </td>
+
+              <td>
+                ${rupiah(t.Jumlah)}
+              </td>
+
+            </tr>
+
+          `).join('')}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `;
+
 }
 
 
@@ -1782,226 +2294,128 @@ async function loadKategori(){
 
   try{
 
-    const data =
-      await apiCall(
-        'kategori'
-      );
+    DATA.kategori =
+      await api('kategori');
 
 
-    semuaKategori =
-      Array.isArray(data)
-        ? data
-        : [];
-
-
-    [
-      'trxKategori',
-      'barangKategori'
-    ]
-    .forEach(function(id){
-
-      const select =
-        document.getElementById(id);
-
-      if(!select){
-        return;
-      }
-
-
-      select.innerHTML =
-        '<option value="">' +
-        'Pilih kategori' +
-        '</option>';
-
-
-      semuaKategori
-        .forEach(function(k){
-
-          const nama =
-            k['Nama Kategori'] ||
-            k['Kategori'] ||
-            k.Nama ||
-            '';
-
-          if(!nama){
-            return;
-          }
-
-          const option =
-            document.createElement(
-              'option'
-            );
-
-          option.value =
-            nama;
-
-          option.textContent =
-            nama;
-
-          select.appendChild(
-            option
-          );
-
-        });
-
-    });
-
-  }catch(e){
-
-    console.error(e);
-
-    toast(
-      'Kategori gagal dimuat'
+    isiSelectKategori(
+      'masukKategori',
+      'Pribadi'
     );
 
-  }
-}
-
-
-/* ==================================================
-   TRANSAKSI
-================================================== */
-
-function pilihJenis(jenis){
-
-  jenisTransaksi =
-    jenis;
-
-  document
-    .getElementById(
-      'btnMasuk'
-    )
-    .classList.toggle(
-      'active',
-      jenis === 'Masuk'
+    isiSelectKategori(
+      'keluarKategori',
+      'Pribadi'
     );
 
-  document
-    .getElementById(
-      'btnKeluar'
-    )
-    .classList.toggle(
-      'active',
-      jenis === 'Keluar'
+    isiSelectKategori(
+      'barangKategori',
+      'Toko'
     );
 
-}
 
-
-function pilihMetode(
-  button,
-  metode
-){
-
-  metodePembayaran =
-    metode;
-
-  button
-    .parentElement
-    .querySelectorAll('button')
-    .forEach(function(b){
-
-      b.classList.remove(
-        'active'
-      );
-
-    });
-
-  button.classList.add(
-    'active'
-  );
-
-}
-
-
-async function simpanTransaksi(){
-
-  const jumlah =
-    Number(
+    const el =
       document.getElementById(
-        'trxJumlah'
-      ).value || 0
+        'kategoriList'
+      );
+
+
+    if(!DATA.kategori.length){
+
+      el.innerHTML =
+        '<div class="empty">Belum ada kategori.</div>';
+
+      return;
+
+    }
+
+
+    el.innerHTML = `
+
+      <div class="table-wrap">
+
+      <table>
+
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nama</th>
+        <th>Jenis</th>
+        <th>Aktif</th>
+      </tr>
+      </thead>
+
+      <tbody>
+
+      ${DATA.kategori.map(k => `
+
+        <tr>
+
+          <td>${esc(k.ID)}</td>
+
+          <td>${esc(k['Nama Kategori'])}</td>
+
+          <td>${esc(k.Jenis)}</td>
+
+          <td>${esc(k.Aktif)}</td>
+
+        </tr>
+
+      `).join('')}
+
+      </tbody>
+
+      </table>
+
+      </div>
+
+    `;
+
+  }catch(err){
+
+    showError(err);
+
+  }
+
+}
+
+
+function isiSelectKategori(id,jenis){
+
+  const el =
+    document.getElementById(id);
+
+  if(!el) return;
+
+
+  let data =
+    DATA.kategori.filter(k =>
+      k.Aktif === 'YA'
     );
 
 
-  if(jumlah <= 0){
+  if(jenis){
 
-    toast(
-      'Masukkan jumlah'
-    );
+    const filtered =
+      data.filter(k =>
+        k.Jenis === jenis
+      );
 
-    return;
+    if(filtered.length)
+      data = filtered;
+
   }
 
 
-  try{
+  el.innerHTML =
+    data.map(k => `
 
-    await apiCall(
-      'tambahTransaksi',
-      {
-        payload:{
-          tanggal:
-            new Date()
-              .toISOString(),
+      <option value="${esc(k['Nama Kategori'])}">
+        ${esc(k['Nama Kategori'])}
+      </option>
 
-          sumber:
-            document.getElementById(
-              'trxSumber'
-            ).value,
+    `).join('');
 
-          jenis:
-            jenisTransaksi,
-
-          kategori:
-            document.getElementById(
-              'trxKategori'
-            ).value ||
-            'Lainnya',
-
-          keterangan:
-            document.getElementById(
-              'trxKeterangan'
-            ).value,
-
-          jumlah:
-            jumlah,
-
-          metode:
-            metodePembayaran
-        }
-      }
-    );
-
-
-    toast(
-      'Transaksi berhasil disimpan'
-    );
-
-
-    document.getElementById(
-      'trxJumlah'
-    ).value = '';
-
-    document.getElementById(
-      'trxKeterangan'
-    ).value = '';
-
-
-    await loadDashboard();
-    await loadHistory();
-
-    openPage(
-      'home'
-    );
-
-  }catch(e){
-
-    alert(
-      'Gagal menyimpan transaksi:\n' +
-      e.message
-    );
-
-  }
 }
 
 
@@ -2013,330 +2427,286 @@ async function loadBarang(){
 
   try{
 
-    const data =
-      await apiCall(
-        'barang'
-      );
-
-
-    semuaBarang =
-      Array.isArray(data)
-        ? data
-        : [];
-
-
-    [
-      'jualBarang',
-      'belanjaBarang'
-    ]
-    .forEach(function(id){
-
-      const select =
-        document.getElementById(id);
-
-      if(!select){
-        return;
-      }
-
-
-      select.innerHTML =
-        '<option value="">' +
-        'Pilih barang' +
-        '</option>';
-
-
-      semuaBarang
-        .forEach(function(b){
-
-          const option =
-            document.createElement(
-              'option'
-            );
-
-          option.value =
-            b.ID;
-
-          option.textContent =
-            b['Nama Barang'] +
-            ' — stok ' +
-            b.Stok;
-
-          select.appendChild(
-            option
-          );
-
-        });
-
-    });
+    DATA.barang =
+      await api('barang');
 
 
     renderBarang();
 
-  }catch(e){
+    isiSelectBarang();
 
-    console.error(e);
+  }catch(err){
 
-    toast(
-      'Barang gagal dimuat'
-    );
+    showError(err);
 
   }
+
 }
 
 
 function renderBarang(){
 
-  const box =
+  const el =
     document.getElementById(
-      'listBarang'
+      'barangList'
     );
 
-  if(!box){
+
+  const q =
+    String(
+      document.getElementById(
+        'searchBarang'
+      )?.value || ''
+    ).toLowerCase();
+
+
+  const data =
+    DATA.barang.filter(b => {
+
+      return (
+        String(b['Nama Barang'] || '')
+          .toLowerCase()
+          .includes(q) ||
+
+        String(b.Kategori || '')
+          .toLowerCase()
+          .includes(q)
+      );
+
+    });
+
+
+  if(!data.length){
+
+    el.innerHTML =
+      '<div class="empty">Belum ada barang.</div>';
+
     return;
+
   }
 
 
-  if(
-    !semuaBarang.length
-  ){
+  el.innerHTML = `
 
-    box.innerHTML =
-      '<div class="empty">' +
-      'Belum ada barang.' +
-      '</div>';
+    <div class="table-wrap">
 
-    return;
-  }
+    <table>
 
+    <thead>
 
-  box.innerHTML =
-    semuaBarang
-      .map(function(b){
+    <tr>
 
-        const stok =
-          Number(
-            b.Stok || 0
-          );
+      <th>Barang</th>
+      <th>Modal</th>
+      <th>Jual</th>
+      <th>Stok</th>
+      <th>Nilai</th>
 
-        const minimum =
-          Number(
-            b['Stok Minimum'] || 0
-          );
+    </tr>
 
+    </thead>
 
-        return `
+    <tbody>
 
-          <div class="list-item">
+    ${data.map(b => {
 
-            <div class="list-title">
-              ${escapeHtml(
-                b['Nama Barang']
-              )}
-            </div>
+      const stok =
+        Number(b.Stok || 0);
 
-            <div class="list-info">
+      const min =
+        Number(b['Stok Minimum'] || 0);
 
-              Modal:
-              ${rupiah(
-                b['Harga Modal']
-              )}
+      return `
 
-              • Jual:
-              ${rupiah(
-                b['Harga Jual']
-              )}
+        <tr>
 
-              • Stok:
+          <td>
+
+            <strong>
+              ${esc(b['Nama Barang'])}
+            </strong>
+
+            <br>
+
+            <small>
+              ${esc(b.Kategori)}
+            </small>
+
+          </td>
+
+          <td>
+            ${rupiah(b['Harga Modal'])}
+          </td>
+
+          <td>
+            ${rupiah(b['Harga Jual'])}
+          </td>
+
+          <td>
+
+            <span class="
+              badge
+              ${
+                stok <= min
+                ? 'badge-red'
+                : 'badge-green'
+              }">
+
               ${stok}
 
-            </div>
+            </span>
 
-            ${
-              stok <= minimum
-                ? '<span class="badge danger">STOK MENIPIS</span>'
-                : ''
-            }
+          </td>
 
-          </div>
+          <td>
+            ${rupiah(b['Nilai Stok'])}
+          </td>
 
-        `;
+        </tr>
 
-      })
-      .join('');
+      `;
+
+    }).join('')}
+
+    </tbody>
+
+    </table>
+
+    </div>
+
+  `;
+
 }
 
 
-document.addEventListener(
-  'change',
-  function(e){
+function isiSelectBarang(){
 
-    if(
-      e.target.id ===
-      'jualBarang'
-    ){
-
-      const b =
-        semuaBarang.find(
-          function(x){
-
-            return String(x.ID) ===
-              String(
-                e.target.value
-              );
-
-          }
-        );
-
-
-      if(b){
-
-        document.getElementById(
-          'jualHarga'
-        ).value =
-          b['Harga Jual'] || '';
-
-      }
-
-    }
-
-
-    if(
-      e.target.id ===
+  const ids =
+    [
+      'jualBarang',
       'belanjaBarang'
-    ){
-
-      const b =
-        semuaBarang.find(
-          function(x){
-
-            return String(x.ID) ===
-              String(
-                e.target.value
-              );
-
-          }
-        );
+    ];
 
 
-      if(b){
+  ids.forEach(id => {
 
-        document.getElementById(
-          'belanjaHarga'
-        ).value =
-          b['Harga Modal'] || '';
+    const el =
+      document.getElementById(id);
 
-      }
-
-    }
-
-  }
-);
+    if(!el) return;
 
 
-async function simpanBarang(){
+    el.innerHTML =
+      '<option value="">-- Pilih Barang --</option>' +
 
-  const nama =
-    document
-      .getElementById(
-        'barangNama'
-      )
-      .value
-      .trim();
+      DATA.barang.map(b => `
+
+        <option value="${esc(b.ID)}">
+
+          ${esc(b['Nama Barang'])}
+          — Stok ${esc(b.Stok)}
+
+        </option>
+
+      `).join('');
+
+  });
+
+}
 
 
-  if(!nama){
+/* ==================================================
+   KASIR
+================================================== */
 
-    toast(
-      'Nama barang wajib diisi'
+async function loadKasir(){
+
+  if(!DATA.barang.length)
+    await loadBarang();
+
+
+  const el =
+    document.getElementById(
+      'penjualanList'
     );
-
-    return;
-  }
 
 
   try{
 
-    await apiCall(
-      'tambahBarang',
-      {
-        payload:{
-          nama:nama,
-
-          kategori:
-            document
-              .getElementById(
-                'barangKategori'
-              )
-              .value ||
-            'Lainnya',
-
-          hargaModal:
-            Number(
-              document
-                .getElementById(
-                  'barangModal'
-                )
-                .value || 0
-            ),
-
-          hargaJual:
-            Number(
-              document
-                .getElementById(
-                  'barangJual'
-                )
-                .value || 0
-            ),
-
-          stok:
-            Number(
-              document
-                .getElementById(
-                  'barangStok'
-                )
-                .value || 0
-            ),
-
-          stokMinimum:
-            Number(
-              document
-                .getElementById(
-                  'barangMinimum'
-                )
-                .value || 0
-            ),
-
-          supplier:
-            document
-              .getElementById(
-                'barangSupplier'
-              )
-              .value
-        }
-      }
-    );
+    DATA.penjualan =
+      await api('penjualan');
 
 
-    toast(
-      'Barang berhasil disimpan'
-    );
+    DATA.penjualan =
+      DATA.penjualan
+        .slice()
+        .reverse()
+        .slice(0,20);
 
 
-    document
-      .getElementById(
-        'barangNama'
-      )
-      .value = '';
+    if(!DATA.penjualan.length){
+
+      el.innerHTML =
+        '<div class="empty">Belum ada penjualan.</div>';
+
+      return;
+
+    }
 
 
-    await loadBarang();
+    el.innerHTML = `
 
-  }catch(e){
+      <div class="table-wrap">
 
-    alert(
-      'Gagal menyimpan barang:\n' +
-      e.message
-    );
+      <table>
+
+      <thead>
+
+      <tr>
+
+        <th>Tanggal</th>
+        <th>Barang</th>
+        <th>Qty</th>
+        <th>Omzet</th>
+        <th>Laba</th>
+
+      </tr>
+
+      </thead>
+
+      <tbody>
+
+      ${DATA.penjualan.map(p => `
+
+        <tr>
+
+          <td>${esc(p.Tanggal)}</td>
+
+          <td>${esc(p['Nama Barang'])}</td>
+
+          <td>${esc(p.Qty)}</td>
+
+          <td>${rupiah(p.Omzet)}</td>
+
+          <td class="green">
+            ${rupiah(p['Laba Kotor'])}
+          </td>
+
+        </tr>
+
+      `).join('')}
+
+      </tbody>
+
+      </table>
+
+      </div>
+
+    `;
+
+  }catch(err){
+
+    showError(err);
 
   }
 
@@ -2344,93 +2714,951 @@ async function simpanBarang(){
 
 
 /* ==================================================
-   PENJUALAN
+   BELANJA
 ================================================== */
 
-async function loadPenjualan(){
+async function loadBelanja(){
 
-  const box =
-    document.getElementById(
-      'listPenjualan'
+  try{
+
+    DATA.belanja =
+      await api('belanja');
+
+
+    const el =
+      document.getElementById(
+        'belanjaList'
+      );
+
+
+    const data =
+      DATA.belanja
+        .slice()
+        .reverse()
+        .slice(0,30);
+
+
+    if(!data.length){
+
+      el.innerHTML =
+        '<div class="empty">Belum ada belanja.</div>';
+
+      return;
+
+    }
+
+
+    el.innerHTML = `
+
+      <div class="table-wrap">
+
+      <table>
+
+      <thead>
+
+      <tr>
+
+        <th>Tanggal</th>
+        <th>Barang</th>
+        <th>Qty</th>
+        <th>Total</th>
+        <th>Sisa</th>
+        <th>Status</th>
+
+      </tr>
+
+      </thead>
+
+      <tbody>
+
+      ${data.map(b => `
+
+        <tr>
+
+          <td>${esc(b.Tanggal)}</td>
+
+          <td>${esc(b['Nama Barang'])}</td>
+
+          <td>${esc(b.Qty)}</td>
+
+          <td>${rupiah(b.Total)}</td>
+
+          <td>${rupiah(b.Sisa)}</td>
+
+          <td>
+
+            <span class="badge
+              ${
+                b.Status === 'LUNAS'
+                ? 'badge-green'
+                : 'badge-orange'
+              }">
+
+              ${esc(b.Status)}
+
+            </span>
+
+          </td>
+
+        </tr>
+
+      `).join('')}
+
+      </tbody>
+
+      </table>
+
+      </div>
+
+    `;
+
+  }catch(err){
+
+    showError(err);
+
+  }
+
+}
+
+
+/* ==================================================
+   HUTANG
+================================================== */
+
+async function loadHutang(){
+
+  try{
+
+    DATA.hutang =
+      await api('hutang');
+
+
+    const el =
+      document.getElementById(
+        'hutangList'
+      );
+
+
+    const data =
+      DATA.hutang
+        .slice()
+        .reverse();
+
+
+    if(!data.length){
+
+      el.innerHTML =
+        '<div class="empty">Belum ada hutang/tagihan.</div>';
+
+      return;
+
+    }
+
+
+    el.innerHTML = `
+
+      <div class="table-wrap">
+
+      <table>
+
+      <thead>
+
+      <tr>
+
+        <th>Pihak</th>
+        <th>Jenis</th>
+        <th>Total</th>
+        <th>Sisa</th>
+        <th>Tempo</th>
+        <th>Status</th>
+        <th>Aksi</th>
+
+      </tr>
+
+      </thead>
+
+      <tbody>
+
+      ${data.map(h => `
+
+        <tr>
+
+          <td>
+            <strong>
+              ${esc(h.Pihak)}
+            </strong>
+            <br>
+            <small>
+              ${esc(h.Keterangan)}
+            </small>
+          </td>
+
+          <td>
+            ${esc(h.Jenis)}
+          </td>
+
+          <td>
+            ${rupiah(h.Total)}
+          </td>
+
+          <td>
+            ${rupiah(h.Sisa)}
+          </td>
+
+          <td>
+            ${esc(h['Jatuh Tempo'])}
+          </td>
+
+          <td>
+
+            <span class="badge
+              ${
+                h.Status === 'LUNAS'
+                ? 'badge-green'
+                : 'badge-red'
+              }">
+
+              ${esc(h.Status)}
+
+            </span>
+
+          </td>
+
+          <td>
+
+            ${
+              h.Status !== 'LUNAS'
+              ? `
+                <button
+                  class="btn btn-success"
+                  style="padding:7px"
+                  onclick='bayarHutangPrompt(${JSON.stringify(h)})'>
+
+                  Bayar
+
+                </button>
+              `
+              : ''
+            }
+
+          </td>
+
+        </tr>
+
+      `).join('')}
+
+      </tbody>
+
+      </table>
+
+      </div>
+
+    `;
+
+  }catch(err){
+
+    showError(err);
+
+  }
+
+}
+
+
+async function bayarHutangPrompt(h){
+
+  const jumlah =
+    prompt(
+      'Masukkan jumlah pembayaran:',
+      Number(h.Sisa || 0)
     );
+
+
+  if(jumlah === null)
+    return;
+
+
+  const n =
+    Number(jumlah);
+
+
+  if(!n || n <= 0){
+
+    alert('Jumlah tidak valid.');
+
+    return;
+
+  }
 
 
   try{
 
+    await api(
+      'bayarHutang',
+      {
+        id:h.ID,
+        jumlah:n,
+        metode:'Cash',
+        sumber:
+          String(h.Jenis)
+            .toLowerCase()
+            .includes('supplier')
+          ? 'Toko'
+          : 'Pribadi'
+      }
+    );
+
+
+    alert('Pembayaran berhasil.');
+
+    loadHutang();
+
+    loadDashboard();
+
+  }catch(err){
+
+    alert(err.message);
+
+  }
+
+}
+
+
+/* ==================================================
+   NOTIFIKASI
+================================================== */
+
+async function loadNotifikasi(){
+
+  try{
+
+    DATA.notifikasi =
+      await api('notifikasi');
+
+
+    renderNotifikasi();
+
+  }catch(err){
+
+    showError(err);
+
+  }
+
+}
+
+
+function renderNotifikasi(){
+
+  const el =
+    document.getElementById(
+      'notifikasiList'
+    );
+
+
+  if(!DATA.notifikasi.length){
+
+    el.innerHTML = `
+
+      <div class="card">
+
+        <div class="empty">
+          ✅ Tidak ada tagihan yang jatuh tempo dalam 7 hari.
+        </div>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  el.innerHTML =
+    DATA.notifikasi.map(h => `
+
+      <div class="alert">
+
+        <strong>
+          ${esc(h.Pihak)}
+        </strong>
+
+        <br>
+
+        ${esc(h.Keterangan)}
+
+        <br>
+
+        Sisa:
+        <strong>
+          ${rupiah(h.Sisa)}
+        </strong>
+
+        <br>
+
+        Jatuh tempo:
+        ${esc(h['Jatuh Tempo'])}
+
+        <button
+          class="btn btn-success"
+          onclick='bayarHutangPrompt(${JSON.stringify(h)})'>
+
+          Bayar
+
+        </button>
+
+      </div>
+
+    `).join('');
+
+}
+
+
+async function loadNotifikasiDashboard(){
+
+  try{
+
     const data =
-      await apiCall(
-        'penjualan'
+      await api('notifikasi');
+
+
+    const el =
+      document.getElementById(
+        'dashboardAlert'
       );
 
 
-    if(
-      !data ||
-      !data.length
-    ){
+    if(!data.length){
 
-      box.innerHTML =
-        '<div class="empty">' +
-        'Belum ada penjualan.' +
-        '</div>';
+      el.innerHTML='';
 
       return;
+
     }
 
 
-    box.innerHTML =
-      data
-        .slice()
-        .reverse()
-        .slice(0,10)
-        .map(function(p){
+    el.innerHTML = `
 
-          return `
+      <div class="alert">
 
-            <div class="list-item">
+        🔔 Ada
+        <strong>${data.length}</strong>
+        hutang/tagihan yang perlu diperhatikan.
 
-              <div class="list-title">
-                ${escapeHtml(
-                  p['Nama Barang']
-                )}
-              </div>
+        <button
+          class="btn btn-warning"
+          onclick="showPage('notifikasi')">
 
-              <div class="list-info">
+          Lihat Tagihan
 
-                ${p.Qty} ×
-                ${rupiah(
-                  p['Harga Jual']
-                )}
-                =
-                ${rupiah(
-                  p.Omzet
-                )}
+        </button>
 
-                <br>
+      </div>
 
-                Laba:
-                ${rupiah(
-                  p['Laba Kotor']
-                )}
+    `;
 
-              </div>
+  }catch(err){}
 
-            </div>
-
-          `;
-
-        })
-        .join('');
-
-  }catch(e){
-
-    box.innerHTML =
-      '<div class="empty">' +
-      'Penjualan gagal dimuat.' +
-      '</div>';
-
-  }
 }
 
+
+/* ==================================================
+   LAPORAN
+================================================== */
+
+async function loadLaporan(jenis){
+
+  let data;
+
+
+  try{
+
+    if(jenis === 'hari'){
+
+      data =
+        await api(
+          'laporan',
+          {
+            mulai:todayDate(),
+            akhir:todayDate()
+          }
+        );
+
+    }
+
+
+    if(jenis === 'minggu'){
+
+      const now =
+        new Date();
+
+      const day =
+        now.getDay() || 7;
+
+      const start =
+        new Date(now);
+
+      start.setDate(
+        now.getDate() -
+        day +
+        1
+      );
+
+
+      data =
+        await api(
+          'laporan',
+          {
+            mulai:
+              formatDate(start),
+            akhir:
+              todayDate()
+          }
+        );
+
+    }
+
+
+    if(jenis === 'bulan'){
+
+      data =
+        await api(
+          'laporan',
+          {
+            mulai:
+              firstDayMonth(),
+            akhir:
+              todayDate()
+          }
+        );
+
+    }
+
+
+    document.getElementById(
+      'laporanResult'
+    ).innerHTML = `
+
+      <div class="grid">
+
+        <div class="stat">
+
+          <div class="stat-title">
+            Pemasukan
+          </div>
+
+          <div class="stat-value green">
+            ${rupiah(data.masuk)}
+          </div>
+
+        </div>
+
+        <div class="stat">
+
+          <div class="stat-title">
+            Pengeluaran
+          </div>
+
+          <div class="stat-value red">
+            ${rupiah(data.keluar)}
+          </div>
+
+        </div>
+
+        <div class="stat">
+
+          <div class="stat-title">
+            Bersih
+          </div>
+
+          <div class="stat-value blue">
+            ${rupiah(data.bersih)}
+          </div>
+
+        </div>
+
+        <div class="stat">
+
+          <div class="stat-title">
+            Bersih Toko
+          </div>
+
+          <div class="stat-value">
+            ${rupiah(data.bersihToko)}
+          </div>
+
+        </div>
+
+        <div class="stat">
+
+          <div class="stat-title">
+            Bersih Pribadi
+          </div>
+
+          <div class="stat-value">
+            ${rupiah(data.bersihPribadi)}
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    const laba =
+      await api(
+        'laporanLaba',
+        {
+          mulai:
+            jenis === 'bulan'
+            ? firstDayMonth()
+            : todayDate(),
+
+          akhir:
+            todayDate()
+        }
+      );
+
+
+    document.getElementById(
+      'labaResult'
+    ).innerHTML = `
+
+      <div class="grid">
+
+        <div class="stat">
+
+          <div class="stat-title">
+            Omzet
+          </div>
+
+          <div class="stat-value">
+            ${rupiah(laba.omzet)}
+          </div>
+
+        </div>
+
+        <div class="stat">
+
+          <div class="stat-title">
+            HPP
+          </div>
+
+          <div class="stat-value red">
+            ${rupiah(laba.hpp)}
+          </div>
+
+        </div>
+
+        <div class="stat">
+
+          <div class="stat-title">
+            Laba Kotor
+          </div>
+
+          <div class="stat-value green">
+            ${rupiah(laba.labaKotor)}
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }catch(err){
+
+    showError(err);
+
+  }
+
+}
+
+
+function formatDate(d){
+
+  const pad =
+    n => String(n).padStart(2,'0');
+
+  return d.getFullYear() +
+    '-' +
+    pad(d.getMonth()+1) +
+    '-' +
+    pad(d.getDate());
+
+}
+
+
+/* ==================================================
+   SIMPAN PEMASUKAN
+================================================== */
+
+async function simpanPemasukan(){
+
+  const jumlah =
+    Number(
+      document.getElementById(
+        'masukJumlah'
+      ).value
+    );
+
+
+  if(jumlah <= 0){
+
+    alert('Jumlah harus lebih dari 0.');
+
+    return;
+
+  }
+
+
+  try{
+
+    await api(
+      'tambahTransaksi',
+      {
+
+        tanggal:
+          document.getElementById(
+            'masukTanggal'
+          ).value,
+
+        sumber:'Pribadi',
+
+        jenis:'Masuk',
+
+        kategori:
+          document.getElementById(
+            'masukKategori'
+          ).value,
+
+        keterangan:
+          document.getElementById(
+            'masukKeterangan'
+          ).value,
+
+        jumlah:jumlah,
+
+        metode:
+          document.getElementById(
+            'masukMetode'
+          ).value
+
+      }
+    );
+
+
+    closeModal('modalTransaksi');
+
+    alert('Pemasukan berhasil disimpan.');
+
+    resetPemasukan();
+
+    loadDashboard();
+
+  }catch(err){
+
+    alert(err.message);
+
+  }
+
+}
+
+
+function resetPemasukan(){
+
+  document.getElementById(
+    'masukJumlah'
+  ).value='';
+
+  document.getElementById(
+    'masukKeterangan'
+  ).value='';
+
+}
+
+
+/* ==================================================
+   SIMPAN PENGELUARAN
+================================================== */
+
+async function simpanPengeluaran(){
+
+  const jumlah =
+    Number(
+      document.getElementById(
+        'keluarJumlah'
+      ).value
+    );
+
+
+  if(jumlah <= 0){
+
+    alert('Jumlah harus lebih dari 0.');
+
+    return;
+
+  }
+
+
+  try{
+
+    await api(
+      'tambahTransaksi',
+      {
+
+        tanggal:
+          document.getElementById(
+            'keluarTanggal'
+          ).value,
+
+        sumber:
+          document.getElementById(
+            'keluarSumber'
+          ).value,
+
+        jenis:'Keluar',
+
+        kategori:
+          document.getElementById(
+            'keluarKategori'
+          ).value,
+
+        keterangan:
+          document.getElementById(
+            'keluarKeterangan'
+          ).value,
+
+        jumlah:jumlah,
+
+        metode:
+          document.getElementById(
+            'keluarMetode'
+          ).value
+
+      }
+    );
+
+
+    closeModal('modalPengeluaran');
+
+    alert('Pengeluaran berhasil disimpan.');
+
+    document.getElementById(
+      'keluarJumlah'
+    ).value='';
+
+    document.getElementById(
+      'keluarKeterangan'
+    ).value='';
+
+    loadDashboard();
+
+  }catch(err){
+
+    alert(err.message);
+
+  }
+
+}
+
+
+/* ==================================================
+   SIMPAN BARANG
+================================================== */
+
+async function simpanBarang(){
+
+  const nama =
+    document.getElementById(
+      'barangNama'
+    ).value.trim();
+
+
+  if(!nama){
+
+    alert('Nama barang wajib diisi.');
+
+    return;
+
+  }
+
+
+  try{
+
+    await api(
+      'tambahBarang',
+      {
+
+        nama:nama,
+
+        kategori:
+          document.getElementById(
+            'barangKategori'
+          ).value,
+
+        satuan:
+          document.getElementById(
+            'barangSatuan'
+          ).value || 'pcs',
+
+        hargaModal:
+          Number(
+            document.getElementById(
+              'barangModal'
+            ).value || 0
+          ),
+
+        hargaJual:
+          Number(
+            document.getElementById(
+              'barangJual'
+            ).value || 0
+          ),
+
+        stok:
+          Number(
+            document.getElementById(
+              'barangStok'
+            ).value || 0
+          ),
+
+        stokMinimum:
+          Number(
+            document.getElementById(
+              'barangMinimum'
+            ).value || 0
+          ),
+
+        supplier:
+          document.getElementById(
+            'barangSupplier'
+          ).value
+
+      }
+    );
+
+
+    closeModal('modalBarang');
+
+    alert('Barang berhasil ditambahkan.');
+
+    loadBarang();
+
+    loadDashboard();
+
+  }catch(err){
+
+    alert(err.message);
+
+  }
+
+}
+
+
+/* ==================================================
+   SIMPAN PENJUALAN
+================================================== */
 
 async function simpanPenjualan(){
 
@@ -2444,91 +3672,116 @@ async function simpanPenjualan(){
     Number(
       document.getElementById(
         'jualQty'
-      ).value || 0
-    );
-
-
-  const harga =
-    Number(
-      document.getElementById(
-        'jualHarga'
-      ).value || 0
+      ).value
     );
 
 
   if(!barangId){
 
-    toast(
-      'Pilih barang'
-    );
+    alert('Pilih barang.');
 
     return;
+
   }
 
 
   if(qty <= 0){
 
-    toast(
-      'Jumlah harus lebih dari 0'
-    );
+    alert('Qty tidak valid.');
 
     return;
+
+  }
+
+
+  const barang =
+    DATA.barang.find(
+      b => String(b.ID) ===
+      String(barangId)
+    );
+
+
+  if(!barang){
+
+    alert('Barang tidak ditemukan.');
+
+    return;
+
+  }
+
+
+  let harga =
+    Number(
+      document.getElementById(
+        'jualHarga'
+      ).value
+    );
+
+
+  if(!harga){
+
+    harga =
+      Number(
+        barang['Harga Jual'] || 0
+      );
+
   }
 
 
   try{
 
-    const result =
-      await apiCall(
-        'tambahPenjualan',
-        {
-          payload:{
-            barangId:
-              barangId,
+    await api(
+      'tambahPenjualan',
+      {
 
-            qty:
-              qty,
+        barangId:barangId,
 
-            hargaJual:
-              harga,
+        qty:qty,
 
-            metode:
-              metodePembayaran
-          }
-        }
-      );
+        hargaJual:harga,
 
+        metode:
+          document.getElementById(
+            'jualMetode'
+          ).value,
 
-    alert(
-      'Penjualan tersimpan.\n' +
-      'Omzet: ' +
-      rupiah(result.omzet) +
-      '\nLaba: ' +
-      rupiah(result.laba)
+        catatan:
+          document.getElementById(
+            'jualCatatan'
+          ).value
+
+      }
     );
 
 
-    await loadDashboard();
-    await loadHistory();
-    await loadBarang();
+    alert('Penjualan berhasil disimpan.');
 
-    openPage(
-      'home'
-    );
+    document.getElementById(
+      'jualQty'
+    ).value=1;
 
-  }catch(e){
+    document.getElementById(
+      'jualCatatan'
+    ).value='';
 
-    alert(
-      'Gagal menyimpan penjualan:\n' +
-      e.message
-    );
+
+    loadKasir();
+
+    loadBarang();
+
+    loadDashboard();
+
+  }catch(err){
+
+    alert(err.message);
 
   }
+
 }
 
 
 /* ==================================================
-   BELANJA
+   SIMPAN BELANJA
 ================================================== */
 
 async function simpanBelanja(){
@@ -2539,181 +3792,117 @@ async function simpanBelanja(){
     ).value;
 
 
-  const barang =
-    semuaBarang.find(
-      function(b){
+  const qty =
+    Number(
+      document.getElementById(
+        'belanjaQty'
+      ).value
+    );
 
-        return String(b.ID) ===
-          String(barangId);
+
+  const harga =
+    Number(
+      document.getElementById(
+        'belanjaHarga'
+      ).value
+    );
+
+
+  if(qty <= 0){
+
+    alert('Qty tidak valid.');
+
+    return;
+
+  }
+
+
+  if(harga < 0){
+
+    alert('Harga tidak valid.');
+
+    return;
+
+  }
+
+
+  const barang =
+    DATA.barang.find(
+      b =>
+        String(b.ID) ===
+        String(barangId)
+    );
+
+
+  try{
+
+    await api(
+      'tambahBelanja',
+      {
+
+        barangId:
+          barangId,
+
+        namaBarang:
+          document.getElementById(
+            'belanjaNama'
+          ).value ||
+          barang?.['Nama Barang'] ||
+          '',
+
+        kategori:
+          barang?.Kategori ||
+          'Belanja Barang',
+
+        qty:qty,
+
+        harga:harga,
+
+        dibayar:
+          Number(
+            document.getElementById(
+              'belanjaDibayar'
+            ).value || 0
+          ),
+
+        supplier:
+          document.getElementById(
+            'belanjaSupplier'
+          ).value,
+
+        metode:'Cash',
+
+        jatuhTempo:
+          document.getElementById(
+            'belanjaTempo'
+          ).value
 
       }
     );
 
 
-  if(!barang){
+    alert('Belanja berhasil disimpan.');
 
-    toast(
-      'Pilih barang'
-    );
+    loadBelanja();
 
-    return;
-  }
+    loadBarang();
 
+    loadHutang();
 
-  try{
+    loadDashboard();
 
-    const result =
-      await apiCall(
-        'tambahBelanja',
-        {
-          payload:{
-            barangId:
-              barangId,
+  }catch(err){
 
-            namaBarang:
-              barang['Nama Barang'],
-
-            kategori:
-              barang.Kategori,
-
-            qty:
-              Number(
-                document.getElementById(
-                  'belanjaQty'
-                ).value || 0
-              ),
-
-            harga:
-              Number(
-                document.getElementById(
-                  'belanjaHarga'
-                ).value || 0
-              ),
-
-            dibayar:
-              Number(
-                document.getElementById(
-                  'belanjaDibayar'
-                ).value || 0
-              ),
-
-            supplier:
-              document.getElementById(
-                'belanjaSupplier'
-              ).value,
-
-            jatuhTempo:
-              document.getElementById(
-                'belanjaJatuhTempo'
-              ).value,
-
-            metode:
-              metodePembayaran
-          }
-        }
-      );
-
-
-    alert(
-      'Belanja tersimpan.\n' +
-      'Total: ' +
-      rupiah(result.total) +
-      '\nSisa: ' +
-      rupiah(result.sisa)
-    );
-
-
-    await loadDashboard();
-    await loadHistory();
-    await loadBarang();
-
-    openPage(
-      'home'
-    );
-
-  }catch(e){
-
-    alert(
-      'Gagal menyimpan belanja:\n' +
-      e.message
-    );
+    alert(err.message);
 
   }
+
 }
 
 
 /* ==================================================
-   HUTANG
+   SIMPAN HUTANG
 ================================================== */
-
-async function loadHutang(){
-
-  const box =
-    document.getElementById(
-      'listHutang'
-    );
-
-
-  try{
-
-    const data =
-      await apiCall(
-        'hutang'
-      );
-
-
-    const aktif =
-      (data || [])
-      .filter(function(h){
-
-        return (
-          String(
-            h.Status || ''
-          ) !== 'LUNAS'
-          &&
-          !String(
-            h.Jenis || ''
-          )
-          .toLowerCase()
-          .includes('tagihan')
-        );
-
-      });
-
-
-    if(!aktif.length){
-
-      box.innerHTML =
-        '<div class="empty">' +
-        'Tidak ada hutang.' +
-        '</div>';
-
-      return;
-    }
-
-
-    box.innerHTML =
-      aktif
-        .map(function(h){
-
-          return renderKewajiban(
-            h,
-            false
-          );
-
-        })
-        .join('');
-
-  }catch(e){
-
-    box.innerHTML =
-      '<div class="empty">' +
-      'Hutang gagal dimuat.' +
-      '</div>';
-
-  }
-}
-
 
 async function simpanHutang(){
 
@@ -2721,591 +3910,208 @@ async function simpanHutang(){
     Number(
       document.getElementById(
         'hutangTotal'
+      ).value
+    );
+
+
+  const dibayar =
+    Number(
+      document.getElementById(
+        'hutangDibayar'
       ).value || 0
     );
 
 
   if(total <= 0){
 
-    toast(
-      'Total hutang harus diisi'
-    );
+    alert('Total harus lebih dari 0.');
 
     return;
+
   }
 
 
   try{
 
-    await apiCall(
+    await api(
       'tambahHutang',
       {
-        payload:{
-          jenis:
-            document.getElementById(
-              'hutangJenis'
-            ).value,
 
-          pihak:
-            document.getElementById(
-              'hutangPihak'
-            ).value,
+        jenis:
+          document.getElementById(
+            'hutangJenis'
+          ).value,
 
-          keterangan:
-            document.getElementById(
-              'hutangKeterangan'
-            ).value,
+        pihak:
+          document.getElementById(
+            'hutangPihak'
+          ).value,
 
-          total:
-            total,
+        keterangan:
+          document.getElementById(
+            'hutangKeterangan'
+          ).value,
 
-          dibayar:
-            0,
+        total:total,
 
-          jatuhTempo:
-            document.getElementById(
-              'hutangTempo'
-            ).value
-        }
+        dibayar:dibayar,
+
+        jatuhTempo:
+          document.getElementById(
+            'hutangTempo'
+          ).value
+
       }
     );
 
 
-    toast(
-      'Hutang berhasil disimpan'
-    );
+    closeModal('modalHutang');
 
+    alert('Hutang/tagihan berhasil disimpan.');
 
-    await loadHutang();
-    await loadDashboard();
+    loadHutang();
 
-  }catch(e){
+    loadDashboard();
 
-    alert(
-      'Gagal menyimpan hutang:\n' +
-      e.message
-    );
+  }catch(err){
+
+    alert(err.message);
 
   }
-}
 
-
-async function bayarHutangPrompt(id){
-
-  const jumlah =
-    prompt(
-      'Masukkan jumlah pembayaran:'
-    );
-
-
-  if(!jumlah){
-    return;
-  }
-
-
-  const nilai =
-    Number(jumlah);
-
-
-  if(nilai <= 0){
-
-    toast(
-      'Jumlah pembayaran tidak valid'
-    );
-
-    return;
-  }
-
-
-  try{
-
-    const result =
-      await apiCall(
-        'bayarHutang',
-        {
-          payload:{
-            id:id,
-
-            jumlah:
-              nilai,
-
-            sumber:
-              'Toko',
-
-            metode:
-              metodePembayaran
-          }
-        }
-      );
-
-
-    alert(
-      'Pembayaran berhasil.\n' +
-      'Sisa: ' +
-      rupiah(result.sisa)
-    );
-
-
-    await loadHutang();
-    await loadTagihan();
-    await loadDashboard();
-    await loadHistory();
-
-  }catch(e){
-
-    alert(
-      'Pembayaran gagal:\n' +
-      e.message
-    );
-
-  }
 }
 
 
 /* ==================================================
-   TAGIHAN
+   SETUP
 ================================================== */
 
-async function loadTagihan(){
+function setupCheck(){
 
-  const box =
-    document.getElementById(
-      'listTagihan'
-    );
+  alert(
+    'Database dikontrol oleh Kode.gs Google Apps Script. ' +
+    'Jika semua sheet sudah ada, tidak perlu setup ulang.'
+  );
+
+}
+
+
+/* ==================================================
+   ERROR
+================================================== */
+
+function showError(err){
+
+  console.error(err);
+
+  alert(
+    err?.message ||
+    'Terjadi kesalahan saat mengambil data.'
+  );
+
+}
+
+
+/* ==================================================
+   INIT
+================================================== */
+
+async function init(){
+
+  document.getElementById(
+    'masukTanggal'
+  ).value =
+    datetimeLocal();
+
+
+  document.getElementById(
+    'keluarTanggal'
+  ).value =
+    datetimeLocal();
 
 
   try{
 
-    const data =
-      await apiCall(
-        'hutang'
-      );
+    await loadKategori();
+
+    await loadBarang();
+
+    await loadDashboard();
+
+  }catch(err){
+
+    showError(err);
+
+  }
+
+}
 
 
-    const aktif =
-      (data || [])
-      .filter(function(h){
+document
+  .getElementById('jualBarang')
+  ?.addEventListener(
+    'change',
+    function(){
 
-        return (
-          String(
-            h.Jenis || ''
-          )
-          .toLowerCase()
-          .includes('tagihan')
-          &&
-          String(
-            h.Status || ''
-          ) !== 'LUNAS'
+      const barang =
+        DATA.barang.find(
+          b =>
+            String(b.ID) ===
+            String(this.value)
         );
 
-      });
 
+      if(barang){
 
-    if(!aktif.length){
-
-      box.innerHTML =
-        '<div class="empty">' +
-        'Belum ada tagihan.' +
-        '</div>';
-
-      return;
-    }
-
-
-    box.innerHTML =
-      aktif
-        .map(function(h){
-
-          return renderKewajiban(
-            h,
-            true
+        document.getElementById(
+          'jualHarga'
+        ).value =
+          Number(
+            barang['Harga Jual'] || 0
           );
 
-        })
-        .join('');
-
-  }catch(e){
-
-    box.innerHTML =
-      '<div class="empty">' +
-      'Tagihan gagal dimuat.' +
-      '</div>';
-
-  }
-}
-
-
-async function simpanTagihan(){
-
-  const pihak =
-    document.getElementById(
-      'tagihanPihak'
-    ).value.trim();
-
-
-  const total =
-    Number(
-      document.getElementById(
-        'tagihanTotal'
-      ).value || 0
-    );
-
-
-  if(
-    !pihak ||
-    total <= 0
-  ){
-
-    toast(
-      'Nama dan nominal tagihan wajib diisi'
-    );
-
-    return;
-  }
-
-
-  try{
-
-    await apiCall(
-      'tambahHutang',
-      {
-        payload:{
-          jenis:
-            'Tagihan',
-
-          pihak:
-            pihak,
-
-          keterangan:
-            document.getElementById(
-              'tagihanKeterangan'
-            ).value,
-
-          total:
-            total,
-
-          dibayar:
-            0,
-
-          jatuhTempo:
-            document.getElementById(
-              'tagihanTempo'
-            ).value
-        }
-      }
-    );
-
-
-    toast(
-      'Tagihan berhasil disimpan'
-    );
-
-
-    document.getElementById(
-      'tagihanPihak'
-    ).value = '';
-
-    document.getElementById(
-      'tagihanKeterangan'
-    ).value = '';
-
-    document.getElementById(
-      'tagihanTotal'
-    ).value = '';
-
-
-    await loadTagihan();
-    await loadDashboard();
-
-  }catch(e){
-
-    alert(
-      'Gagal menyimpan tagihan:\n' +
-      e.message
-    );
-
-  }
-}
-
-
-function renderKewajiban(
-  h,
-  isTagihan
-){
-
-  let cls =
-    'badge warning';
-
-  let label =
-    'BELUM LUNAS';
-
-
-  if(
-    h['Jatuh Tempo']
-  ){
-
-    const tempo =
-      new Date(
-        h['Jatuh Tempo']
-      );
-
-    const hari =
-      Math.ceil(
-        (
-          tempo -
-          new Date()
-        ) /
-        86400000
-      );
-
-
-    if(hari < 0){
-
-      cls =
-        'badge danger';
-
-      label =
-        'TERLAMBAT';
-
-    }else if(hari === 0){
-
-      cls =
-        'badge danger';
-
-      label =
-        'HARI INI';
-
-    }else if(hari <= 7){
-
-      label =
-        'H-' + hari;
-
-      if(hari <= 3){
-        cls =
-          'badge danger';
       }
 
     }
-
-  }
-
-
-  return `
-
-    <div class="list-item">
-
-      <div class="list-title">
-
-        ${isTagihan ? '🔔' : '💳'}
-
-        ${escapeHtml(
-          h.Pihak ||
-          'Tanpa nama'
-        )}
-
-      </div>
-
-      <div class="list-info">
-
-        ${escapeHtml(
-          h.Keterangan || ''
-        )}
-
-        <br>
-
-        Sisa:
-        <b>
-          ${rupiah(h.Sisa)}
-        </b>
-
-        ${
-          h['Jatuh Tempo']
-            ? '<br>Jatuh tempo: ' +
-              escapeHtml(
-                h['Jatuh Tempo']
-              )
-            : ''
-        }
-
-      </div>
-
-      <span class="${cls}">
-        ${label}
-      </span>
-
-      <br><br>
-
-      <button
-        class="btn secondary"
-        onclick="bayarHutangPrompt('${h.ID}')">
-
-        ${
-          isTagihan
-            ? 'Bayar Tagihan'
-            : 'Bayar Hutang'
-        }
-
-      </button>
-
-    </div>
-
-  `;
-}
-
-
-/* ==================================================
-   LAPORAN
-================================================== */
-
-function localDate(d){
-
-  return (
-    d.getFullYear() +
-    '-' +
-    String(
-      d.getMonth() + 1
-    ).padStart(2,'0') +
-    '-' +
-    String(
-      d.getDate()
-    ).padStart(2,'0')
   );
-}
 
 
-async function loadLaporan(mode){
+document
+  .getElementById('belanjaBarang')
+  ?.addEventListener(
+    'change',
+    function(){
 
-  const sekarang =
-    new Date();
-
-  let mulai =
-    localDate(
-      sekarang
-    );
-
-  const akhir =
-    localDate(
-      sekarang
-    );
+      const barang =
+        DATA.barang.find(
+          b =>
+            String(b.ID) ===
+            String(this.value)
+        );
 
 
-  if(
-    mode === 'minggu'
-  ){
+      if(barang){
 
-    const d =
-      new Date(
-        sekarang
-      );
-
-    const hari =
-      d.getDay() || 7;
-
-    d.setDate(
-      d.getDate() -
-      hari +
-      1
-    );
-
-    mulai =
-      localDate(d);
-
-  }
+        document.getElementById(
+          'belanjaNama'
+        ).value =
+          barang['Nama Barang'] || '';
 
 
-  if(
-    mode === 'bulan'
-  ){
+        document.getElementById(
+          'belanjaHarga'
+        ).value =
+          Number(
+            barang['Harga Modal'] || 0
+          );
 
-    mulai =
-      localDate(
-        new Date(
-          sekarang.getFullYear(),
-          sekarang.getMonth(),
-          1
-        )
-      );
+      }
 
-  }
+    }
+  );
 
 
-  try{
-
-    const data =
-      await apiCall(
-        'laporan',
-        {
-          mulai:mulai,
-          akhir:akhir
-        }
-      );
-
-
-    tampilLaporan(data);
-
-  }catch(e){
-
-    alert(
-      'Laporan gagal dimuat:\n' +
-      e.message
-    );
-
-  }
-}
-
-
-async function loadSemua(){
-
-  try{
-
-    const data =
-      await apiCall(
-        'laporan',
-        {
-          mulai:'2000-01-01',
-          akhir:localDate(
-            new Date()
-          )
-        }
-      );
-
-
-    tampilLaporan(data);
-
-  }catch(e){
-
-    alert(
-      'Laporan gagal dimuat:\n' +
-      e.message
-    );
-
-  }
-}
-
-
-function tampilLaporan(data){
-
-  document.getElementById(
-    'lapMasuk'
-  ).textContent =
-    rupiah(data.masuk);
-
-  document.getElementById(
-    'lapKeluar'
-  ).textContent =
-    rupiah(data.keluar);
-
-  document.getElementById(
-    'lapBersih'
-  ).textContent =
-    rupiah(data.bersih);
-
-  document.getElementById(
-    'lapToko'
-  ).textContent =
-    rupiah(data.masukToko);
-
-}
+init();
 
 
 /* ==================================================
@@ -3320,40 +4126,23 @@ if(
     'load',
     function(){
 
-      navigator.serviceWorker
-        .register('./sw.js')
-        .catch(function(err){
-
-          console.error(
-            'Service Worker:',
-            err
-          );
-
-        });
+      navigator
+        .serviceWorker
+        .register('sw.js')
+        .catch(
+          err =>
+            console.log(
+              'SW:',
+              err
+            )
+        );
 
     }
   );
 
 }
 
-
-/* ==================================================
-   START
-================================================== */
-
-async function startApp(){
-
-  await loadDashboard();
-  await loadHistory();
-  await loadKategori();
-  await loadBarang();
-
-}
-
-startApp();
-
 </script>
 
 </body>
 </html>
-```
