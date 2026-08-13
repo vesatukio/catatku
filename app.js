@@ -2304,3 +2304,78 @@ document.addEventListener(
 
   }
 );
+function openQuickAdd() {
+
+  let menu =
+    document.getElementById("quickAddMenu");
+
+  if (!menu) {
+
+    menu = document.createElement("div");
+
+    menu.id = "quickAddMenu";
+
+    menu.className = "quick-add";
+
+    menu.innerHTML = `
+
+      <button
+        class="quick-income"
+        onclick="quickTransaction('PEMASUKAN')">
+
+        💰 Pemasukan
+
+      </button>
+
+      <button
+        class="quick-expense"
+        onclick="quickTransaction('PENGELUARAN')">
+
+        💸 Pengeluaran
+
+      </button>
+
+      <button
+        class="quick-sale"
+        onclick="showPage('penjualan'); closeQuickAdd()">
+
+        🛒 Penjualan
+
+      </button>
+
+    `;
+
+    document.body.appendChild(menu);
+
+  }
+
+  menu.classList.toggle("show");
+
+}
+
+
+function closeQuickAdd() {
+
+  const menu =
+    document.getElementById(
+      "quickAddMenu"
+    );
+
+  if (menu) {
+
+    menu.classList.remove("show");
+
+  }
+
+}
+
+
+function quickTransaction(type) {
+
+  closeQuickAdd();
+
+  setTransactionType(type);
+
+  showPage("transaksi");
+
+}
