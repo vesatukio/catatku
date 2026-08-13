@@ -1,38 +1,17 @@
-```javascript
 /*******************************************************
- * CATATKU
- * Frontend untuk GAS + 2 Sheet
- *
- * SHEET:
- * 1. DATA
- * 2. KATEGORI
- *
- * API KEY:
- * CATATKU-2026-PRIBADI
+ * CATATKU OFFLINE-FIRST
  *******************************************************/
 
-
-/* =====================================================
-   1. KONFIGURASI GAS
-   =====================================================
-
-   GANTI hanya URL di bawah dengan URL Web App GAS Anda.
-
-   Format:
-   https://script.google.com/macros/s/AKfycbyW1qBf0LX3qPtSwRrvaxIuiIcHMFkuy9PViZ-YZrTfZeM6WqCNlfcNJN1CVzE7M1F3/exec
-*/
-
 const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbyW1qBf0LX3qPtSwRrvaxIuiIcHMFkuy9PViZ-YZrTfZeM6WqCNlfcNJN1CVzE7M1F3/exec";
-
+  "PASTE_URL_WEB_APP_GAS_ANDA_DI_SINI";
 
 const API_KEY =
   "CATATKU-2026-PRIBADI";
 
 
-/* =====================================================
-   STATE
-   ===================================================== */
+/*******************************************************
+ * STATE
+ *******************************************************/
 
 let transactionType = "PEMASUKAN";
 
@@ -40,86 +19,355 @@ let appData = {
   dashboard: {},
   kategori: [],
   barang: [],
-  penjualan: [],
-  belanja: [],
-  hutang: [],
-  history: []
+  history: [],
+  hutang: []
 };
 
 
-/* =====================================================
-   HELPER
-   ===================================================== */
+/*******************************************************
+ * INDEXED DB
+ *******************************************************/
 
-function rupiah(value) {
+const DB_NAME = "CatatKuOfflineDB";
+const DB_VERSION = 1;
+const STORE = "queue";
 
-  const number = Number(value) || 0;
 
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0
-  }).format(number);
+function openDB() {
+
+  return new Promise((resolve, reject) => {
+
+    const request =
+      indexedDB.open(
+        DB_NAME,
+        DB_VERSION
+      );
+
+
+    request.onupgradeneeded =
+      function(event) {
+
+        const db =
+          event.target.result;
+
+        if (
+          !db.objectStoreNames
+            .contains(STORE)
+        ) {
+
+          const store =
+            db.createObjectStore(
+              STORE,
+              {
+                keyPath: "id"
+              }
+            );
+
+          store.createIndex(
+            "status",
+            "status",
+            {
+              unique: false
+            }
+          );
+
+          store.createIndex(
+            "createdAt",
+            "createdAt",
+            {
+              unique: false
+            }
+          );
+        }
+      };
+
+
+    request.onsuccess =
+      function() {
+        resolve(
+          request.result
+        );
+      };
+
+
+    request.onerror =
+      function() {
+        reject(
+          request.error
+        );
+      };
+
+  });
 }
 
 
-function today() {
+async function dbPut(record) {
 
-  const d = new Date();
+  const db =
+    await openDB();
 
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  return new Promise(
+    (resolve, reject) => {
 
-  return `${y}-${m}-${day}`;
+      const tx =
+        db.transaction(
+          STORE,
+          "readwrite"
+        );
+
+      tx.objectStore(
+        STORE
+      ).put(record);
+
+      tx.oncomplete =
+        () => resolve(true);
+
+      tx.onerror =
+        () => reject(tx.error);
+
+    }
+  );
 }
 
 
-function esc(value) {
+async function dbDelete(id) {
 
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  const db =
+    await openDB();
+
+  return new Promise(
+    (resolve, reject) => {
+
+      const tx =
+        db.transaction(
+          STORE,
+          "readwrite"
+        );
+
+      tx.objectStore(
+        STORE
+      ).delete(id);
+
+      tx.oncomplete =
+        () => resolve(true);
+
+      tx.onerror =
+        () => reject(tx.error);
+
+    }
+  );
 }
 
 
-function toast(message) {
+async function dbAll() {
 
-  const el = document.getElementById("toast");
+  const db =
+    await openDB();
 
-  el.textContent = message;
-  el.classList.add("show");
+  return new Promise(
+    (resolve, reject) => {
 
-  setTimeout(() => {
-    el.classList.remove("show");
-  }, 2500);
+      const tx =
+        db.transaction(
+          STORE,
+          "readonly"
+        );
+
+      const request =
+        tx.objectStore(
+          STORE
+        ).getAll();
+
+      request.onsuccess =
+        () => resolve(
+          request.result || []
+        );
+
+      request.onerror =
+        () => reject(
+          request.error
+        );
+
+    }
+  );
 }
 
 
-/* =====================================================
-   API GAS
-   ===================================================== */
+/*******************************************************
+ * OFFLINE QUEUE
+ *******************************************************/
 
-async function api(action, payload = {}) {
+async function queueData(data) {
 
-  if (!GAS_URL ||
-      GAS_URL.includes("PASTE_URL")) {
+  const record = {
+
+    ...data,
+
+    id:
+      data.id ||
+      crypto.randomUUID(),
+
+    createdAt:
+      data.createdAt ||
+      new Date().toISOString(),
+
+    status:
+      "PENDING"
+
+  };
+
+
+  await dbPut(record);
+
+  updateSyncStatus();
+
+  return record;
+}
+
+
+async function getPending() {
+
+  const all =
+    await dbAll();
+
+  return all.filter(
+    x =>
+      x.status === "PENDING"
+  );
+}
+
+
+/*******************************************************
+ * ONLINE / OFFLINE
+ *******************************************************/
+
+function updateOnlineStatus() {
+
+  const online =
+    navigator.onLine;
+
+  const dot =
+    document.getElementById(
+      "onlineDot"
+    );
+
+  const text =
+    document.getElementById(
+      "onlineText"
+    );
+
+
+  if (dot) {
+
+    dot.className =
+      online
+        ? "online-dot online"
+        : "online-dot offline";
+  }
+
+
+  if (text) {
+
+    text.textContent =
+      online
+        ? "ONLINE"
+        : "OFFLINE";
+  }
+
+
+  updateSyncStatus();
+
+  if (online) {
+
+    syncOffline();
+
+  }
+}
+
+
+async function updateSyncStatus() {
+
+  const pending =
+    await getPending();
+
+  const badge =
+    document.getElementById(
+      "syncBadge"
+    );
+
+
+  if (!badge) return;
+
+
+  if (pending.length > 0) {
+
+    badge.textContent =
+      pending.length +
+      " menunggu";
+
+    badge.classList.remove(
+      "hidden"
+    );
+
+  } else {
+
+    badge.classList.add(
+      "hidden"
+    );
+  }
+}
+
+
+/*******************************************************
+ * API
+ *******************************************************/
+
+async function api(
+  action,
+  payload = {}
+) {
+
+  if (
+    !navigator.onLine
+  ) {
 
     throw new Error(
-      "URL Web App GAS belum diisi di app.js"
+      "OFFLINE"
     );
   }
 
-  const params = new URLSearchParams();
 
-  params.set("action", action);
-  params.set("key", API_KEY);
+  if (
+    !GAS_URL ||
+    GAS_URL.includes(
+      "PASTE_URL"
+    )
+  ) {
 
-  if (payload &&
-      Object.keys(payload).length > 0) {
+    throw new Error(
+      "URL GAS belum diisi."
+    );
+  }
+
+
+  const params =
+    new URLSearchParams();
+
+  params.set(
+    "action",
+    action
+  );
+
+  params.set(
+    "key",
+    API_KEY
+  );
+
+
+  if (
+    payload &&
+    Object.keys(payload).length
+  ) {
 
     params.set(
       "payload",
@@ -127,177 +375,517 @@ async function api(action, payload = {}) {
     );
   }
 
-  const url =
-    GAS_URL + "?" + params.toString();
 
   const response =
-    await fetch(url, {
-      method: "GET",
-      cache: "no-store"
-    });
+    await fetch(
+      GAS_URL +
+      "?" +
+      params.toString(),
+      {
+        method: "GET",
+        cache: "no-store"
+      }
+    );
+
 
   const text =
     await response.text();
+
 
   let result;
 
   try {
 
-    result = JSON.parse(text);
+    result =
+      JSON.parse(text);
 
-  } catch (error) {
-
-    console.error(text);
+  } catch (e) {
 
     throw new Error(
-      "Response GAS bukan JSON. Periksa URL Web App dan deployment GAS."
+      "Response GAS tidak valid."
     );
   }
+
 
   if (!result.success) {
 
     throw new Error(
-      result.error || "API GAS gagal."
+      result.error ||
+      "GAS gagal."
     );
   }
+
 
   return result.data;
 }
 
 
-/* =====================================================
-   LOAD SEMUA DATA
-   ===================================================== */
+/*******************************************************
+ * SYNC
+ *******************************************************/
 
-async function loadApp() {
+let syncing = false;
 
-  // Jangan blokir seluruh layar
-  setLoading(false);
+
+async function syncOffline() {
+
+  if (syncing) {
+    return;
+  }
+
+  if (!navigator.onLine) {
+    return;
+  }
+
+
+  const pending =
+    await getPending();
+
+
+  if (!pending.length) {
+
+    updateSyncStatus();
+
+    return;
+  }
+
+
+  syncing = true;
+
+
+  setSyncText(
+    "Menyinkronkan..."
+  );
+
 
   try {
 
-    // Dashboard dulu agar tampilan utama cepat muncul
-    try {
-      appData.dashboard =
-        await api("dashboard") || {};
+    /*
+     * Kirim maksimal 20 data sekali.
+     * Menghindari URL terlalu panjang.
+     */
 
-      renderDashboard();
-    } catch (e) {
-      console.warn("Dashboard:", e.message);
+    const batch =
+      pending.slice(0, 20);
+
+
+    const result =
+      await api(
+        "sync",
+        {
+          records: batch
+        }
+      );
+
+
+    const results =
+      result.results || [];
+
+
+    for (
+      const item of results
+    ) {
+
+      if (item.success) {
+
+        await dbDelete(
+          item.id
+        );
+
+      }
+
     }
 
 
-    // Kategori
-    try {
-      appData.kategori =
-        normalizeArray(
-          await api("kategori")
-        );
+    updateSyncStatus();
 
-      renderKategori();
-    } catch (e) {
-      console.warn("Kategori:", e.message);
+
+    if (
+      result.failed > 0
+    ) {
+
+      setSyncText(
+        "Sebagian gagal"
+      );
+
+    } else {
+
+      setSyncText(
+        "Sinkron selesai"
+      );
+
     }
 
 
-    // Barang
-    try {
-      appData.barang =
-        normalizeArray(
-          await api("barang")
-        );
+    /*
+     * Kalau masih ada,
+     * lanjut batch berikutnya.
+     */
 
-      renderBarang();
-      renderBarangSelect();
-    } catch (e) {
-      console.warn("Barang:", e.message);
-    }
+    const remaining =
+      await getPending();
 
 
-    // Riwayat
-    try {
-      appData.history =
-        normalizeArray(
-          await api("history", {
-            limit: 50
-          })
-        );
+    if (
+      remaining.length > 0
+    ) {
 
-      renderHistory();
-      renderRecent();
-    } catch (e) {
-      console.warn("History:", e.message);
-    }
+      setTimeout(
+        syncOffline,
+        300
+      );
 
+    } else {
 
-    // Hutang
-    try {
-      appData.hutang =
-        normalizeArray(
-          await api("hutang")
-        );
+      await loadRemoteData();
 
-      renderHutang();
-    } catch (e) {
-      console.warn("Hutang:", e.message);
     }
 
   } catch (error) {
 
-    console.error(error);
+    console.warn(
+      "Sync gagal:",
+      error
+    );
 
-    toast(
-      "Gagal memuat sebagian data."
+    setSyncText(
+      "Menunggu internet"
+    );
+
+  } finally {
+
+    syncing = false;
+
+    updateSyncStatus();
+  }
+}
+
+
+/*******************************************************
+ * SIMPAN DATA
+ *
+ * Selalu simpan lokal dulu.
+ *******************************************************/
+
+async function saveOfflineFirst(
+  data,
+  remoteAction
+) {
+
+  const record =
+    await queueData({
+      ...data,
+      remoteAction
+    });
+
+
+  /*
+   * Render lokal langsung.
+   */
+
+  applyLocalRecord(
+    record
+  );
+
+
+  /*
+   * Kalau online,
+   * langsung sinkron.
+   */
+
+  if (navigator.onLine) {
+
+    syncOffline();
+
+  }
+
+
+  return record;
+}
+
+
+/*******************************************************
+ * APPLY LOCAL
+ *******************************************************/
+
+function applyLocalRecord(
+  record
+) {
+
+  const entity =
+    String(
+      record.entity || ""
+    ).toUpperCase();
+
+
+  if (
+    entity === "TRANSAKSI"
+  ) {
+
+    appData.history.unshift(
+      record
+    );
+
+    const nominal =
+      Number(
+        record.nominal
+      ) || 0;
+
+
+    if (
+      record.jenis ===
+      "PEMASUKAN"
+    ) {
+
+      appData.dashboard
+        .totalPemasukan =
+        Number(
+          appData.dashboard
+            .totalPemasukan || 0
+        ) + nominal;
+
+    } else {
+
+      appData.dashboard
+        .totalPengeluaran =
+        Number(
+          appData.dashboard
+            .totalPengeluaran || 0
+        ) + nominal;
+
+    }
+
+  }
+
+
+  if (
+    entity === "PENJUALAN"
+  ) {
+
+    appData.history.unshift(
+      record
+    );
+
+    appData.dashboard
+      .totalPenjualan =
+      Number(
+        appData.dashboard
+          .totalPenjualan || 0
+      ) +
+      (
+        Number(record.qty) *
+        Number(record.harga)
+      );
+
+  }
+
+
+  if (
+    entity === "BELANJA"
+  ) {
+
+    appData.history.unshift(
+      record
+    );
+
+  }
+
+
+  if (
+    entity === "HUTANG"
+  ) {
+
+    appData.hutang.unshift(
+      {
+        ...record,
+        sisa:
+          Number(
+            record.nominal
+          ) || 0
+      }
+    );
+
+    appData.history.unshift(
+      record
+    );
+
+
+    appData.dashboard
+      .totalHutang =
+      Number(
+        appData.dashboard
+          .totalHutang || 0
+      ) +
+      Number(
+        record.nominal
+      );
+
+  }
+
+
+  if (
+    entity === "BARANG"
+  ) {
+
+    appData.barang.push({
+      id: record.id,
+      nama: record.nama,
+      hargaModal:
+        Number(
+          record.hargaModal
+        ) || 0,
+      hargaJual:
+        Number(
+          record.hargaJual
+        ) || 0,
+      stok:
+        Number(
+          record.stokAwal
+        ) || 0
+    });
+
+  }
+
+
+  renderDashboard();
+  renderBarang();
+  renderBarangSelect();
+  renderHistory();
+  renderHutang();
+}
+
+
+/*******************************************************
+ * LOAD DATA SERVER
+ *******************************************************/
+
+async function loadRemoteData() {
+
+  if (!navigator.onLine) {
+    return;
+  }
+
+
+  try {
+
+    const data =
+      await api(
+        "appData"
+      );
+
+
+    appData.dashboard =
+      data.dashboard || {};
+
+    appData.kategori =
+      normalizeArray(
+        data.kategori
+      );
+
+    appData.barang =
+      normalizeArray(
+        data.barang
+      );
+
+    appData.history =
+      normalizeArray(
+        data.history
+      );
+
+    appData.hutang =
+      normalizeArray(
+        data.hutang
+      );
+
+
+    /*
+     * Tambahkan data pending
+     * agar belum hilang dari tampilan.
+     */
+
+    const pending =
+      await getPending();
+
+
+    pending
+      .forEach(applyLocalRecord);
+
+
+    renderAll();
+
+
+  } catch (error) {
+
+    console.warn(
+      "Load server gagal:",
+      error
     );
   }
 }
 
-/* =====================================================
-   DASHBOARD
-   ===================================================== */
+
+/*******************************************************
+ * RENDER
+ *******************************************************/
+
+function renderAll() {
+
+  renderDashboard();
+  renderKategori();
+  renderBarang();
+  renderBarangSelect();
+  renderHistory();
+  renderHutang();
+
+  updateSyncStatus();
+}
+
 
 function renderDashboard() {
 
   const d =
     appData.dashboard || {};
 
+
   const pemasukan =
     Number(
-      d.totalPemasukan ??
-      d.pemasukan ??
-      d.income ??
+      d.totalPemasukan ||
+      d.pemasukan ||
       0
     );
+
 
   const pengeluaran =
     Number(
-      d.totalPengeluaran ??
-      d.pengeluaran ??
-      d.expense ??
+      d.totalPengeluaran ||
+      d.pengeluaran ||
       0
     );
+
 
   const penjualan =
     Number(
-      d.totalPenjualan ??
-      d.penjualan ??
-      d.sales ??
+      d.totalPenjualan ||
+      d.penjualan ||
       0
     );
 
+
   const hutang =
     Number(
-      d.totalHutang ??
-      d.hutang ??
-      d.debt ??
+      d.totalHutang ||
+      d.hutang ||
       0
     );
+
 
   const saldo =
     Number(
       d.saldo ??
-      d.balance ??
-      (pemasukan - pengeluaran)
+      (
+        pemasukan -
+        pengeluaran
+      )
     );
 
 
@@ -331,35 +919,6 @@ function renderDashboard() {
 }
 
 
-function renderRecent() {
-
-  const el =
-    document.getElementById(
-      "recentTransactions"
-    );
-
-  const rows =
-    appData.history.slice(0, 8);
-
-  if (!rows.length) {
-
-    el.innerHTML =
-      `<div class="empty">
-        Belum ada transaksi
-      </div>`;
-
-    return;
-  }
-
-  el.innerHTML =
-    rows.map(transactionHTML).join("");
-}
-
-
-/* =====================================================
-   KATEGORI
-   ===================================================== */
-
 function renderKategori() {
 
   const select =
@@ -369,37 +928,43 @@ function renderKategori() {
 
   if (!select) return;
 
+
   select.innerHTML =
     `<option value="">
       Pilih kategori
     </option>`;
 
 
-  appData.kategori.forEach(item => {
+  appData.kategori
+    .forEach(item => {
 
-    const nama =
-      item.nama ??
-      item.kategori ??
-      item.name ??
-      item.Kategori ??
-      "";
+      const nama =
+        item.nama ||
+        item.name ||
+        "";
 
-    if (!nama) return;
 
-    const option =
-      document.createElement("option");
+      if (!nama) return;
 
-    option.value = nama;
-    option.textContent = nama;
 
-    select.appendChild(option);
-  });
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        nama;
+
+      option.textContent =
+        nama;
+
+      select.appendChild(
+        option
+      );
+
+    });
 }
 
-
-/* =====================================================
-   BARANG
-   ===================================================== */
 
 function renderBarang() {
 
@@ -408,7 +973,12 @@ function renderBarang() {
       "barangList"
     );
 
-  if (!appData.barang.length) {
+  if (!el) return;
+
+
+  if (
+    !appData.barang.length
+  ) {
 
     el.innerHTML =
       `<div class="empty">
@@ -418,104 +988,97 @@ function renderBarang() {
     return;
   }
 
+
   el.innerHTML =
-    appData.barang.map(item => {
+    appData.barang
+      .map(item => {
 
-      const nama =
-        item.nama ??
-        item.Nama ??
-        item.name ??
-        "";
+        return `
+          <div class="product-item">
 
-      const stok =
-        Number(
-          item.stok ??
-          item.Stok ??
-          0
-        );
+            <div>
+              <div class="item-title">
+                ${esc(item.nama)}
+              </div>
 
-      const hargaJual =
-        Number(
-          item.hargaJual ??
-          item["Harga Jual"] ??
-          item.hargajual ??
-          0
-        );
-
-      return `
-        <div class="product-item">
-
-          <div>
-            <div class="item-title">
-              ${esc(nama)}
+              <div class="item-sub">
+                Jual:
+                ${rupiah(
+                  item.hargaJual
+                )}
+              </div>
             </div>
 
-            <div class="item-sub">
-              Harga jual:
-              ${rupiah(hargaJual)}
+            <div class="stock">
+              Stok ${Number(
+                item.stok || 0
+              )}
             </div>
+
           </div>
+        `;
 
-          <div class="stock">
-            Stok ${stok}
-          </div>
-
-        </div>
-      `;
-
-    }).join("");
+      })
+      .join("");
 }
 
 
 function renderBarangSelect() {
 
-  const selects = [
-    document.getElementById("jualBarang"),
-    document.getElementById("belanjaBarang")
+  const ids = [
+    "jualBarang",
+    "belanjaBarang"
   ];
 
-  selects.forEach(select => {
+
+  ids.forEach(id => {
+
+    const select =
+      document.getElementById(
+        id
+      );
 
     if (!select) return;
+
+
+    const old =
+      select.value;
+
 
     select.innerHTML =
       `<option value="">
         Pilih barang
       </option>`;
 
-    appData.barang.forEach(item => {
 
-      const id =
-        item.id ??
-        item.ID ??
-        item.nama ??
-        item.Nama ??
-        "";
+    appData.barang
+      .forEach(item => {
 
-      const nama =
-        item.nama ??
-        item.Nama ??
-        item.name ??
-        id;
+        const option =
+          document.createElement(
+            "option"
+          );
 
-      const option =
-        document.createElement("option");
+        option.value =
+          item.id;
 
-      option.value = id;
+        option.textContent =
+          item.nama;
 
-      option.textContent =
-        nama;
+        select.appendChild(
+          option
+        );
 
-      select.appendChild(option);
-    });
+      });
+
+
+    if (old) {
+      select.value = old;
+    }
 
   });
 }
 
-
-/* =====================================================
-   RIWAYAT
-   ===================================================== */
 
 function renderHistory() {
 
@@ -524,7 +1087,12 @@ function renderHistory() {
       "historyList"
     );
 
-  if (!appData.history.length) {
+  if (!el) return;
+
+
+  if (
+    !appData.history.length
+  ) {
 
     el.innerHTML =
       `<div class="empty">
@@ -534,52 +1102,102 @@ function renderHistory() {
     return;
   }
 
+
   el.innerHTML =
     appData.history
+      .slice(0, 100)
       .map(transactionHTML)
       .join("");
 }
 
 
-function transactionHTML(item) {
+function renderRecent() {
 
-  const tipe =
+  const el =
+    document.getElementById(
+      "recentTransactions"
+    );
+
+  if (!el) return;
+
+
+  const rows =
+    appData.history
+      .slice(0, 8);
+
+
+  if (!rows.length) {
+
+    el.innerHTML =
+      `<div class="empty">
+        Belum ada transaksi.
+      </div>`;
+
+    return;
+  }
+
+
+  el.innerHTML =
+    rows
+      .map(transactionHTML)
+      .join("");
+}
+
+
+function transactionHTML(
+  item
+) {
+
+  const entity =
     String(
-      item.tipe ??
-      item.jenis ??
-      item.type ??
+      item.entity || ""
+    ).toUpperCase();
+
+
+  const jenis =
+    String(
+      item.jenis ||
+      item.tipe ||
       ""
     ).toUpperCase();
 
-  const nominal =
+
+  let nominal =
     Number(
-      item.nominal ??
-      item.jumlah ??
-      item.amount ??
-      0
-    );
-
-  const tanggal =
-    item.tanggal ??
-    item.date ??
-    "";
-
-  const kategori =
-    item.kategori ??
-    item.category ??
-    "";
-
-  const keterangan =
-    item.keterangan ??
-    item.deskripsi ??
-    item.description ??
-    "";
+      item.nominal
+    ) || 0;
 
 
-  const income =
-    tipe.includes("MASUK") ||
-    tipe.includes("INCOME") ||
-    tipe.includes("PENJUALAN");
+  if (
+    entity === "PENJUALAN" ||
+    entity === "BELANJA"
+  ) {
+
+    nominal =
+      Number(item.qty || 0) *
+      Number(item.harga || 0);
+
+  }
+
+
+  let income =
+    jenis === "PEMASUKAN" ||
+    entity === "PENJUALAN";
+
+
+  if (
+    entity === "BELANJA"
+  ) {
+
+    income = false;
+  }
+
+
+  let title =
+    item.keterangan ||
+    item.nama ||
+    item.barangNama ||
+    entity;
 
 
   return `
@@ -588,29 +1206,45 @@ function transactionHTML(item) {
       <div>
 
         <div class="item-title">
-          ${esc(keterangan || kategori || tipe)}
+          ${esc(title)}
         </div>
 
         <div class="item-sub">
-          ${esc(tanggal)}
-          ${kategori ? " • " + esc(kategori) : ""}
+
+          ${esc(
+            item.tanggal ||
+            ""
+          )}
+
+          ${
+            item.status ===
+            "PENDING"
+              ? " • ⏳ Offline"
+              : ""
+          }
+
         </div>
 
       </div>
 
-      <div class="amount ${income ? "in" : "out"}">
-        ${income ? "+" : "-"}
+      <div class="amount ${
+        income ? "in" : "out"
+      }">
+
+        ${
+          income
+            ? "+"
+            : "-"
+        }
+
         ${rupiah(nominal)}
+
       </div>
 
     </div>
   `;
 }
 
-
-/* =====================================================
-   HUTANG
-   ===================================================== */
 
 function renderHutang() {
 
@@ -619,7 +1253,12 @@ function renderHutang() {
       "hutangList"
     );
 
-  if (!appData.hutang.length) {
+  if (!el) return;
+
+
+  if (
+    !appData.hutang.length
+  ) {
 
     el.innerHTML =
       `<div class="empty">
@@ -629,170 +1268,73 @@ function renderHutang() {
     return;
   }
 
+
   el.innerHTML =
-    appData.hutang.map(item => {
+    appData.hutang
+      .map(item => {
 
-      const nama =
-        item.nama ??
-        item.pihak ??
-        item.Nama ??
-        "";
+        return `
+          <div class="debt-item">
 
-      const nominal =
-        Number(
-          item.sisa ??
-          item.nominal ??
-          item.jumlah ??
-          0
-        );
+            <div>
 
-      const tempo =
-        item.jatuhTempo ??
-        item.tempo ??
-        item.tanggalJatuhTempo ??
-        "";
+              <div class="item-title">
+                ${esc(
+                  item.nama || ""
+                )}
+              </div>
 
-      return `
-        <div class="debt-item">
+              <div class="item-sub">
+                Jatuh tempo:
+                ${esc(
+                  item.jatuhTempo ||
+                  "-"
+                )}
+              </div>
 
-          <div>
-
-            <div class="item-title">
-              ${esc(nama)}
             </div>
 
-            <div class="item-sub">
-              Jatuh tempo:
-              ${esc(tempo || "-")}
+            <div class="debt-value">
+              ${rupiah(
+                item.sisa ??
+                item.nominal ??
+                0
+              )}
             </div>
 
           </div>
+        `;
 
-          <div class="debt-value">
-            ${rupiah(nominal)}
-          </div>
-
-        </div>
-      `;
-
-    }).join("");
+      })
+      .join("");
 }
 
 
-/* =====================================================
-   NAVIGASI
-   ===================================================== */
+/*******************************************************
+ * SAVE TRANSACTION
+ *******************************************************/
 
-function showPage(name) {
-
-  document
-    .querySelectorAll(".page")
-    .forEach(page => {
-      page.classList.remove("active");
-    });
-
-
-  const target =
-    document.getElementById(
-      "page-" + name
-    );
-
-  if (target) {
-    target.classList.add("active");
-  }
-
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-}
-
-
-function showMoreMenu() {
-
-  document
-    .getElementById("moreMenu")
-    .classList.remove("hidden");
-}
-
-
-function closeMoreMenu() {
-
-  document
-    .getElementById("moreMenu")
-    .classList.add("hidden");
-}
-
-
-function openFromMenu(page) {
-
-  closeMoreMenu();
-
-  showPage(page);
-}
-
-
-/* =====================================================
-   TRANSACTION TYPE
-   ===================================================== */
-
-function setTransactionType(type) {
-
-  transactionType = type;
-
-  document
-    .getElementById("tabIncome")
-    .classList.toggle(
-      "active",
-      type === "PEMASUKAN"
-    );
-
-  document
-    .getElementById("tabExpense")
-    .classList.toggle(
-      "active",
-      type === "PENGELUARAN"
-    );
-}
-
-
-/* =====================================================
-   MODAL
-   ===================================================== */
-
-function openModal(id) {
-
-  document
-    .getElementById(id)
-    .classList.remove("hidden");
-}
-
-
-function closeModal(id) {
-
-  document
-    .getElementById(id)
-    .classList.add("hidden");
-}
-
-
-/* =====================================================
-   SIMPAN TRANSAKSI
-   ===================================================== */
-
-async function saveTransaction(event) {
+async function saveTransaction(
+  event
+) {
 
   event.preventDefault();
 
-  const payload = {
+
+  const data = {
+
+    id:
+      crypto.randomUUID(),
+
+    entity:
+      "TRANSAKSI",
 
     tanggal:
       document.getElementById(
         "trxTanggal"
       ).value,
 
-    tipe:
+    jenis:
       transactionType,
 
     kategori:
@@ -820,39 +1362,50 @@ async function saveTransaction(event) {
   };
 
 
-  try {
+  await saveOfflineFirst(
+    data,
+    "tambahTransaksi"
+  );
 
-    await api(
-      "tambahTransaksi",
-      payload
-    );
 
-    toast("Transaksi berhasil disimpan.");
+  toast(
+    navigator.onLine
+      ? "Transaksi tersimpan."
+      : "Tersimpan offline."
+  );
 
-    event.target.reset();
 
-    document.getElementById(
-      "trxTanggal"
-    ).value = today();
+  event.target.reset();
 
-    await loadApp();
 
-  } catch (error) {
-
-    toast(error.message);
-  }
+  document.getElementById(
+    "trxTanggal"
+  ).value =
+    today();
 }
 
 
-/* =====================================================
-   SIMPAN BARANG
-   ===================================================== */
+/*******************************************************
+ * SAVE BARANG
+ *******************************************************/
 
-async function saveBarang(event) {
+async function saveBarang(
+  event
+) {
 
   event.preventDefault();
 
-  const payload = {
+
+  const data = {
+
+    id:
+      crypto.randomUUID(),
+
+    entity:
+      "BARANG",
+
+    tanggal:
+      today(),
 
     nama:
       document.getElementById(
@@ -873,7 +1426,7 @@ async function saveBarang(event) {
         ).value
       ),
 
-    stok:
+    stokAwal:
       Number(
         document.getElementById(
           "barangStok"
@@ -883,42 +1436,72 @@ async function saveBarang(event) {
   };
 
 
-  try {
+  await saveOfflineFirst(
+    data,
+    "tambahBarang"
+  );
 
-    await api(
-      "tambahBarang",
-      payload
-    );
 
-    toast("Barang berhasil disimpan.");
+  toast(
+    navigator.onLine
+      ? "Barang tersimpan."
+      : "Barang tersimpan offline."
+  );
 
-    event.target.reset();
 
-    closeModal("barangModal");
+  event.target.reset();
 
-    await loadApp();
-
-  } catch (error) {
-
-    toast(error.message);
-  }
+  closeModal(
+    "barangModal"
+  );
 }
 
 
-/* =====================================================
-   SIMPAN PENJUALAN
-   ===================================================== */
+/*******************************************************
+ * SAVE PENJUALAN
+ *******************************************************/
 
-async function savePenjualan(event) {
+async function savePenjualan(
+  event
+) {
 
   event.preventDefault();
 
-  const payload = {
+
+  const barangId =
+    document.getElementById(
+      "jualBarang"
+    ).value;
+
+
+  const barang =
+    appData.barang.find(
+      x =>
+        String(x.id) ===
+        String(barangId)
+    );
+
+
+  const data = {
+
+    id:
+      crypto.randomUUID(),
+
+    entity:
+      "PENJUALAN",
+
+    tanggal:
+      today(),
 
     barangId:
-      document.getElementById(
-        "jualBarang"
-      ).value,
+
+      barangId,
+
+    barangNama:
+
+      barang
+        ? barang.nama
+        : "",
 
     qty:
       Number(
@@ -937,48 +1520,73 @@ async function savePenjualan(event) {
     pelanggan:
       document.getElementById(
         "jualPelanggan"
-      ).value,
-
-    tanggal:
-      today()
+      ).value
 
   };
 
 
-  try {
+  await saveOfflineFirst(
+    data,
+    "tambahPenjualan"
+  );
 
-    await api(
-      "tambahPenjualan",
-      payload
-    );
 
-    toast("Penjualan berhasil disimpan.");
+  toast(
+    navigator.onLine
+      ? "Penjualan tersimpan."
+      : "Penjualan tersimpan offline."
+  );
 
-    event.target.reset();
 
-    await loadApp();
-
-  } catch (error) {
-
-    toast(error.message);
-  }
+  event.target.reset();
 }
 
 
-/* =====================================================
-   SIMPAN BELANJA
-   ===================================================== */
+/*******************************************************
+ * SAVE BELANJA
+ *******************************************************/
 
-async function saveBelanja(event) {
+async function saveBelanja(
+  event
+) {
 
   event.preventDefault();
 
-  const payload = {
+
+  const barangId =
+    document.getElementById(
+      "belanjaBarang"
+    ).value;
+
+
+  const barang =
+    appData.barang.find(
+      x =>
+        String(x.id) ===
+        String(barangId)
+    );
+
+
+  const data = {
+
+    id:
+      crypto.randomUUID(),
+
+    entity:
+      "BELANJA",
+
+    tanggal:
+      today(),
 
     barangId:
-      document.getElementById(
-        "belanjaBarang"
-      ).value,
+
+      barangId,
+
+    barangNama:
+
+      barang
+        ? barang.nama
+        : "",
 
     qty:
       Number(
@@ -997,43 +1605,49 @@ async function saveBelanja(event) {
     supplier:
       document.getElementById(
         "belanjaSupplier"
-      ).value,
-
-    tanggal:
-      today()
+      ).value
 
   };
 
 
-  try {
+  await saveOfflineFirst(
+    data,
+    "tambahBelanja"
+  );
 
-    await api(
-      "tambahBelanja",
-      payload
-    );
 
-    toast("Belanja berhasil disimpan.");
+  toast(
+    navigator.onLine
+      ? "Belanja tersimpan."
+      : "Belanja tersimpan offline."
+  );
 
-    event.target.reset();
 
-    await loadApp();
-
-  } catch (error) {
-
-    toast(error.message);
-  }
+  event.target.reset();
 }
 
 
-/* =====================================================
-   SIMPAN HUTANG
-   ===================================================== */
+/*******************************************************
+ * SAVE HUTANG
+ *******************************************************/
 
-async function saveHutang(event) {
+async function saveHutang(
+  event
+) {
 
   event.preventDefault();
 
-  const payload = {
+
+  const data = {
+
+    id:
+      crypto.randomUUID(),
+
+    entity:
+      "HUTANG",
+
+    tanggal:
+      today(),
 
     nama:
       document.getElementById(
@@ -1047,6 +1661,8 @@ async function saveHutang(event) {
         ).value
       ),
 
+    dibayar: 0,
+
     jatuhTempo:
       document.getElementById(
         "hutangTempo"
@@ -1057,37 +1673,36 @@ async function saveHutang(event) {
         "hutangKeterangan"
       ).value,
 
-    tanggal:
-      today()
+    status:
+      "BELUM LUNAS"
 
   };
 
 
-  try {
+  await saveOfflineFirst(
+    data,
+    "tambahHutang"
+  );
 
-    await api(
-      "tambahHutang",
-      payload
-    );
 
-    toast("Hutang berhasil disimpan.");
+  toast(
+    navigator.onLine
+      ? "Hutang tersimpan."
+      : "Hutang tersimpan offline."
+  );
 
-    event.target.reset();
 
-    closeModal("hutangModal");
+  event.target.reset();
 
-    await loadApp();
-
-  } catch (error) {
-
-    toast(error.message);
-  }
+  closeModal(
+    "hutangModal"
+  );
 }
 
 
-/* =====================================================
-   LAPORAN
-   ===================================================== */
+/*******************************************************
+ * LAPORAN
+ *******************************************************/
 
 async function loadReport() {
 
@@ -1102,9 +1717,14 @@ async function loadReport() {
     ).value;
 
 
-  if (!mulai || !akhir) {
+  if (
+    !mulai ||
+    !akhir
+  ) {
 
-    toast("Pilih tanggal laporan.");
+    toast(
+      "Pilih periode."
+    );
 
     return;
   }
@@ -1115,13 +1735,22 @@ async function loadReport() {
       "reportResult"
     );
 
-  el.innerHTML =
-    "Memuat laporan...";
+
+  if (!navigator.onLine) {
+
+    el.innerHTML =
+      `<div class="empty">
+        Laporan server membutuhkan
+        koneksi internet.
+      </div>`;
+
+    return;
+  }
 
 
   try {
 
-    const result =
+    const data =
       await api(
         "laporan",
         {
@@ -1131,56 +1760,17 @@ async function loadReport() {
       );
 
 
-    const data =
-      result || {};
-
-
-    const pemasukan =
-      Number(
-        data.pemasukan ??
-        data.totalPemasukan ??
-        0
-      );
-
-    const pengeluaran =
-      Number(
-        data.pengeluaran ??
-        data.totalPengeluaran ??
-        0
-      );
-
-    const penjualan =
-      Number(
-        data.penjualan ??
-        data.totalPenjualan ??
-        0
-      );
-
-    const laba =
-      Number(
-        data.laba ??
-        data.labaBersih ??
-        (penjualan - pengeluaran)
-      );
-
-
     el.innerHTML = `
-
-      <div class="report-row">
-        <span class="report-label">
-          Periode
-        </span>
-        <strong>
-          ${esc(mulai)} s/d ${esc(akhir)}
-        </strong>
-      </div>
 
       <div class="report-row">
         <span class="report-label">
           Pemasukan
         </span>
+
         <span class="report-value">
-          ${rupiah(pemasukan)}
+          ${rupiah(
+            data.pemasukan
+          )}
         </span>
       </div>
 
@@ -1188,8 +1778,11 @@ async function loadReport() {
         <span class="report-label">
           Pengeluaran
         </span>
+
         <span class="report-value">
-          ${rupiah(pengeluaran)}
+          ${rupiah(
+            data.pengeluaran
+          )}
         </span>
       </div>
 
@@ -1197,8 +1790,23 @@ async function loadReport() {
         <span class="report-label">
           Penjualan
         </span>
+
         <span class="report-value">
-          ${rupiah(penjualan)}
+          ${rupiah(
+            data.penjualan
+          )}
+        </span>
+      </div>
+
+      <div class="report-row">
+        <span class="report-label">
+          Modal Penjualan
+        </span>
+
+        <span class="report-value">
+          ${rupiah(
+            data.modalPenjualan
+          )}
         </span>
       </div>
 
@@ -1206,8 +1814,11 @@ async function loadReport() {
         <span class="report-label">
           Laba
         </span>
+
         <span class="report-value">
-          ${rupiah(laba)}
+          ${rupiah(
+            data.laba
+          )}
         </span>
       </div>
 
@@ -1215,99 +1826,370 @@ async function loadReport() {
 
   } catch (error) {
 
-    el.innerHTML =
-      `<div class="empty">
-        ${esc(error.message)}
-      </div>`;
+    toast(
+      error.message
+    );
   }
 }
 
 
-/* =====================================================
-   UTIL
-   ===================================================== */
+/*******************************************************
+ * NAVIGATION
+ *******************************************************/
 
-function setText(id, value) {
+function showPage(name) {
 
-  const el =
-    document.getElementById(id);
+  document
+    .querySelectorAll(".page")
+    .forEach(
+      p =>
+        p.classList.remove(
+          "active"
+        )
+    );
 
-  if (el) {
-    el.textContent = value;
+
+  const page =
+    document.getElementById(
+      "page-" + name
+    );
+
+
+  if (page) {
+
+    page.classList.add(
+      "active"
+    );
+  }
+
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+
+function showMoreMenu() {
+
+  document
+    .getElementById(
+      "moreMenu"
+    )
+    .classList.remove(
+      "hidden"
+    );
+}
+
+
+function closeMoreMenu() {
+
+  document
+    .getElementById(
+      "moreMenu"
+    )
+    .classList.add(
+      "hidden"
+    );
+}
+
+
+function openFromMenu(
+  page
+) {
+
+  closeMoreMenu();
+
+  showPage(page);
+}
+
+
+/*******************************************************
+ * TRANSACTION TYPE
+ *******************************************************/
+
+function setTransactionType(
+  type
+) {
+
+  transactionType =
+    type;
+
+
+  document
+    .getElementById(
+      "tabIncome"
+    )
+    .classList.toggle(
+      "active",
+      type ===
+        "PEMASUKAN"
+    );
+
+
+  document
+    .getElementById(
+      "tabExpense"
+    )
+    .classList.toggle(
+      "active",
+      type ===
+        "PENGELUARAN"
+    );
+}
+
+
+/*******************************************************
+ * MODAL
+ *******************************************************/
+
+function openModal(id) {
+
+  document
+    .getElementById(id)
+    .classList.remove(
+      "hidden"
+    );
+}
+
+
+function closeModal(id) {
+
+  document
+    .getElementById(id)
+    .classList.add(
+      "hidden"
+    );
+}
+
+
+/*******************************************************
+ * REFRESH
+ *******************************************************/
+
+async function refreshApp() {
+
+  if (
+    navigator.onLine
+  ) {
+
+    await syncOffline();
+
+    await loadRemoteData();
+
+    toast(
+      "Data diperbarui."
+    );
+
+  } else {
+
+    toast(
+      "Offline — data lokal tetap aman."
+    );
+
   }
 }
 
 
-function setLoading(show) {
+/*******************************************************
+ * HELPERS
+ *******************************************************/
+
+function normalizeArray(
+  data
+) {
+
+  if (
+    Array.isArray(data)
+  ) {
+
+    return data;
+  }
+
+
+  return [];
+}
+
+
+function rupiah(value) {
+
+  return new Intl
+    .NumberFormat(
+      "id-ID",
+      {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+      }
+    )
+    .format(
+      Number(value) || 0
+    );
+}
+
+
+function today() {
+
+  const d =
+    new Date();
+
+
+  return [
+    d.getFullYear(),
+
+    String(
+      d.getMonth() + 1
+    ).padStart(2, "0"),
+
+    String(
+      d.getDate()
+    ).padStart(2, "0")
+
+  ].join("-");
+}
+
+
+function esc(value) {
+
+  return String(
+    value ?? ""
+  )
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+}
+
+
+function setText(
+  id,
+  value
+) {
 
   const el =
     document.getElementById(
-      "loading"
+      id
     );
+
+
+  if (el) {
+
+    el.textContent =
+      value;
+  }
+}
+
+
+function toast(message) {
+
+  const el =
+    document.getElementById(
+      "toast"
+    );
+
 
   if (!el) return;
 
-  el.classList.toggle(
-    "hidden",
-    !show
+
+  el.textContent =
+    message;
+
+
+  el.classList.add(
+    "show"
+  );
+
+
+  setTimeout(
+    () => {
+
+      el.classList.remove(
+        "show"
+      );
+
+    },
+    2500
   );
 }
 
 
-async function refreshApp() {
+function setSyncText(
+  text
+) {
 
-  closeMoreMenu();
+  const el =
+    document.getElementById(
+      "syncText"
+    );
 
-  await loadApp();
 
-  toast("Data diperbarui.");
+  if (el) {
+
+    el.textContent =
+      text;
+  }
 }
 
 
-/* =====================================================
-   EVENT
-   ===================================================== */
+/*******************************************************
+ * INIT
+ *******************************************************/
 
 document.addEventListener(
   "DOMContentLoaded",
-  () => {
+  async () => {
 
     document.getElementById(
       "trxTanggal"
-    ).value = today();
+    ).value =
+      today();
 
 
     document.getElementById(
       "reportEnd"
-    ).value = today();
+    ).value =
+      today();
 
-
-    const first =
-      new Date();
-
-    first.setDate(
-      first.getDate() - 30
-    );
-
-
-    const y =
-      first.getFullYear();
-
-    const m =
-      String(
-        first.getMonth() + 1
-      ).padStart(2, "0");
 
     const d =
-      String(
-        first.getDate()
-      ).padStart(2, "0");
+      new Date();
+
+    d.setDate(
+      d.getDate() - 30
+    );
 
 
     document.getElementById(
       "reportStart"
     ).value =
-      `${y}-${m}-${d}`;
+      [
+        d.getFullYear(),
+
+        String(
+          d.getMonth() + 1
+        ).padStart(2, "0"),
+
+        String(
+          d.getDate()
+        ).padStart(2, "0")
+
+      ].join("-");
 
 
     document.getElementById(
@@ -1354,21 +2236,15 @@ document.addEventListener(
       "jualBarang"
     ).addEventListener(
       "change",
-      function () {
-
-        const id =
-          this.value;
+      function() {
 
         const barang =
           appData.barang.find(
-            item =>
+            x =>
+              String(x.id) ===
               String(
-                item.id ??
-                item.ID ??
-                item.nama ??
-                item.Nama ??
-                ""
-              ) === String(id)
+                this.value
+              )
           );
 
 
@@ -1377,11 +2253,8 @@ document.addEventListener(
           document.getElementById(
             "jualHarga"
           ).value =
-            Number(
-              barang.hargaJual ??
-              barang["Harga Jual"] ??
-              0
-            );
+            barang.hargaJual ||
+            0;
 
         }
 
@@ -1389,19 +2262,57 @@ document.addEventListener(
     );
 
 
-    loadApp();
+    /*
+     * Online / Offline
+     */
+
+    window.addEventListener(
+      "online",
+      updateOnlineStatus
+    );
+
+
+    window.addEventListener(
+      "offline",
+      updateOnlineStatus
+    );
+
+
+    /*
+     * Tampilan langsung
+     */
+
+    document
+      .getElementById(
+        "loading"
+      )
+      .classList.add(
+        "hidden"
+      );
+
+
+    /*
+     * Ambil data server
+     */
+
+    if (
+      navigator.onLine
+    ) {
+
+      await loadRemoteData();
+
+      await syncOffline();
+
+    }
+
+
+    /*
+     * Status
+     */
+
+    updateOnlineStatus();
+
+    updateSyncStatus();
 
   }
 );
-
-
-/* =====================================================
-   SERVICE WORKER
-   =====================================================
-
-   Service worker sengaja tidak dibuat sebagai file kelima.
-   Agar GitHub tetap hanya memiliki 4 file, PWA dasar
-   menggunakan manifest. Browser tetap dapat memasang
-   aplikasi sebagai shortcut/PWA sesuai dukungan browser.
-*/
-```
