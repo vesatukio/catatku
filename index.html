@@ -544,5 +544,24 @@
   <div id="toast" class="toast"></div>
 
   <script src="app.js"></script>
+  <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./sw.js")
+      .then(function (registration) {
+        console.log(
+          "CatatKu Service Worker aktif:",
+          registration.scope
+        );
+      })
+      .catch(function (error) {
+        console.error(
+          "CatatKu Service Worker gagal:",
+          error
+        );
+      });
+  });
+}
+</script>
 </body>
 </html>
