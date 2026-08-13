@@ -1,49 +1,34 @@
-async function loadDashboard(){
-
-  try{
-
+async function loadDashboard() {
+  try {
     const d = await api('dashboard');
 
     DATA.dashboard = d;
 
-    document.getElementById('saldo').textContent =
-      rupiah(d.saldo);
+    const setText = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    };
 
-    document.getElementById('masukHari').textContent =
-      rupiah(d.pemasukanHariIni);
+    setText('saldo', rupiah(d.saldo));
+    setText('masukHari', rupiah(d.pemasukanHariIni));
+    setText('keluarHari', rupiah(d.pengeluaranHariIni));
 
-    document.getElementById('keluarHari').textContent =
-      rupiah(d.pengeluaranHariIni);
+    setText('saldoPribadi', rupiah(d.saldoPribadi));
+    setText('saldoToko', rupiah(d.saldoToko));
 
-    document.getElementById('saldoPribadi').textContent =
-      rupiah(d.saldoPribadi);
+    setText('totalHutang', rupiah(d.totalHutang));
+    setText('nilaiStok', rupiah(d.nilaiStok));
+    setText('jumlahBarang', Number(d.jumlahBarang || 0));
 
-    document.getElementById('saldoToko').textContent =
-      rupiah(d.saldoToko);
-
-    document.getElementById('totalHutang').textContent =
-      rupiah(d.totalHutang);
-
-    document.getElementById('nilaiStok').textContent =
-      rupiah(d.nilaiStok);
-
-    document.getElementById('jumlahBarang').textContent =
-      Number(d.jumlahBarang || 0);
-
+    // Jalankan bagian dashboard secara terpisah
     await loadLabaBulan();
-
     await loadHistoryDashboard();
-
     await loadNotifikasiDashboard();
 
-  }catch(err){
-
+  } catch (err) {
     showError(err);
-
   }
-
 }
-
 
 async function loadLabaBulan(){
 
@@ -378,4 +363,31 @@ async function hapusTransaksi(id){
 
   }
 
+}
+async function loadNotifikasiDashboard() {
+  try {
+    const data = await api('notifikasi');
+
+    DATA.notifikasi = Array.isArray(data)
+      ? data
+      : [];
+
+    renderNotifikasiDashboard();
+
+  } catch (err) {
+    console.error(
+      'Gagal memuat notifikasi dashboard:',
+      err
+    );
+
+    DATA.notifikasi = [];
+
+    const el =
+      document.getElementById('notifikasiDashboard');
+
+    if (el) {
+      el.innerHTML =
+        '<div class="empty">Tidak ada notifikasi.</div>';
+    }
+  }
 }
