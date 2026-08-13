@@ -1,77 +1,52 @@
-const CACHE_NAME = "catatku-v1";
-
-const FILES_TO_CACHE = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
+const CACHE_NAME = 'catatku-v1';
+const ASSETS = [
+  './index.html',
+  './css/style.css',
+  './js/config.js',
+  './js/api.js',
+  './js/app.js',
+  './js/dashboard.js',
+  './js/transaksi.js',
+  './js/kasir.js',
+  './js/barang.js',
+  './js/belanja.js',
+  './js/hutang.js',
+  './js/kategori.js',
+  './js/notifikasi.js',
+  './js/laporan.js',
+  './manifest.json'
 ];
 
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(FILES_TO_CACHE))
-      .then(() => self.skipWaiting())
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(ASSETS);
+    })
   );
+  self.skipWaiting();
 });
 
-self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      )
-    ).then(() => self.clients.claim())
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+    })
   );
+  self.clients.claim();
 });
 
-self.addEventListener("fetch", event => {
-
-  // API GAS jangan di-cache
-  if (
-    event.request.url.includes("script.google.com")
-  ) {
-    return;
-  }
-
-  event.respondWith(
-    caches.match(event.request)
-      .then(cached => {
-
-        if (cached) {
-          return cached;
-        }
-
-        return fetch(event.request)
-          .then(response => {
-
-            if (
-              !response ||
-              response.status !== 200 ||
-              response.type === "opaque"
-            ) {
-              return response;
-            }
-
-            const copy = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(
-                  event.request,
-                  copy
-                );
-              });
-
-            return response;
-          })
-          .catch(() =>
-            caches.match("./index.html")
-          );
-
-      })
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      return cached || fetch(e.request).catch(() => {
+        // Fallback or offline logic here if needed
+      });
+    })
   );
 });
