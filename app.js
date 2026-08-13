@@ -171,92 +171,86 @@ async function api(action, payload = {}) {
 
 async function loadApp() {
 
-  setLoading(true);
+  // Jangan blokir seluruh layar
+  setLoading(false);
 
   try {
 
-    const [
-      dashboard,
-      kategori,
-      barang,
-      history,
-      hutang
-    ] = await Promise.all([
+    // Dashboard dulu agar tampilan utama cepat muncul
+    try {
+      appData.dashboard =
+        await api("dashboard") || {};
 
-      api("dashboard"),
-
-      api("kategori"),
-
-      api("barang"),
-
-      api("history", {
-        limit: 50
-      }),
-
-      api("hutang")
-
-    ]);
-
-    appData.dashboard =
-      dashboard || {};
-
-    appData.kategori =
-      normalizeArray(kategori);
-
-    appData.barang =
-      normalizeArray(barang);
-
-    appData.history =
-      normalizeArray(history);
-
-    appData.hutang =
-      normalizeArray(hutang);
+      renderDashboard();
+    } catch (e) {
+      console.warn("Dashboard:", e.message);
+    }
 
 
-    renderDashboard();
+    // Kategori
+    try {
+      appData.kategori =
+        normalizeArray(
+          await api("kategori")
+        );
 
-    renderKategori();
+      renderKategori();
+    } catch (e) {
+      console.warn("Kategori:", e.message);
+    }
 
-    renderBarang();
 
-    renderBarangSelect();
+    // Barang
+    try {
+      appData.barang =
+        normalizeArray(
+          await api("barang")
+        );
 
-    renderHistory();
+      renderBarang();
+      renderBarangSelect();
+    } catch (e) {
+      console.warn("Barang:", e.message);
+    }
 
-    renderHutang();
+
+    // Riwayat
+    try {
+      appData.history =
+        normalizeArray(
+          await api("history", {
+            limit: 50
+          })
+        );
+
+      renderHistory();
+      renderRecent();
+    } catch (e) {
+      console.warn("History:", e.message);
+    }
+
+
+    // Hutang
+    try {
+      appData.hutang =
+        normalizeArray(
+          await api("hutang")
+        );
+
+      renderHutang();
+    } catch (e) {
+      console.warn("Hutang:", e.message);
+    }
 
   } catch (error) {
 
     console.error(error);
 
-    toast(error.message);
-
-  } finally {
-
-    setLoading(false);
+    toast(
+      "Gagal memuat sebagian data."
+    );
   }
 }
-
-
-function normalizeArray(data) {
-
-  if (Array.isArray(data)) {
-    return data;
-  }
-
-  if (data &&
-      Array.isArray(data.data)) {
-    return data.data;
-  }
-
-  if (data &&
-      Array.isArray(data.rows)) {
-    return data.rows;
-  }
-
-  return [];
-}
-
 
 /* =====================================================
    DASHBOARD
