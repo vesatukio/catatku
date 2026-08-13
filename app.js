@@ -778,25 +778,24 @@ async function loadRemoteData() {
       data.dashboard || {};
 
     appData.kategori =
-      normalizeArray(
-        data.kategori
-      );
+  normalizeArray(
+    data.kategori
+  );
 
-    appData.barang =
-      normalizeArray(
-        data.barang
-      );
+appData.barang =
+  normalizeArray(
+    data.barang
+  );
 
-    appData.history =
-      normalizeArray(
-        data.history
-      );
+appData.history =
+  normalizeArray(
+    data.history
+  );
 
-    appData.hutang =
-      normalizeArray(
-        data.hutang
-      );
-
+appData.hutang =
+  normalizeArray(
+    data.hutang
+  );
 
     /*
      * Tambahkan data pending
@@ -831,13 +830,21 @@ async function loadRemoteData() {
 function renderAll() {
 
   renderDashboard();
-  renderKategori();
+
+  renderKategori(
+    appData.kategori
+  );
+
   renderBarang();
+
   renderBarangSelect();
+
   renderHistory();
+
   renderHutang();
 
   updateSyncStatus();
+
 }
 
 
@@ -920,38 +927,78 @@ function renderDashboard() {
 
 
 function renderKategori(data) {
-    const select = document.getElementById("trxKategori");
 
-    if (!select) return;
+  const select =
+    document.getElementById(
+      "trxKategori"
+    );
 
-    const nilaiLama = select.value;
+  if (!select) return;
 
-    select.innerHTML = `
-        <option value="">Pilih kategori</option>
-    `;
 
-    if (!Array.isArray(data)) return;
+  const nilaiLama =
+    select.value;
 
-    data.forEach(function(item) {
 
-        const nama =
-            typeof item === "string"
-                ? item
-                : item.nama || item.kategori || "";
+  select.innerHTML = `
+    <option value="">
+      Pilih kategori
+    </option>
+  `;
 
-        if (!nama) return;
 
-        const option = document.createElement("option");
+  if (
+    !Array.isArray(data)
+  ) {
+    return;
+  }
 
-        option.value = nama;
-        option.textContent = nama;
 
-        select.appendChild(option);
-    });
+  data.forEach(
+    function(item) {
 
-    if (nilaiLama) {
-        select.value = nilaiLama;
+      const nama =
+        typeof item === "string"
+          ? item
+          : (
+              item.nama ||
+              item.kategori ||
+              item.name ||
+              ""
+            );
+
+
+      if (!nama) return;
+
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        nama;
+
+      option.textContent =
+        nama;
+
+
+      select.appendChild(
+        option
+      );
+
     }
+  );
+
+
+  if (nilaiLama) {
+
+    select.value =
+      nilaiLama;
+
+  }
+
 }
 
 function renderBarang() {
