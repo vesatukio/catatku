@@ -1,9 +1,10 @@
 /*******************************************************
  * CATATKU OFFLINE-FIRST
+ * VERSI PERBAIKAN
  *******************************************************/
 
 const GAS_URL =
-  "PASTE_URL_WEB_APP_GAS_ANDA_DI_SINI";
+  "https://script.google.com/macros/s/AKfycbyW1qBf0LX3qPtSwRrvaxIuiIcHMFkuy9PViZ-YZrTfZeM6WqCNlfcNJN1CVzE7M1F3/exec";
 
 const API_KEY =
   "CATATKU-2026-PRIBADI";
@@ -16,7 +17,14 @@ const API_KEY =
 let transactionType = "PEMASUKAN";
 
 let appData = {
-  dashboard: {},
+  dashboard: {
+    saldo: 0,
+    totalPemasukan: 0,
+    totalPengeluaran: 0,
+    totalPenjualan: 0,
+    totalHutang: 0
+  },
+
   kategori: [],
   barang: [],
   history: [],
@@ -43,7 +51,6 @@ function openDB() {
         DB_VERSION
       );
 
-
     request.onupgradeneeded =
       function(event) {
 
@@ -51,8 +58,7 @@ function openDB() {
           event.target.result;
 
         if (
-          !db.objectStoreNames
-            .contains(STORE)
+          !db.objectStoreNames.contains(STORE)
         ) {
 
           const store =
@@ -81,20 +87,22 @@ function openDB() {
         }
       };
 
-
     request.onsuccess =
       function() {
+
         resolve(
           request.result
         );
-      };
 
+      };
 
     request.onerror =
       function() {
+
         reject(
           request.error
         );
+
       };
 
   });
@@ -205,7 +213,7 @@ async function queueData(data) {
 
     id:
       data.id ||
-      crypto.randomUUID(),
+      generateLocalId(),
 
     createdAt:
       data.createdAt ||
@@ -215,7 +223,6 @@ async function queueData(data) {
       "PENDING"
 
   };
-
 
   await dbPut(record);
 
@@ -233,6 +240,28 @@ async function getPending() {
   return all.filter(
     x =>
       x.status === "PENDING"
+  );
+}
+
+
+function generateLocalId() {
+
+  if (
+    window.crypto &&
+    typeof crypto.randomUUID === "function"
+  ) {
+
+    return crypto.randomUUID();
+
+  }
+
+  return (
+    "catatku-" +
+    Date.now() +
+    "-" +
+    Math.random()
+      .toString(36)
+      .substring(2, 10)
   );
 }
 
@@ -256,7 +285,6 @@ function updateOnlineStatus() {
       "onlineText"
     );
 
-
   if (dot) {
 
     dot.className =
@@ -265,7 +293,6 @@ function updateOnlineStatus() {
         : "online-dot offline";
   }
 
-
   if (text) {
 
     text.textContent =
@@ -273,7 +300,6 @@ function updateOnlineStatus() {
         ? "ONLINE"
         : "OFFLINE";
   }
-
 
   updateSyncStatus();
 
@@ -287,33 +313,43 @@ function updateOnlineStatus() {
 
 async function updateSyncStatus() {
 
-  const pending =
-    await getPending();
+  try {
 
-  const badge =
-    document.getElementById(
-      "syncBadge"
+    const pending =
+      await getPending();
+
+    const badge =
+      document.getElementById(
+        "syncBadge"
+      );
+
+    if (!badge) return;
+
+    if (pending.length > 0) {
+
+      badge.textContent =
+        pending.length +
+        " menunggu";
+
+      badge.classList.remove(
+        "hidden"
+      );
+
+    } else {
+
+      badge.classList.add(
+        "hidden"
+      );
+
+    }
+
+  } catch (error) {
+
+    console.warn(
+      "Status sync:",
+      error
     );
 
-
-  if (!badge) return;
-
-
-  if (pending.length > 0) {
-
-    badge.textContent =
-      pending.length +
-      " menunggu";
-
-    badge.classList.remove(
-      "hidden"
-    );
-
-  } else {
-
-    badge.classList.add(
-      "hidden"
-    );
   }
 }
 
@@ -327,15 +363,12 @@ async function api(
   payload = {}
 ) {
 
-  if (
-    !navigator.onLine
-  ) {
+  if (!navigator.onLine) {
 
     throw new Error(
       "OFFLINE"
     );
   }
-
 
   if (
     !GAS_URL ||
@@ -348,7 +381,6 @@ async function api(
       "URL GAS belum diisi."
     );
   }
-
 
   const params =
     new URLSearchParams();
@@ -363,7 +395,6 @@ async function api(
     API_KEY
   );
 
-
   if (
     payload &&
     Object.keys(payload).length
@@ -373,8 +404,8 @@ async function api(
       "payload",
       JSON.stringify(payload)
     );
-  }
 
+  }
 
   const response =
     await fetch(
@@ -387,10 +418,8 @@ async function api(
       }
     );
 
-
   const text =
     await response.text();
-
 
   let result;
 
@@ -401,11 +430,15 @@ async function api(
 
   } catch (e) {
 
+    console.error(
+      "Response GAS:",
+      text
+    );
+
     throw new Error(
       "Response GAS tidak valid."
     );
   }
-
 
   if (!result.success) {
 
@@ -413,15 +446,15 @@ async function api(
       result.error ||
       "GAS gagal."
     );
-  }
 
+  }
 
   return result.data;
 }
 
 
 /*******************************************************
- * SYNC
+ * SYNC OFFLINE
  *******************************************************/
 
 let syncing = false;
@@ -437,10 +470,8 @@ async function syncOffline() {
     return;
   }
 
-
   const pending =
     await getPending();
-
 
   if (!pending.length) {
 
@@ -449,25 +480,16 @@ async function syncOffline() {
     return;
   }
 
-
   syncing = true;
-
 
   setSyncText(
     "Menyinkronkan..."
   );
 
-
   try {
-
-    /*
-     * Kirim maksimal 20 data sekali.
-     * Menghindari URL terlalu panjang.
-     */
 
     const batch =
       pending.slice(0, 20);
-
 
     const result =
       await api(
@@ -477,10 +499,8 @@ async function syncOffline() {
         }
       );
 
-
     const results =
       result.results || [];
-
 
     for (
       const item of results
@@ -496,9 +516,7 @@ async function syncOffline() {
 
     }
 
-
-    updateSyncStatus();
-
+    await updateSyncStatus();
 
     if (
       result.failed > 0
@@ -516,30 +534,25 @@ async function syncOffline() {
 
     }
 
-
-    /*
-     * Kalau masih ada,
-     * lanjut batch berikutnya.
-     */
-
     const remaining =
       await getPending();
-
 
     if (
       remaining.length > 0
     ) {
+
+      syncing = false;
 
       setTimeout(
         syncOffline,
         300
       );
 
-    } else {
-
-      await loadRemoteData();
+      return;
 
     }
+
+    await loadRemoteData();
 
   } catch (error) {
 
@@ -557,14 +570,13 @@ async function syncOffline() {
     syncing = false;
 
     updateSyncStatus();
+
   }
 }
 
 
 /*******************************************************
  * SIMPAN DATA
- *
- * Selalu simpan lokal dulu.
  *******************************************************/
 
 async function saveOfflineFirst(
@@ -574,23 +586,24 @@ async function saveOfflineFirst(
 
   const record =
     await queueData({
+
       ...data,
+
       remoteAction
+
     });
 
-
   /*
-   * Render lokal langsung.
+   * Tampilkan langsung
    */
 
-  applyLocalRecord(
+  addLocalRecord(
     record
   );
 
-
   /*
-   * Kalau online,
-   * langsung sinkron.
+   * Jika online,
+   * kirim ke server
    */
 
   if (navigator.onLine) {
@@ -599,13 +612,143 @@ async function saveOfflineFirst(
 
   }
 
-
   return record;
 }
 
 
 /*******************************************************
- * APPLY LOCAL
+ * TAMBAH RECORD LOKAL
+ *
+ * Mencegah data transaksi
+ * tampil dua kali.
+ *******************************************************/
+
+function addLocalRecord(record) {
+
+  const id =
+    String(
+      record.id || ""
+    );
+
+  const exists =
+    appData.history.some(
+      item =>
+        String(item.id || "") === id
+    );
+
+  if (!exists) {
+
+    appData.history.unshift(
+      record
+    );
+
+  }
+
+  rebuildDashboardLocal();
+
+  renderAll();
+}
+
+
+/*******************************************************
+ * REBUILD DASHBOARD
+ *******************************************************/
+
+function rebuildDashboardLocal() {
+
+  let pemasukan = 0;
+  let pengeluaran = 0;
+  let penjualan = 0;
+
+  appData.history.forEach(
+    item => {
+
+      const entity =
+        String(
+          item.entity || ""
+        ).toUpperCase();
+
+      const jenis =
+        String(
+          item.jenis ||
+          item.tipe ||
+          ""
+        ).toUpperCase();
+
+      if (
+        entity === "TRANSAKSI"
+      ) {
+
+        const nominal =
+          Number(
+            item.nominal
+          ) || 0;
+
+        if (
+          jenis === "PEMASUKAN"
+        ) {
+
+          pemasukan += nominal;
+
+        }
+
+        if (
+          jenis === "PENGELUARAN"
+        ) {
+
+          pengeluaran += nominal;
+
+        }
+
+      }
+
+      if (
+        entity === "PENJUALAN"
+      ) {
+
+        penjualan +=
+          (
+            Number(item.qty) || 0
+          ) *
+          (
+            Number(item.harga) || 0
+          );
+
+      }
+
+    }
+  );
+
+  /*
+   * Data server sudah menjadi dasar.
+   * History dipakai untuk memastikan
+   * transaksi lokal tetap masuk.
+   */
+
+  appData.dashboard = {
+
+    ...appData.dashboard,
+
+    totalPemasukan:
+      pemasukan,
+
+    totalPengeluaran:
+      pengeluaran,
+
+    totalPenjualan:
+      penjualan,
+
+    saldo:
+      pemasukan -
+      pengeluaran
+
+  };
+
+}
+
+
+/*******************************************************
+ * APPLY LOCAL RECORD
  *******************************************************/
 
 function applyLocalRecord(
@@ -617,141 +760,124 @@ function applyLocalRecord(
       record.entity || ""
     ).toUpperCase();
 
-
   if (
-    entity === "TRANSAKSI"
+    entity === "TRANSAKSI" ||
+    entity === "PENJUALAN" ||
+    entity === "BELANJA" ||
+    entity === "HUTANG" ||
+    entity === "BAYAR_HUTANG"
   ) {
 
-    appData.history.unshift(
-      record
-    );
-
-    const nominal =
-      Number(
-        record.nominal
-      ) || 0;
-
-
-    if (
-      record.jenis ===
-      "PEMASUKAN"
-    ) {
-
-      appData.dashboard
-        .totalPemasukan =
-        Number(
-          appData.dashboard
-            .totalPemasukan || 0
-        ) + nominal;
-
-    } else {
-
-      appData.dashboard
-        .totalPengeluaran =
-        Number(
-          appData.dashboard
-            .totalPengeluaran || 0
-        ) + nominal;
-
-    }
-
-  }
-
-
-  if (
-    entity === "PENJUALAN"
-  ) {
-
-    appData.history.unshift(
-      record
-    );
-
-    appData.dashboard
-      .totalPenjualan =
-      Number(
-        appData.dashboard
-          .totalPenjualan || 0
-      ) +
-      (
-        Number(record.qty) *
-        Number(record.harga)
-      );
-
-  }
-
-
-  if (
-    entity === "BELANJA"
-  ) {
-
-    appData.history.unshift(
+    addHistoryIfMissing(
       record
     );
 
   }
-
-
-  if (
-    entity === "HUTANG"
-  ) {
-
-    appData.hutang.unshift(
-      {
-        ...record,
-        sisa:
-          Number(
-            record.nominal
-          ) || 0
-      }
-    );
-
-    appData.history.unshift(
-      record
-    );
-
-
-    appData.dashboard
-      .totalHutang =
-      Number(
-        appData.dashboard
-          .totalHutang || 0
-      ) +
-      Number(
-        record.nominal
-      );
-
-  }
-
 
   if (
     entity === "BARANG"
   ) {
 
-    appData.barang.push({
-      id: record.id,
-      nama: record.nama,
-      hargaModal:
-        Number(
-          record.hargaModal
-        ) || 0,
-      hargaJual:
-        Number(
-          record.hargaJual
-        ) || 0,
-      stok:
-        Number(
-          record.stokAwal
-        ) || 0
-    });
+    const exists =
+      appData.barang.some(
+        x =>
+          String(x.id) ===
+          String(record.id)
+      );
+
+    if (!exists) {
+
+      appData.barang.push({
+
+        id:
+          record.id,
+
+        nama:
+          record.nama ||
+          record.barangNama ||
+          "",
+
+        hargaModal:
+          Number(
+            record.hargaModal
+          ) || 0,
+
+        hargaJual:
+          Number(
+            record.hargaJual
+          ) || 0,
+
+        stok:
+          Number(
+            record.stokAwal
+          ) || 0
+
+      });
+
+    }
 
   }
 
+  if (
+    entity === "HUTANG"
+  ) {
 
-  renderDashboard();
-  renderBarang();
-  renderBarangSelect();
-  renderHistory();
-  renderHutang();
+    const exists =
+      appData.hutang.some(
+        x =>
+          String(x.id) ===
+          String(record.id)
+      );
+
+    if (!exists) {
+
+      appData.hutang.unshift({
+
+        ...record,
+
+        sisa:
+          Number(
+            record.nominal
+          ) || 0
+
+      });
+
+    }
+
+  }
+
+}
+
+
+/*******************************************************
+ * HISTORY ANTI DUPLIKAT
+ *******************************************************/
+
+function addHistoryIfMissing(
+  record
+) {
+
+  const id =
+    String(
+      record.id || ""
+    );
+
+  const exists =
+    appData.history.some(
+      item =>
+        String(
+          item.id || ""
+        ) === id
+    );
+
+  if (!exists) {
+
+    appData.history.unshift(
+      record
+    );
+
+  }
+
 }
 
 
@@ -765,7 +891,6 @@ async function loadRemoteData() {
     return;
   }
 
-
   try {
 
     const data =
@@ -773,45 +898,64 @@ async function loadRemoteData() {
         "appData"
       );
 
+    /*
+     * DATA SERVER
+     */
 
     appData.dashboard =
-      data.dashboard || {};
+      data.dashboard || {
+        saldo: 0,
+        totalPemasukan: 0,
+        totalPengeluaran: 0,
+        totalPenjualan: 0,
+        totalHutang: 0
+      };
 
     appData.kategori =
-  normalizeArray(
-    data.kategori
-  );
+      normalizeArray(
+        data.kategori
+      );
 
-appData.barang =
-  normalizeArray(
-    data.barang
-  );
+    appData.barang =
+      normalizeArray(
+        data.barang
+      );
 
-appData.history =
-  normalizeArray(
-    data.history
-  );
+    appData.history =
+      normalizeArray(
+        data.history
+      );
 
-appData.hutang =
-  normalizeArray(
-    data.hutang
-  );
+    appData.hutang =
+      normalizeArray(
+        data.hutang
+      );
+
 
     /*
-     * Tambahkan data pending
-     * agar belum hilang dari tampilan.
+     * Ambil transaksi offline
+     * yang belum terkirim.
      */
 
     const pending =
       await getPending();
 
+    pending.forEach(
+      record => {
 
-    pending
-      .forEach(applyLocalRecord);
+        applyLocalRecord(
+          record
+        );
 
+      }
+    );
+
+
+    /*
+     * Render semua
+     */
 
     renderAll();
-
 
   } catch (error) {
 
@@ -819,12 +963,13 @@ appData.hutang =
       "Load server gagal:",
       error
     );
+
   }
 }
 
 
 /*******************************************************
- * RENDER
+ * RENDER SEMUA
  *******************************************************/
 
 function renderAll() {
@@ -841,6 +986,8 @@ function renderAll() {
 
   renderHistory();
 
+  renderRecent();
+
   renderHutang();
 
   updateSyncStatus();
@@ -848,11 +995,14 @@ function renderAll() {
 }
 
 
+/*******************************************************
+ * DASHBOARD
+ *******************************************************/
+
 function renderDashboard() {
 
   const d =
     appData.dashboard || {};
-
 
   const pemasukan =
     Number(
@@ -861,14 +1011,12 @@ function renderDashboard() {
       0
     );
 
-
   const pengeluaran =
     Number(
       d.totalPengeluaran ||
       d.pengeluaran ||
       0
     );
-
 
   const penjualan =
     Number(
@@ -877,14 +1025,12 @@ function renderDashboard() {
       0
     );
 
-
   const hutang =
     Number(
       d.totalHutang ||
       d.hutang ||
       0
     );
-
 
   const saldo =
     Number(
@@ -921,10 +1067,14 @@ function renderDashboard() {
     rupiah(hutang)
   );
 
-
   renderRecent();
+
 }
 
+
+/*******************************************************
+ * KATEGORI
+ *******************************************************/
 
 function renderKategori(data) {
 
@@ -935,10 +1085,8 @@ function renderKategori(data) {
 
   if (!select) return;
 
-
   const nilaiLama =
     select.value;
-
 
   select.innerHTML = `
     <option value="">
@@ -946,13 +1094,11 @@ function renderKategori(data) {
     </option>
   `;
 
-
   if (
     !Array.isArray(data)
   ) {
     return;
   }
-
 
   data.forEach(
     function(item) {
@@ -967,15 +1113,12 @@ function renderKategori(data) {
               ""
             );
 
-
       if (!nama) return;
-
 
       const option =
         document.createElement(
           "option"
         );
-
 
       option.value =
         nama;
@@ -983,14 +1126,12 @@ function renderKategori(data) {
       option.textContent =
         nama;
 
-
       select.appendChild(
         option
       );
 
     }
   );
-
 
   if (nilaiLama) {
 
@@ -1001,6 +1142,11 @@ function renderKategori(data) {
 
 }
 
+
+/*******************************************************
+ * BARANG
+ *******************************************************/
+
 function renderBarang() {
 
   const el =
@@ -1009,7 +1155,6 @@ function renderBarang() {
     );
 
   if (!el) return;
-
 
   if (
     !appData.barang.length
@@ -1023,7 +1168,6 @@ function renderBarang() {
     return;
   }
 
-
   el.innerHTML =
     appData.barang
       .map(item => {
@@ -1032,6 +1176,7 @@ function renderBarang() {
           <div class="product-item">
 
             <div>
+
               <div class="item-title">
                 ${esc(item.nama)}
               </div>
@@ -1042,6 +1187,7 @@ function renderBarang() {
                   item.hargaJual
                 )}
               </div>
+
             </div>
 
             <div class="stock">
@@ -1055,8 +1201,13 @@ function renderBarang() {
 
       })
       .join("");
+
 }
 
+
+/*******************************************************
+ * BARANG SELECT
+ *******************************************************/
 
 function renderBarangSelect() {
 
@@ -1064,7 +1215,6 @@ function renderBarangSelect() {
     "jualBarang",
     "belanjaBarang"
   ];
-
 
   ids.forEach(id => {
 
@@ -1075,16 +1225,13 @@ function renderBarangSelect() {
 
     if (!select) return;
 
-
     const old =
       select.value;
-
 
     select.innerHTML =
       `<option value="">
         Pilih barang
       </option>`;
-
 
     appData.barang
       .forEach(item => {
@@ -1106,14 +1253,21 @@ function renderBarangSelect() {
 
       });
 
-
     if (old) {
-      select.value = old;
+
+      select.value =
+        old;
+
     }
 
   });
+
 }
 
+
+/*******************************************************
+ * HISTORY / TRANSAKSI
+ *******************************************************/
 
 function renderHistory() {
 
@@ -1123,7 +1277,6 @@ function renderHistory() {
     );
 
   if (!el) return;
-
 
   if (
     !appData.history.length
@@ -1137,14 +1290,28 @@ function renderHistory() {
     return;
   }
 
+  const sorted =
+    [...appData.history]
+      .sort(
+        (a, b) =>
+          getTime(b) -
+          getTime(a)
+      );
 
   el.innerHTML =
-    appData.history
+    sorted
       .slice(0, 100)
-      .map(transactionHTML)
+      .map(
+        transactionHTML
+      )
       .join("");
+
 }
 
+
+/*******************************************************
+ * DASHBOARD RECENT
+ *******************************************************/
 
 function renderRecent() {
 
@@ -1155,11 +1322,14 @@ function renderRecent() {
 
   if (!el) return;
 
-
   const rows =
-    appData.history
+    [...appData.history]
+      .sort(
+        (a, b) =>
+          getTime(b) -
+          getTime(a)
+      )
       .slice(0, 8);
-
 
   if (!rows.length) {
 
@@ -1171,13 +1341,41 @@ function renderRecent() {
     return;
   }
 
-
   el.innerHTML =
     rows
-      .map(transactionHTML)
+      .map(
+        transactionHTML
+      )
       .join("");
+
 }
 
+
+/*******************************************************
+ * GET TIME
+ *******************************************************/
+
+function getTime(item) {
+
+  const value =
+    item.createdAt ||
+    item.tanggal ||
+    0;
+
+  const time =
+    new Date(
+      value
+    ).getTime();
+
+  return isNaN(time)
+    ? 0
+    : time;
+}
+
+
+/*******************************************************
+ * TRANSACTION HTML
+ *******************************************************/
 
 function transactionHTML(
   item
@@ -1188,13 +1386,29 @@ function transactionHTML(
       item.entity || ""
     ).toUpperCase();
 
-
-  const jenis =
+  let jenis =
     String(
       item.jenis ||
       item.tipe ||
       ""
     ).toUpperCase();
+
+
+  /*
+   * Pastikan transaksi
+   * mempunyai jenis.
+   */
+
+  if (
+    entity === "TRANSAKSI" &&
+    jenis !== "PEMASUKAN" &&
+    jenis !== "PENGELUARAN"
+  ) {
+
+    jenis =
+      "PENGELUARAN";
+
+  }
 
 
   let nominal =
@@ -1209,30 +1423,106 @@ function transactionHTML(
   ) {
 
     nominal =
-      Number(item.qty || 0) *
-      Number(item.harga || 0);
+      (
+        Number(item.qty) || 0
+      ) *
+      (
+        Number(item.harga) || 0
+      );
 
   }
 
 
+  /*
+   * WARNA PEMASUKAN /
+   * PENGELUARAN
+   */
+
   let income =
     jenis === "PEMASUKAN" ||
     entity === "PENJUALAN";
-
 
   if (
     entity === "BELANJA"
   ) {
 
     income = false;
+
   }
 
+
+  /*
+   * JUDUL
+   */
 
   let title =
     item.keterangan ||
     item.nama ||
     item.barangNama ||
-    entity;
+    "";
+
+
+  if (!title) {
+
+    if (
+      entity === "TRANSAKSI"
+    ) {
+
+      title =
+        jenis === "PEMASUKAN"
+          ? "Pemasukan"
+          : "Pengeluaran";
+
+    } else {
+
+      title =
+        entity;
+
+    }
+
+  }
+
+
+  /*
+   * SUBTITLE
+   */
+
+  let subtitle =
+    item.tanggal ||
+    "";
+
+  if (
+    entity === "TRANSAKSI"
+  ) {
+
+    if (item.kategori) {
+
+      subtitle +=
+        " • " +
+        item.kategori;
+
+    }
+
+    if (item.rekening) {
+
+      subtitle +=
+        " • " +
+        item.rekening;
+
+    }
+
+  }
+
+
+  if (
+    item.status ===
+    "PENDING"
+  ) {
+
+    subtitle +=
+      " • ⏳ Offline";
+
+  }
 
 
   return `
@@ -1245,25 +1535,15 @@ function transactionHTML(
         </div>
 
         <div class="item-sub">
-
-          ${esc(
-            item.tanggal ||
-            ""
-          )}
-
-          ${
-            item.status ===
-            "PENDING"
-              ? " • ⏳ Offline"
-              : ""
-          }
-
+          ${esc(subtitle)}
         </div>
 
       </div>
 
       <div class="amount ${
-        income ? "in" : "out"
+        income
+          ? "in"
+          : "out"
       }">
 
         ${
@@ -1278,8 +1558,13 @@ function transactionHTML(
 
     </div>
   `;
+
 }
 
+
+/*******************************************************
+ * HUTANG
+ *******************************************************/
 
 function renderHutang() {
 
@@ -1289,7 +1574,6 @@ function renderHutang() {
     );
 
   if (!el) return;
-
 
   if (
     !appData.hutang.length
@@ -1302,7 +1586,6 @@ function renderHutang() {
 
     return;
   }
-
 
   el.innerHTML =
     appData.hutang
@@ -1342,6 +1625,7 @@ function renderHutang() {
 
       })
       .join("");
+
 }
 
 
@@ -1355,46 +1639,87 @@ async function saveTransaction(
 
   event.preventDefault();
 
+  const tanggalEl =
+    document.getElementById(
+      "trxTanggal"
+    );
+
+  const kategoriEl =
+    document.getElementById(
+      "trxKategori"
+    );
+
+  const keteranganEl =
+    document.getElementById(
+      "trxKeterangan"
+    );
+
+  const nominalEl =
+    document.getElementById(
+      "trxNominal"
+    );
+
+  const rekeningEl =
+    document.getElementById(
+      "trxRekening"
+    );
+
 
   const data = {
 
     id:
-      crypto.randomUUID(),
+      generateLocalId(),
 
     entity:
       "TRANSAKSI",
 
     tanggal:
-      document.getElementById(
-        "trxTanggal"
-      ).value,
+      tanggalEl
+        ? tanggalEl.value
+        : today(),
 
     jenis:
       transactionType,
 
+    tipe:
+      transactionType,
+
     kategori:
-      document.getElementById(
-        "trxKategori"
-      ).value,
+      kategoriEl
+        ? kategoriEl.value
+        : "",
 
     keterangan:
-      document.getElementById(
-        "trxKeterangan"
-      ).value,
+      keteranganEl
+        ? keteranganEl.value
+        : "",
 
     nominal:
       Number(
-        document.getElementById(
-          "trxNominal"
-        ).value
+        nominalEl
+          ? nominalEl.value
+          : 0
       ),
 
     rekening:
-      document.getElementById(
-        "trxRekening"
-      ).value
+      rekeningEl
+        ? rekeningEl.value
+        : "Kas"
 
   };
+
+
+  if (
+    data.nominal <= 0
+  ) {
+
+    toast(
+      "Nominal harus lebih dari 0."
+    );
+
+    return;
+
+  }
 
 
   await saveOfflineFirst(
@@ -1413,10 +1738,25 @@ async function saveTransaction(
   event.target.reset();
 
 
-  document.getElementById(
-    "trxTanggal"
-  ).value =
-    today();
+  if (tanggalEl) {
+
+    tanggalEl.value =
+      today();
+
+  }
+
+
+  /*
+   * Pastikan halaman transaksi
+   * langsung menampilkan data.
+   */
+
+  renderHistory();
+
+  renderRecent();
+
+  renderDashboard();
+
 }
 
 
@@ -1430,11 +1770,10 @@ async function saveBarang(
 
   event.preventDefault();
 
-
   const data = {
 
     id:
-      crypto.randomUUID(),
+      generateLocalId(),
 
     entity:
       "BARANG",
@@ -1489,6 +1828,7 @@ async function saveBarang(
   closeModal(
     "barangModal"
   );
+
 }
 
 
@@ -1502,12 +1842,10 @@ async function savePenjualan(
 
   event.preventDefault();
 
-
   const barangId =
     document.getElementById(
       "jualBarang"
     ).value;
-
 
   const barang =
     appData.barang.find(
@@ -1516,11 +1854,10 @@ async function savePenjualan(
         String(barangId)
     );
 
-
   const data = {
 
     id:
-      crypto.randomUUID(),
+      generateLocalId(),
 
     entity:
       "PENJUALAN",
@@ -1574,6 +1911,7 @@ async function savePenjualan(
 
 
   event.target.reset();
+
 }
 
 
@@ -1587,12 +1925,10 @@ async function saveBelanja(
 
   event.preventDefault();
 
-
   const barangId =
     document.getElementById(
       "belanjaBarang"
     ).value;
-
 
   const barang =
     appData.barang.find(
@@ -1601,11 +1937,10 @@ async function saveBelanja(
         String(barangId)
     );
 
-
   const data = {
 
     id:
-      crypto.randomUUID(),
+      generateLocalId(),
 
     entity:
       "BELANJA",
@@ -1614,11 +1949,9 @@ async function saveBelanja(
       today(),
 
     barangId:
-
       barangId,
 
     barangNama:
-
       barang
         ? barang.nama
         : "",
@@ -1659,6 +1992,7 @@ async function saveBelanja(
 
 
   event.target.reset();
+
 }
 
 
@@ -1672,11 +2006,10 @@ async function saveHutang(
 
   event.preventDefault();
 
-
   const data = {
 
     id:
-      crypto.randomUUID(),
+      generateLocalId(),
 
     entity:
       "HUTANG",
@@ -1696,7 +2029,8 @@ async function saveHutang(
         ).value
       ),
 
-    dibayar: 0,
+    dibayar:
+      0,
 
     jatuhTempo:
       document.getElementById(
@@ -1732,6 +2066,7 @@ async function saveHutang(
   closeModal(
     "hutangModal"
   );
+
 }
 
 
@@ -1751,7 +2086,6 @@ async function loadReport() {
       "reportEnd"
     ).value;
 
-
   if (
     !mulai ||
     !akhir
@@ -1764,12 +2098,10 @@ async function loadReport() {
     return;
   }
 
-
   const el =
     document.getElementById(
       "reportResult"
     );
-
 
   if (!navigator.onLine) {
 
@@ -1782,7 +2114,6 @@ async function loadReport() {
     return;
   }
 
-
   try {
 
     const data =
@@ -1794,10 +2125,10 @@ async function loadReport() {
         }
       );
 
-
     el.innerHTML = `
 
       <div class="report-row">
+
         <span class="report-label">
           Pemasukan
         </span>
@@ -1807,9 +2138,12 @@ async function loadReport() {
             data.pemasukan
           )}
         </span>
+
       </div>
 
+
       <div class="report-row">
+
         <span class="report-label">
           Pengeluaran
         </span>
@@ -1819,9 +2153,12 @@ async function loadReport() {
             data.pengeluaran
           )}
         </span>
+
       </div>
 
+
       <div class="report-row">
+
         <span class="report-label">
           Penjualan
         </span>
@@ -1831,9 +2168,12 @@ async function loadReport() {
             data.penjualan
           )}
         </span>
+
       </div>
 
+
       <div class="report-row">
+
         <span class="report-label">
           Modal Penjualan
         </span>
@@ -1843,9 +2183,12 @@ async function loadReport() {
             data.modalPenjualan
           )}
         </span>
+
       </div>
 
+
       <div class="report-row">
+
         <span class="report-label">
           Laba
         </span>
@@ -1855,6 +2198,7 @@ async function loadReport() {
             data.laba
           )}
         </span>
+
       </div>
 
     `;
@@ -1864,7 +2208,9 @@ async function loadReport() {
     toast(
       error.message
     );
+
   }
+
 }
 
 
@@ -1883,49 +2229,64 @@ function showPage(name) {
         )
     );
 
-
   const page =
     document.getElementById(
       "page-" + name
     );
-
 
   if (page) {
 
     page.classList.add(
       "active"
     );
-  }
 
+  }
 
   window.scrollTo({
     top: 0,
     behavior: "smooth"
   });
+
 }
 
 
+/*******************************************************
+ * MORE MENU
+ *******************************************************/
+
 function showMoreMenu() {
 
-  document
-    .getElementById(
+  const menu =
+    document.getElementById(
       "moreMenu"
-    )
-    .classList.remove(
+    );
+
+  if (menu) {
+
+    menu.classList.remove(
       "hidden"
     );
+
+  }
+
 }
 
 
 function closeMoreMenu() {
 
-  document
-    .getElementById(
+  const menu =
+    document.getElementById(
       "moreMenu"
-    )
-    .classList.add(
+    );
+
+  if (menu) {
+
+    menu.classList.add(
       "hidden"
     );
+
+  }
+
 }
 
 
@@ -1936,6 +2297,7 @@ function openFromMenu(
   closeMoreMenu();
 
   showPage(page);
+
 }
 
 
@@ -1948,29 +2310,43 @@ function setTransactionType(
 ) {
 
   transactionType =
-    type;
+    String(
+      type
+    ).toUpperCase();
 
 
-  document
-    .getElementById(
+  const income =
+    document.getElementById(
       "tabIncome"
-    )
-    .classList.toggle(
+    );
+
+  const expense =
+    document.getElementById(
+      "tabExpense"
+    );
+
+
+  if (income) {
+
+    income.classList.toggle(
       "active",
-      type ===
+      transactionType ===
         "PEMASUKAN"
     );
 
+  }
 
-  document
-    .getElementById(
-      "tabExpense"
-    )
-    .classList.toggle(
+
+  if (expense) {
+
+    expense.classList.toggle(
       "active",
-      type ===
+      transactionType ===
         "PENGELUARAN"
     );
+
+  }
+
 }
 
 
@@ -1980,21 +2356,37 @@ function setTransactionType(
 
 function openModal(id) {
 
-  document
-    .getElementById(id)
-    .classList.remove(
+  const el =
+    document.getElementById(
+      id
+    );
+
+  if (el) {
+
+    el.classList.remove(
       "hidden"
     );
+
+  }
+
 }
 
 
 function closeModal(id) {
 
-  document
-    .getElementById(id)
-    .classList.add(
+  const el =
+    document.getElementById(
+      id
+    );
+
+  if (el) {
+
+    el.classList.add(
       "hidden"
     );
+
+  }
+
 }
 
 
@@ -2023,6 +2415,7 @@ async function refreshApp() {
     );
 
   }
+
 }
 
 
@@ -2039,10 +2432,11 @@ function normalizeArray(
   ) {
 
     return data;
+
   }
 
-
   return [];
+
 }
 
 
@@ -2060,6 +2454,7 @@ function rupiah(value) {
     .format(
       Number(value) || 0
     );
+
 }
 
 
@@ -2068,8 +2463,8 @@ function today() {
   const d =
     new Date();
 
-
   return [
+
     d.getFullYear(),
 
     String(
@@ -2081,6 +2476,7 @@ function today() {
     ).padStart(2, "0")
 
   ].join("-");
+
 }
 
 
@@ -2089,26 +2485,32 @@ function esc(value) {
   return String(
     value ?? ""
   )
+
     .replaceAll(
       "&",
       "&amp;"
     )
+
     .replaceAll(
       "<",
       "&lt;"
     )
+
     .replaceAll(
       ">",
       "&gt;"
     )
+
     .replaceAll(
       '"',
       "&quot;"
     )
+
     .replaceAll(
       "'",
       "&#039;"
     );
+
 }
 
 
@@ -2122,34 +2524,33 @@ function setText(
       id
     );
 
-
   if (el) {
 
     el.textContent =
       value;
+
   }
+
 }
 
 
-function toast(message) {
+function toast(
+  message
+) {
 
   const el =
     document.getElementById(
       "toast"
     );
 
-
   if (!el) return;
-
 
   el.textContent =
     message;
 
-
   el.classList.add(
     "show"
   );
-
 
   setTimeout(
     () => {
@@ -2161,6 +2562,7 @@ function toast(message) {
     },
     2500
   );
+
 }
 
 
@@ -2173,12 +2575,122 @@ function setSyncText(
       "syncText"
     );
 
-
   if (el) {
 
     el.textContent =
       text;
+
   }
+
+}
+
+
+/*******************************************************
+ * QUICK ADD
+ *******************************************************/
+
+function openQuickAdd() {
+
+  let menu =
+    document.getElementById(
+      "quickAddMenu"
+    );
+
+  if (!menu) {
+
+    menu =
+      document.createElement(
+        "div"
+      );
+
+    menu.id =
+      "quickAddMenu";
+
+    menu.className =
+      "quick-add";
+
+    menu.innerHTML = `
+
+      <button
+        class="quick-income"
+        onclick="
+          quickTransaction('PEMASUKAN')
+        ">
+
+        💰 Pemasukan
+
+      </button>
+
+
+      <button
+        class="quick-expense"
+        onclick="
+          quickTransaction('PENGELUARAN')
+        ">
+
+        💸 Pengeluaran
+
+      </button>
+
+
+      <button
+        class="quick-sale"
+        onclick="
+          showPage('penjualan');
+          closeQuickAdd()
+        ">
+
+        🛒 Penjualan
+
+      </button>
+
+    `;
+
+    document.body.appendChild(
+      menu
+    );
+
+  }
+
+  menu.classList.toggle(
+    "show"
+  );
+
+}
+
+
+function closeQuickAdd() {
+
+  const menu =
+    document.getElementById(
+      "quickAddMenu"
+    );
+
+  if (menu) {
+
+    menu.classList.remove(
+      "show"
+    );
+
+  }
+
+}
+
+
+function quickTransaction(
+  type
+) {
+
+  closeQuickAdd();
+
+  setTransactionType(
+    type
+  );
+
+  showPage(
+    "transaksi"
+  );
+
 }
 
 
@@ -2190,122 +2702,201 @@ document.addEventListener(
   "DOMContentLoaded",
   async () => {
 
-    document.getElementById(
-      "trxTanggal"
-    ).value =
-      today();
+    /*
+     * TANGGAL
+     */
+
+    const trxTanggal =
+      document.getElementById(
+        "trxTanggal"
+      );
+
+    if (trxTanggal) {
+
+      trxTanggal.value =
+        today();
+
+    }
 
 
-    document.getElementById(
-      "reportEnd"
-    ).value =
-      today();
+    const reportEnd =
+      document.getElementById(
+        "reportEnd"
+      );
+
+    if (reportEnd) {
+
+      reportEnd.value =
+        today();
+
+    }
 
 
-    const d =
-      new Date();
+    const reportStart =
+      document.getElementById(
+        "reportStart"
+      );
 
-    d.setDate(
-      d.getDate() - 30
-    );
+    if (reportStart) {
 
+      const d =
+        new Date();
 
-    document.getElementById(
-      "reportStart"
-    ).value =
-      [
-        d.getFullYear(),
+      d.setDate(
+        d.getDate() - 30
+      );
 
-        String(
-          d.getMonth() + 1
-        ).padStart(2, "0"),
+      reportStart.value =
+        [
+          d.getFullYear(),
 
-        String(
-          d.getDate()
-        ).padStart(2, "0")
+          String(
+            d.getMonth() + 1
+          ).padStart(2, "0"),
 
-      ].join("-");
+          String(
+            d.getDate()
+          ).padStart(2, "0")
 
+        ].join("-");
 
-    document.getElementById(
-      "transactionForm"
-    ).addEventListener(
-      "submit",
-      saveTransaction
-    );
-
-
-    document.getElementById(
-      "barangForm"
-    ).addEventListener(
-      "submit",
-      saveBarang
-    );
-
-
-    document.getElementById(
-      "penjualanForm"
-    ).addEventListener(
-      "submit",
-      savePenjualan
-    );
-
-
-    document.getElementById(
-      "belanjaForm"
-    ).addEventListener(
-      "submit",
-      saveBelanja
-    );
-
-
-    document.getElementById(
-      "hutangForm"
-    ).addEventListener(
-      "submit",
-      saveHutang
-    );
-
-
-    document.getElementById(
-      "jualBarang"
-    ).addEventListener(
-      "change",
-      function() {
-
-        const barang =
-          appData.barang.find(
-            x =>
-              String(x.id) ===
-              String(
-                this.value
-              )
-          );
-
-
-        if (barang) {
-
-          document.getElementById(
-            "jualHarga"
-          ).value =
-            barang.hargaJual ||
-            0;
-
-        }
-
-      }
-    );
+    }
 
 
     /*
-     * Online / Offline
+     * FORM
+     */
+
+    const transactionForm =
+      document.getElementById(
+        "transactionForm"
+      );
+
+    if (transactionForm) {
+
+      transactionForm.addEventListener(
+        "submit",
+        saveTransaction
+      );
+
+    }
+
+
+    const barangForm =
+      document.getElementById(
+        "barangForm"
+      );
+
+    if (barangForm) {
+
+      barangForm.addEventListener(
+        "submit",
+        saveBarang
+      );
+
+    }
+
+
+    const penjualanForm =
+      document.getElementById(
+        "penjualanForm"
+      );
+
+    if (penjualanForm) {
+
+      penjualanForm.addEventListener(
+        "submit",
+        savePenjualan
+      );
+
+    }
+
+
+    const belanjaForm =
+      document.getElementById(
+        "belanjaForm"
+      );
+
+    if (belanjaForm) {
+
+      belanjaForm.addEventListener(
+        "submit",
+        saveBelanja
+      );
+
+    }
+
+
+    const hutangForm =
+      document.getElementById(
+        "hutangForm"
+      );
+
+    if (hutangForm) {
+
+      hutangForm.addEventListener(
+        "submit",
+        saveHutang
+      );
+
+    }
+
+
+    /*
+     * PILIH BARANG PENJUALAN
+     */
+
+    const jualBarang =
+      document.getElementById(
+        "jualBarang"
+      );
+
+    if (jualBarang) {
+
+      jualBarang.addEventListener(
+        "change",
+        function() {
+
+          const barang =
+            appData.barang.find(
+              x =>
+                String(x.id) ===
+                String(
+                  this.value
+                )
+            );
+
+          if (barang) {
+
+            const jualHarga =
+              document.getElementById(
+                "jualHarga"
+              );
+
+            if (jualHarga) {
+
+              jualHarga.value =
+                barang.hargaJual ||
+                0;
+
+            }
+
+          }
+
+        }
+      );
+
+    }
+
+
+    /*
+     * ONLINE / OFFLINE
      */
 
     window.addEventListener(
       "online",
       updateOnlineStatus
     );
-
 
     window.addEventListener(
       "offline",
@@ -2314,20 +2905,25 @@ document.addEventListener(
 
 
     /*
-     * Tampilan langsung
+     * LOADING
      */
 
-    document
-      .getElementById(
+    const loading =
+      document.getElementById(
         "loading"
-      )
-      .classList.add(
+      );
+
+    if (loading) {
+
+      loading.classList.add(
         "hidden"
       );
 
+    }
+
 
     /*
-     * Ambil data server
+     * LOAD DATA SERVER
      */
 
     if (
@@ -2342,7 +2938,7 @@ document.addEventListener(
 
 
     /*
-     * Status
+     * STATUS
      */
 
     updateOnlineStatus();
@@ -2351,78 +2947,3 @@ document.addEventListener(
 
   }
 );
-function openQuickAdd() {
-
-  let menu =
-    document.getElementById("quickAddMenu");
-
-  if (!menu) {
-
-    menu = document.createElement("div");
-
-    menu.id = "quickAddMenu";
-
-    menu.className = "quick-add";
-
-    menu.innerHTML = `
-
-      <button
-        class="quick-income"
-        onclick="quickTransaction('PEMASUKAN')">
-
-        💰 Pemasukan
-
-      </button>
-
-      <button
-        class="quick-expense"
-        onclick="quickTransaction('PENGELUARAN')">
-
-        💸 Pengeluaran
-
-      </button>
-
-      <button
-        class="quick-sale"
-        onclick="showPage('penjualan'); closeQuickAdd()">
-
-        🛒 Penjualan
-
-      </button>
-
-    `;
-
-    document.body.appendChild(menu);
-
-  }
-
-  menu.classList.toggle("show");
-
-}
-
-
-function closeQuickAdd() {
-
-  const menu =
-    document.getElementById(
-      "quickAddMenu"
-    );
-
-  if (menu) {
-
-    menu.classList.remove("show");
-
-  }
-
-}
-
-
-function quickTransaction(type) {
-
-  closeQuickAdd();
-
-  setTransactionType(type);
-
-  showPage("transaksi");
-
-}
