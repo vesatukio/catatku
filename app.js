@@ -919,52 +919,40 @@ function renderDashboard() {
 }
 
 
-function renderKategori() {
+function renderKategori(data) {
+    const select = document.getElementById("trxKategori");
 
-  const select =
-    document.getElementById(
-      "trxKategori"
-    );
+    if (!select) return;
 
-  if (!select) return;
+    const nilaiLama = select.value;
 
+    select.innerHTML = `
+        <option value="">Pilih kategori</option>
+    `;
 
-  select.innerHTML =
-    `<option value="">
-      Pilih kategori
-    </option>`;
+    if (!Array.isArray(data)) return;
 
+    data.forEach(function(item) {
 
-  appData.kategori
-    .forEach(item => {
+        const nama =
+            typeof item === "string"
+                ? item
+                : item.nama || item.kategori || "";
 
-      const nama =
-        item.nama ||
-        item.name ||
-        "";
+        if (!nama) return;
 
+        const option = document.createElement("option");
 
-      if (!nama) return;
+        option.value = nama;
+        option.textContent = nama;
 
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-      option.value =
-        nama;
-
-      option.textContent =
-        nama;
-
-      select.appendChild(
-        option
-      );
-
+        select.appendChild(option);
     });
-}
 
+    if (nilaiLama) {
+        select.value = nilaiLama;
+    }
+}
 
 function renderBarang() {
 
