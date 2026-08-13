@@ -1,4 +1,4 @@
-const CACHE_NAME = 'catatku-v1';
+const CACHE_NAME = 'catatku-v2';
 const ASSETS = [
   './index.html',
   './css/style.css',
