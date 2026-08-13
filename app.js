@@ -44,13 +44,27 @@ function showError(err){
 }
 
 function showPage(page){
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+  });
+
   const target = document.getElementById('page-' + page);
+
   if(target){
     target.classList.add('active');
   }
+
   document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.page === page);
+    btn.classList.toggle(
+      'active',
+      btn.dataset.page === page
+    );
+  });
+
+  // Kembali ke bagian atas saat pindah menu
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
   });
 
   if(page === 'dashboard') loadDashboard();
