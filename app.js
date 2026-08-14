@@ -353,24 +353,46 @@ async function syncOffline() {
     setSyncText(`Menyinkronkan ${queue.length} data...`);
 
     for (const item of queue) {
+      // 🛡️ VALIDASI: Jika action kosong / tidak valid, hapus dari antrean agar tidak bikin macet
+      if (!item.action) {
+        console.warn("Mendapati item antrean tanpa action, menghapus ID:", item.id);
+        await removeFromQueue(item.id);
+        continue;
+      }
+
       try {
-        await gasRequest(item.action, item.payload);
+        // Kirim permintaan sesuai method yang digunakan di app Anda (gasPost / gasRequest)
+        if (typeof gasPost === "function") {
+          await gasPost(item.action, item.payload);
+        } else {
+          await gasRequest(item.action, item.payload);
+        }
+        
         await removeFromQueue(item.id);
       } catch (err) {
         console.error("Gagal sinkron item ID " + item.id, err);
+        // Hentikan perulangan jika gagal terhubung/error server
         break; 
       }
     }
 
-    await loadAppData();
-    showToast("🔄 Sinkronisasi selesai");
+    // Cek sisa antrean
+    const remainingQueue = await getQueue();
+    if (remainingQueue.length > 0) {
+      setSyncText(`⚠️ ${remainingQueue.length} data tertunda`);
+    } else {
+      await loadAppData();
+      setSyncText("Online — Data Terkini");
+      showToast("🔄 Sinkronisasi selesai");
+    }
+
   } catch (err) {
     console.error("Sync error:", err);
+    setSyncText("Gagal sinkronisasi");
   } finally {
     syncRunning = false;
   }
 }
-
 /* =========================================================
    GAS REQUEST & DATA NORMALIZATION
    ========================================================= */
