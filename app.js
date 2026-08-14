@@ -1774,7 +1774,7 @@ async function saveBarang(
 
     kode:
       data.kode ||
-      "",
+      await generateLocalKodeBarang(),
 
     nama:
       String(
