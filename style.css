@@ -1,39 +1,58 @@
 /* =========================================================
    CATATKU
-   STYLE.CSS
-   Mobile First
-   Keuangan + Stok + Penjualan
+   STYLE.CSS FINAL
+   MOBILE FIRST
+   WALLET / POS PROFESSIONAL UI
    ========================================================= */
 
 :root {
 
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --primary-soft: #eff6ff;
+  --blue: #2563eb;
+  --blue-dark: #1d4ed8;
+  --blue-soft: #eff6ff;
 
-  --success: #16a34a;
-  --success-soft: #f0fdf4;
+  --green: #16a34a;
+  --green-dark: #15803d;
+  --green-soft: #f0fdf4;
 
-  --danger: #dc2626;
-  --danger-soft: #fef2f2;
+  --red: #dc2626;
+  --red-dark: #b91c1c;
+  --red-soft: #fef2f2;
 
-  --warning: #d97706;
-  --warning-soft: #fffbeb;
+  --orange: #ea580c;
+  --orange-soft: #fff7ed;
 
-  --text: #172033;
-  --text-soft: #64748b;
+  --purple: #7c3aed;
+  --purple-soft: #f5f3ff;
 
-  --border: #e2e8f0;
+  --cyan: #0891b2;
+  --cyan-soft: #ecfeff;
 
-  --bg: #f4f7fb;
+  --yellow: #ca8a04;
+  --yellow-soft: #fefce8;
+
+  --dark: #111827;
+  --text: #1f2937;
+  --muted: #6b7280;
+
+  --bg: #f3f6fb;
   --card: #ffffff;
+  --border: #e5e7eb;
 
-  --radius: 18px;
+  --shadow-sm:
+    0 2px 8px rgba(15, 23, 42, .05);
 
   --shadow:
-    0 4px 18px rgba(15, 23, 42, 0.07);
+    0 6px 20px rgba(15, 23, 42, .08);
 
-  --bottom-height: 76px;
+  --shadow-lg:
+    0 12px 30px rgba(15, 23, 42, .12);
+
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 22px;
+
+  --bottom-nav-height: 78px;
 
 }
 
@@ -46,14 +65,20 @@
 
   box-sizing: border-box;
 
+  margin: 0;
+
+  padding: 0;
+
 }
 
 
 html {
 
-  margin: 0;
+  width: 100%;
 
-  padding: 0;
+  min-height: 100%;
+
+  overflow-x: hidden;
 
   scroll-behavior: smooth;
 
@@ -62,23 +87,24 @@ html {
 
 body {
 
-  margin: 0;
+  width: 100%;
 
-  padding: 0;
+  min-height: 100vh;
 
-  padding-bottom:
-    calc(
-      var(--bottom-height) +
-      20px
-    );
+  overflow-x: hidden;
 
   background:
-    var(--bg);
+    linear-gradient(
+      180deg,
+      #eef4ff 0,
+      #f3f6fb 180px,
+      #f3f6fb 100%
+    );
 
-  color:
-    var(--text);
+  color: var(--text);
 
   font-family:
+    Inter,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
@@ -86,12 +112,62 @@ body {
     Arial,
     sans-serif;
 
-  font-size: 16px;
+  font-size: 15px;
 
   line-height: 1.5;
 
+  padding-bottom:
+    calc(
+      var(--bottom-nav-height) +
+      25px
+    );
+
+  -webkit-font-smoothing:
+    antialiased;
+
   -webkit-tap-highlight-color:
     transparent;
+
+}
+
+
+/* =========================================================
+   ELEMENT
+   ========================================================= */
+
+button,
+input,
+select,
+textarea {
+
+  font: inherit;
+
+}
+
+
+button {
+
+  border: 0;
+
+  cursor: pointer;
+
+}
+
+
+input,
+select,
+textarea {
+
+  width: 100%;
+
+}
+
+
+button,
+input,
+select {
+
+  min-height: 48px;
 
 }
 
@@ -102,11 +178,33 @@ body {
 
 .topbar {
 
-  position: sticky;
+  position: relative;
 
-  top: 0;
+  width: 100%;
 
-  z-index: 50;
+  padding:
+    22px
+    18px
+    26px;
+
+  color: #fff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #1d4ed8
+    );
+
+  border-radius:
+    0
+    0
+    28px
+    28px;
+
+  box-shadow:
+    0 8px 25px
+    rgba(37, 99, 235, .22);
 
   display: flex;
 
@@ -116,100 +214,97 @@ body {
 
   gap: 12px;
 
-  min-height: 72px;
-
-  padding:
-    13px 16px;
-
-  background:
-    var(--primary);
-
-  color:
-    white;
-
-  box-shadow:
-    0 3px 14px
-    rgba(37, 99, 235, 0.22);
-
 }
 
 
 .topbar h1 {
 
-  margin: 0;
-
-  font-size: 23px;
+  font-size: 26px;
 
   line-height: 1.1;
 
   font-weight: 800;
 
-  letter-spacing: -0.3px;
+  letter-spacing: -.5px;
 
 }
 
 
 .topbar p {
 
-  margin:
-    4px 0 0;
+  margin-top: 5px;
+
+  color:
+    rgba(255,255,255,.78);
 
   font-size: 13px;
 
-  opacity: 0.88;
+  font-weight: 500;
 
 }
 
-
-/* =========================================================
-   STATUS
-   ========================================================= */
 
 .status-badge {
 
   flex-shrink: 0;
 
-  padding:
-    7px 10px;
+  min-width: 74px;
 
-  border-radius:
-    999px;
+  padding:
+    8px
+    11px;
+
+  border-radius: 999px;
 
   background:
-    rgba(255,255,255,0.16);
+    rgba(255,255,255,.17);
+
+  border:
+    1px solid
+    rgba(255,255,255,.22);
+
+  color: #fff;
+
+  text-align: center;
 
   font-size: 11px;
 
-  font-weight: 800;
+  font-weight: 700;
 
-  letter-spacing: 0.4px;
-
-}
-
-
-.status-badge[data-status="online"] {
-
-  background:
-    rgba(34,197,94,0.2);
+  backdrop-filter:
+    blur(8px);
 
 }
 
 
-.status-badge[data-status="offline"] {
-
-  background:
-    rgba(239,68,68,0.2);
-
-}
-
+/* =========================================================
+   STATUS DATABASE
+   ========================================================= */
 
 .status-panel {
 
-  position: sticky;
+  width: calc(100% - 28px);
 
-  top: 72px;
+  margin:
+    -10px
+    auto
+    14px;
 
-  z-index: 40;
+  min-height: 42px;
+
+  padding:
+    9px
+    13px;
+
+  background: #fff;
+
+  border:
+    1px solid
+    rgba(229,231,235,.8);
+
+  border-radius: 13px;
+
+  box-shadow: var(--shadow-sm);
 
   display: flex;
 
@@ -219,55 +314,25 @@ body {
 
   gap: 10px;
 
-  min-height: 38px;
+  font-size: 11px;
 
-  padding:
-    7px 14px;
-
-  background:
-    white;
-
-  border-bottom:
-    1px solid var(--border);
-
-  color:
-    var(--text-soft);
-
-  font-size: 12px;
+  color: var(--muted);
 
 }
 
 
-.status-panel span {
+#databaseStatus {
 
-  white-space: nowrap;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
+  font-weight: 600;
 
 }
 
 
 #syncStatus {
 
+  color: var(--blue);
+
   font-weight: 700;
-
-}
-
-
-#syncStatus[data-status="synced"] {
-
-  color:
-    var(--success);
-
-}
-
-
-#syncStatus[data-status="pending"] {
-
-  color:
-    var(--warning);
 
 }
 
@@ -280,12 +345,13 @@ body {
 
   width: 100%;
 
-  max-width: 1180px;
+  max-width: 1100px;
 
   margin: 0 auto;
 
   padding:
-    18px 14px 25px;
+    0
+    14px;
 
 }
 
@@ -298,8 +364,10 @@ body {
 
   display: none;
 
+  width: 100%;
+
   animation:
-    pageIn 0.18s ease;
+    pageIn .18s ease;
 
 }
 
@@ -349,71 +417,165 @@ body {
   gap: 12px;
 
   margin:
-    2px 0 16px;
+    12px
+    2px
+    16px;
 
 }
 
 
 .section-title h2 {
 
-  margin: 0;
-
-  font-size: 24px;
+  font-size: 22px;
 
   line-height: 1.2;
 
   font-weight: 800;
 
-  letter-spacing: -0.4px;
+  color: var(--dark);
+
+  letter-spacing: -.3px;
 
 }
 
 
 .section-title p {
 
-  margin:
-    4px 0 0;
+  margin-top: 4px;
 
-  color:
-    var(--text-soft);
+  color: var(--muted);
 
-  font-size: 14px;
+  font-size: 13px;
 
 }
 
-
-/* =========================================================
-   BUTTON SMALL
-   ========================================================= */
 
 .btn-small {
 
-  width: 42px;
+  width: 44px;
 
-  height: 42px;
+  min-width: 44px;
 
-  border: 0;
+  min-height: 44px;
 
   border-radius: 13px;
 
-  background:
-    white;
+  background: #fff;
 
-  color:
-    var(--primary);
+  color: var(--blue);
 
-  box-shadow:
-    var(--shadow);
+  box-shadow: var(--shadow-sm);
 
-  font-size: 22px;
+  font-size: 23px;
 
-  cursor: pointer;
+  font-weight: 700;
+
+  transition:
+    .15s ease;
+
+}
+
+
+.btn-small:active {
+
+  transform:
+    scale(.93);
 
 }
 
 
 /* =========================================================
-   DASHBOARD GRID
+   DASHBOARD
+   ========================================================= */
+
+/*
+   SALDO BESAR
+*/
+
+.saldo-card {
+
+  grid-column:
+    1 / -1;
+
+  min-height: 145px;
+
+  padding: 22px;
+
+  color: #fff !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #1e40af
+    ) !important;
+
+  border: 0 !important;
+
+  border-radius: 22px !important;
+
+  box-shadow:
+    0 12px 28px
+    rgba(37,99,235,.25) !important;
+
+  position: relative;
+
+  overflow: hidden;
+
+}
+
+
+.saldo-card::after {
+
+  content: "";
+
+  position: absolute;
+
+  width: 150px;
+
+  height: 150px;
+
+  right: -55px;
+
+  top: -60px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255,255,255,.09);
+
+}
+
+
+.saldo-card span {
+
+  color:
+    rgba(255,255,255,.78) !important;
+
+  font-size: 13px;
+
+}
+
+
+.saldo-card strong {
+
+  display: block;
+
+  margin-top: 8px;
+
+  color: #fff !important;
+
+  font-size: 31px !important;
+
+  font-weight: 800;
+
+  letter-spacing: -.7px;
+
+}
+
+
+/* =========================================================
+   SUMMARY GRID
    ========================================================= */
 
 .summary-grid {
@@ -434,32 +596,30 @@ body {
 
   min-width: 0;
 
-  padding:
-    15px 13px;
+  min-height: 100px;
 
-  background:
-    var(--card);
+  padding: 16px;
+
+  background: var(--card);
 
   border:
-    1px solid rgba(226,232,240,0.8);
+    1px solid
+    rgba(229,231,235,.85);
 
-  border-radius:
-    var(--radius);
+  border-radius: 17px;
 
-  box-shadow:
-    var(--shadow);
+  box-shadow: var(--shadow-sm);
+
+  overflow: hidden;
 
 }
 
 
-.card span {
+.card > span {
 
   display: block;
 
-  margin-bottom: 6px;
-
-  color:
-    var(--text-soft);
+  color: var(--muted);
 
   font-size: 12px;
 
@@ -468,72 +628,33 @@ body {
 }
 
 
-.card strong {
+.card > strong {
 
   display: block;
 
-  color:
-    var(--text);
+  margin-top: 7px;
 
-  font-size: 17px;
+  color: var(--dark);
 
-  line-height: 1.25;
+  font-size: 19px;
+
+  line-height: 1.2;
 
   font-weight: 800;
 
-  overflow-wrap:
-    anywhere;
-
-}
-
-
-.saldo-card {
-
-  grid-column:
-    1 / -1;
-
-  padding:
-    20px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #2563eb,
-      #1d4ed8
-    );
-
-  color:
-    white;
-
-}
-
-
-.saldo-card span {
-
-  color:
-    rgba(255,255,255,0.82);
-
-}
-
-
-.saldo-card strong {
-
-  color:
-    white;
-
-  font-size: 28px;
+  word-break: break-word;
 
 }
 
 
 /* =========================================================
-   WARNA
+   TEXT COLORS
    ========================================================= */
 
 .text-success {
 
   color:
-    var(--success) !important;
+    var(--green) !important;
 
 }
 
@@ -541,38 +662,47 @@ body {
 .text-danger {
 
   color:
-    var(--danger) !important;
+    var(--red) !important;
 
 }
 
 
 /* =========================================================
-   PANEL
+   PANELS
    ========================================================= */
 
 .panel {
 
-  margin-top: 16px;
+  width: 100%;
 
-  background:
-    white;
+  margin-top: 14px;
+
+  background: #fff;
 
   border:
-    1px solid var(--border);
+    1px solid
+    rgba(229,231,235,.8);
 
-  border-radius:
-    var(--radius);
+  border-radius: 18px;
 
-  box-shadow:
-    var(--shadow);
+  box-shadow: var(--shadow-sm);
 
-  overflow:
-    hidden;
+  overflow: hidden;
 
 }
 
 
 .panel-header {
+
+  min-height: 55px;
+
+  padding:
+    15px
+    16px;
+
+  border-bottom:
+    1px solid
+    var(--border);
 
   display: flex;
 
@@ -580,20 +710,12 @@ body {
 
   justify-content: space-between;
 
-  min-height: 54px;
-
-  padding:
-    12px 15px;
-
-  border-bottom:
-    1px solid var(--border);
-
 }
 
 
 .panel-header h3 {
 
-  margin: 0;
+  color: var(--dark);
 
   font-size: 16px;
 
@@ -602,39 +724,176 @@ body {
 }
 
 
-/* =========================================================
-   LIST
-   ========================================================= */
-
 .list {
 
-  padding:
-    4px 14px;
-
-}
-
-
-.list > p {
-
-  margin:
-    14px 0;
-
-  color:
-    var(--text-soft);
-
-  text-align:
-    center;
-
-  font-size: 14px;
+  width: 100%;
 
 }
 
 
 /* =========================================================
-   TRANSAKSI ITEM
+   FORM CARD
    ========================================================= */
 
-.transaksi-item {
+.form-card {
+
+  width: 100%;
+
+  padding: 17px;
+
+  background: #fff;
+
+  border:
+    1px solid
+    rgba(229,231,235,.8);
+
+  border-radius: 20px;
+
+  box-shadow: var(--shadow-sm);
+
+}
+
+
+.form-card label {
+
+  display: block;
+
+  margin-bottom: 14px;
+
+  color: #374151;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+}
+
+
+.form-card input,
+.form-card select,
+.form-card textarea {
+
+  display: block;
+
+  margin-top: 7px;
+
+  min-height: 51px;
+
+  padding:
+    0
+    14px;
+
+  border:
+    1px solid
+    #d7dce5;
+
+  border-radius: 13px;
+
+  outline: none;
+
+  background: #fafbfc;
+
+  color: var(--dark);
+
+  font-size: 16px;
+
+  font-weight: 500;
+
+  transition:
+    border-color .15s,
+    box-shadow .15s,
+    background .15s;
+
+}
+
+
+.form-card input:focus,
+.form-card select:focus,
+.form-card textarea:focus {
+
+  background: #fff;
+
+  border-color:
+    var(--blue);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(37,99,235,.10);
+
+}
+
+
+/* =========================================================
+   PRIMARY BUTTON
+   ========================================================= */
+
+.btn-primary {
+
+  width: 100%;
+
+  min-height: 54px;
+
+  margin-top: 4px;
+
+  padding:
+    0
+    18px;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--blue),
+      var(--blue-dark)
+    );
+
+  color: #fff;
+
+  font-size: 15px;
+
+  font-weight: 800;
+
+  box-shadow:
+    0 7px 16px
+    rgba(37,99,235,.22);
+
+  transition:
+    transform .12s,
+    box-shadow .12s;
+
+}
+
+
+.btn-primary:active {
+
+  transform:
+    scale(.98);
+
+  box-shadow:
+    0 3px 8px
+    rgba(37,99,235,.18);
+
+}
+
+
+/* =========================================================
+   TRANSAKSI LIST
+   ========================================================= */
+
+.transaksi-item,
+.penjualan-item,
+.barang-item {
+
+  width: 100%;
+
+  padding:
+    14px
+    15px;
+
+  border-bottom:
+    1px solid
+    #edf0f4;
 
   display: flex;
 
@@ -644,67 +903,11 @@ body {
 
   gap: 12px;
 
-  padding:
-    13px 2px;
-
-  border-bottom:
-    1px solid #edf1f5;
-
 }
 
 
-.transaksi-item:last-child {
-
-  border-bottom: 0;
-
-}
-
-
-.transaksi-item > div:first-child {
-
-  min-width: 0;
-
-}
-
-
-.transaksi-item strong {
-
-  display: block;
-
-  font-size: 14px;
-
-}
-
-
-.transaksi-item small {
-
-  display: block;
-
-  margin-top: 3px;
-
-  color:
-    var(--text-soft);
-
-  font-size: 12px;
-
-}
-
-
-/* =========================================================
-   BARANG ITEM
-   ========================================================= */
-
-.barang-item {
-
-  padding:
-    15px 2px;
-
-  border-bottom:
-    1px solid #edf1f5;
-
-}
-
-
+.transaksi-item:last-child,
+.penjualan-item:last-child,
 .barang-item:last-child {
 
   border-bottom: 0;
@@ -712,135 +915,47 @@ body {
 }
 
 
-.barang-info {
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  gap: 10px;
-
-}
-
-
-.barang-info strong {
+.transaksi-item > div,
+.penjualan-item > div,
+.barang-item > div {
 
   min-width: 0;
 
-  font-size: 16px;
-
-  font-weight: 800;
-
 }
 
 
-.barang-info small {
+.transaksi-item strong,
+.penjualan-item strong,
+.barang-item strong {
 
-  flex-shrink: 0;
+  display: block;
 
-  color:
-    var(--text-soft);
-
-  font-size: 12px;
-
-}
-
-
-.barang-stok {
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  gap: 10px;
-
-  margin-top: 7px;
-
-}
-
-
-.barang-stok strong {
-
-  color:
-    var(--primary);
+  color: var(--dark);
 
   font-size: 14px;
 
+  font-weight: 800;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
 }
 
 
-.barang-stok small {
+.transaksi-item small,
+.penjualan-item small,
+.barang-item small {
 
-  padding:
-    3px 8px;
+  display: block;
 
-  border-radius:
-    999px;
+  margin-top: 3px;
 
-  background:
-    var(--warning-soft);
-
-  color:
-    var(--warning);
+  color: var(--muted);
 
   font-size: 11px;
-
-  font-weight: 700;
-
-}
-
-
-.barang-harga {
-
-  margin-top: 6px;
-
-  color:
-    var(--text-soft);
-
-  font-size: 12px;
-
-  line-height: 1.7;
-
-}
-
-
-/* =========================================================
-   PENJUALAN ITEM
-   ========================================================= */
-
-.penjualan-item {
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  gap: 12px;
-
-  padding:
-    14px 2px;
-
-  border-bottom:
-    1px solid #edf1f5;
-
-}
-
-
-.penjualan-item:last-child {
-
-  border-bottom: 0;
-
-}
-
-
-.penjualan-item > div {
-
-  min-width: 0;
 
 }
 
@@ -854,196 +969,76 @@ body {
 }
 
 
-.penjualan-item strong {
+.penjualan-item > div:last-child strong {
 
-  display: block;
-
-  font-size: 14px;
-
-  font-weight: 800;
-
-}
-
-
-.penjualan-item small {
-
-  display: block;
-
-  margin-top: 3px;
-
-  color:
-    var(--text-soft);
-
-  font-size: 12px;
+  color: var(--green);
 
 }
 
 
 /* =========================================================
-   FORM CARD
+   BARANG
    ========================================================= */
 
-.form-card {
+.barang-item {
 
-  padding:
-    16px;
-
-  background:
-    white;
-
-  border:
-    1px solid var(--border);
-
-  border-radius:
-    var(--radius);
-
-  box-shadow:
-    var(--shadow);
+  align-items: flex-start;
 
 }
 
 
-.form-card label {
+.barang-item > div:first-child {
 
-  display: block;
-
-  margin-bottom: 14px;
-
-  color:
-    var(--text);
-
-  font-size: 14px;
-
-  font-weight: 700;
+  flex: 1;
 
 }
 
 
-.form-card input,
-.form-card select {
+.barang-item > div:last-child {
 
-  display: block;
+  flex-shrink: 0;
 
-  width: 100%;
-
-  min-height: 52px;
-
-  margin-top: 7px;
-
-  padding:
-    12px 13px;
-
-  border:
-    1px solid #cbd5e1;
-
-  border-radius:
-    13px;
-
-  background:
-    #fff;
-
-  color:
-    var(--text);
-
-  font-family:
-    inherit;
-
-  font-size: 16px;
-
-  outline: none;
-
-  transition:
-    border-color 0.15s,
-    box-shadow 0.15s;
+  text-align: right;
 
 }
 
 
-.form-card input:focus,
-.form-card select:focus {
+.barang-stock {
 
-  border-color:
-    var(--primary);
-
-  box-shadow:
-    0 0 0 3px
-    rgba(37,99,235,0.12);
-
-}
-
-
-.form-card input::placeholder {
-
-  color:
-    #94a3b8;
-
-}
-
-
-/* =========================================================
-   BUTTON PRIMARY
-   ========================================================= */
-
-.btn-primary {
-
-  display: flex;
+  display: inline-flex;
 
   align-items: center;
 
   justify-content: center;
 
-  width: 100%;
-
-  min-height: 54px;
-
-  margin-top: 4px;
+  margin-top: 7px;
 
   padding:
-    12px 18px;
+    5px
+    9px;
 
-  border: 0;
-
-  border-radius:
-    14px;
+  border-radius: 999px;
 
   background:
-    var(--primary);
+    var(--green-soft);
 
   color:
-    white;
+    var(--green);
 
-  font-family:
-    inherit;
-
-  font-size: 16px;
+  font-size: 11px;
 
   font-weight: 800;
 
-  cursor: pointer;
-
-  box-shadow:
-    0 5px 14px
-    rgba(37,99,235,0.2);
-
-  transition:
-    transform 0.12s,
-    background 0.12s;
-
 }
 
 
-.btn-primary:active {
-
-  transform:
-    scale(0.98);
-
-}
-
-
-.btn-primary:hover {
+.barang-stock.low {
 
   background:
-    var(--primary-dark);
+    var(--red-soft);
+
+  color:
+    var(--red);
 
 }
 
@@ -1056,46 +1051,63 @@ body {
 
   position: fixed;
 
+  z-index: 1000;
+
   left: 0;
 
   right: 0;
 
   bottom: 0;
 
-  z-index: 100;
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(4, 1fr);
+  width: 100%;
 
   height:
-    var(--bottom-height);
+    var(--bottom-nav-height);
 
   padding:
-    7px 8px
+    7px
+    8px
     calc(
       7px +
       env(safe-area-inset-bottom)
     );
 
   background:
-    rgba(255,255,255,0.97);
+    rgba(255,255,255,.96);
 
   border-top:
-    1px solid var(--border);
+    1px solid
+    rgba(229,231,235,.9);
 
   box-shadow:
-    0 -5px 20px
-    rgba(15,23,42,0.07);
+    0 -8px 25px
+    rgba(15,23,42,.08);
 
   backdrop-filter:
-    blur(12px);
+    blur(16px);
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 6px;
 
 }
 
 
 .nav-item {
+
+  position: relative;
+
+  min-width: 0;
+
+  min-height: 60px;
+
+  border-radius: 15px;
+
+  background:
+    transparent;
 
   display: flex;
 
@@ -1107,54 +1119,134 @@ body {
 
   gap: 3px;
 
-  min-width: 0;
+  color: #6b7280;
 
-  padding:
-    4px;
-
-  border: 0;
-
-  border-radius: 14px;
-
-  background:
-    transparent;
-
-  color:
-    #64748b;
-
-  font-family:
-    inherit;
-
-  cursor: pointer;
+  transition:
+    transform .12s,
+    background .15s,
+    color .15s;
 
 }
 
 
 .nav-item span {
 
-  font-size: 22px;
+  width: 30px;
 
-  line-height: 1;
+  height: 30px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 10px;
+
+  font-size: 19px;
 
 }
 
 
 .nav-item small {
 
-  font-size: 11px;
+  font-size: 10px;
 
-  font-weight: 700;
+  line-height: 1;
+
+  font-weight: 800;
 
 }
 
 
-.nav-item.active {
+/* =========================================================
+   MENU COLORS
+   ========================================================= */
+
+/* BERANDA */
+
+.nav-item:nth-child(1) span {
 
   background:
-    var(--primary-soft);
+    #eff6ff;
+
+}
+
+.nav-item:nth-child(1).active {
 
   color:
-    var(--primary);
+    var(--blue);
+
+  background:
+    #eff6ff;
+
+}
+
+
+/* KEUANGAN */
+
+.nav-item:nth-child(2) span {
+
+  background:
+    #f0fdf4;
+
+}
+
+.nav-item:nth-child(2).active {
+
+  color:
+    var(--green);
+
+  background:
+    #f0fdf4;
+
+}
+
+
+/* BARANG */
+
+.nav-item:nth-child(3) span {
+
+  background:
+    #fff7ed;
+
+}
+
+.nav-item:nth-child(3).active {
+
+  color:
+    var(--orange);
+
+  background:
+    #fff7ed;
+
+}
+
+
+/* JUAL */
+
+.nav-item:nth-child(4) span {
+
+  background:
+    #f5f3ff;
+
+}
+
+.nav-item:nth-child(4).active {
+
+  color:
+    var(--purple);
+
+  background:
+    #f5f3ff;
+
+}
+
+
+.nav-item:active {
+
+  transform:
+    scale(.94);
 
 }
 
@@ -1167,55 +1259,49 @@ body {
 
   position: fixed;
 
+  z-index: 2000;
+
   left: 50%;
 
   bottom:
     calc(
-      var(--bottom-height) +
-      18px
+      var(--bottom-nav-height) +
+      16px
     );
-
-  z-index: 200;
 
   max-width:
-    calc(
-      100% - 30px
-    );
+    calc(100% - 32px);
 
   padding:
-    11px 15px;
+    12px
+    17px;
 
-  border-radius:
-    12px;
+  border-radius: 13px;
 
   background:
-    #172033;
+    rgba(17,24,39,.95);
 
-  color:
-    white;
+  color: #fff;
 
   font-size: 13px;
 
   font-weight: 700;
 
-  text-align:
-    center;
+  text-align: center;
 
   box-shadow:
-    0 8px 25px
-    rgba(0,0,0,0.18);
+    0 10px 30px
+    rgba(0,0,0,.18);
+
+  transform:
+    translate(-50%, 20px);
 
   opacity: 0;
 
-  pointer-events:
-    none;
-
-  transform:
-    translate(-50%, 10px);
+  pointer-events: none;
 
   transition:
-    opacity 0.2s,
-    transform 0.2s;
+    .2s ease;
 
 }
 
@@ -1231,32 +1317,72 @@ body {
 
 
 /* =========================================================
-   DESKTOP
+   EMPTY STATE
    ========================================================= */
 
-@media (
-  min-width: 700px
-) {
+.list:empty {
 
-  body {
+  min-height: 70px;
 
-    font-size: 16px;
+}
 
-  }
 
+.list p {
+
+  padding:
+    22px
+    16px;
+
+  color: var(--muted);
+
+  font-size: 13px;
+
+  text-align: center;
+
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+
+  width: 5px;
+
+}
+
+
+::-webkit-scrollbar-track {
+
+  background:
+    transparent;
+
+}
+
+
+::-webkit-scrollbar-thumb {
+
+  background:
+    #cbd5e1;
+
+  border-radius: 999px;
+
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (min-width: 600px) {
 
   .topbar {
 
     padding:
-      15px 24px;
-
-  }
-
-
-  .status-panel {
-
-    padding:
-      8px 24px;
+      25px
+      24px
+      30px;
 
   }
 
@@ -1264,7 +1390,8 @@ body {
   .container {
 
     padding:
-      25px 20px 40px;
+      0
+      20px;
 
   }
 
@@ -1272,9 +1399,9 @@ body {
   .summary-grid {
 
     grid-template-columns:
-      repeat(4, 1fr);
+      repeat(4, minmax(0, 1fr));
 
-    gap: 14px;
+    gap: 13px;
 
   }
 
@@ -1282,90 +1409,44 @@ body {
   .saldo-card {
 
     grid-column:
-      span 2;
-
-  }
-
-
-  .card strong {
-
-    font-size: 20px;
-
-  }
-
-
-  .saldo-card strong {
-
-    font-size: 30px;
+      1 / -1;
 
   }
 
 
   .form-card {
 
-    max-width:
-      700px;
-
-    margin:
-      0 auto;
+    max-width: 700px;
 
   }
 
 
   .bottom-nav {
 
-    position:
-      fixed;
-
     left: 50%;
 
     right: auto;
 
-    bottom: 20px;
-
     width:
       min(
-        620px,
-        calc(100% - 40px)
+        560px,
+        calc(100% - 20px)
       );
-
-    height: 64px;
-
-    padding:
-      6px;
-
-    border:
-      1px solid var(--border);
-
-    border-radius:
-      18px;
 
     transform:
       translateX(-50%);
 
-  }
+    border:
+      1px solid
+      rgba(229,231,235,.9);
 
+    border-bottom: 0;
 
-  .nav-item {
-
-    flex-direction:
-      row;
-
-    gap: 7px;
-
-  }
-
-
-  .nav-item span {
-
-    font-size: 20px;
-
-  }
-
-
-  .nav-item small {
-
-    font-size: 13px;
+    border-radius:
+      20px
+      20px
+      0
+      0;
 
   }
 
@@ -1373,30 +1454,28 @@ body {
 
 
 /* =========================================================
-   LAYAR BESAR
+   DESKTOP
    ========================================================= */
 
-@media (
-  min-width: 1000px
-) {
+@media (min-width: 900px) {
+
+  body {
+
+    padding-bottom: 25px;
+
+  }
+
 
   .topbar {
 
-    min-height: 76px;
+    border-radius: 0;
 
-    padding-left:
+    padding:
+      25px
       max(
         24px,
         calc(
-          (100vw - 1180px) / 2
-        )
-      );
-
-    padding-right:
-      max(
-        24px,
-        calc(
-          (100vw - 1180px) / 2
+          (100vw - 1100px) / 2
         )
       );
 
@@ -1405,65 +1484,37 @@ body {
 
   .status-panel {
 
-    padding-left:
-      max(
-        24px,
-        calc(
-          (100vw - 1180px) / 2
-        )
-      );
-
-    padding-right:
-      max(
-        24px,
-        calc(
-          (100vw - 1180px) / 2
-        )
-      );
+    max-width: 1060px;
 
   }
 
 
   .container {
 
-    padding-top:
-      30px;
-
-  }
-
-
-  .section-title h2 {
-
-    font-size: 27px;
-
-  }
-
-
-  .summary-grid {
-
-    gap: 16px;
-
-  }
-
-
-  .card {
-
     padding:
-      18px;
+      0
+      20px;
 
   }
 
 
-  .card span {
+  .bottom-nav {
 
-    font-size: 13px;
+    position: sticky;
 
-  }
+    top: 0;
 
+    bottom: auto;
 
-  .card strong {
+    margin:
+      20px
+      auto;
 
-    font-size: 22px;
+    border:
+      1px solid
+      var(--border);
+
+    border-radius: 18px;
 
   }
 
@@ -1471,48 +1522,20 @@ body {
 
 
 /* =========================================================
-   ACCESSIBILITY
-   ========================================================= */
-
-button,
-input,
-select {
-
-  touch-action:
-    manipulation;
-
-}
-
-
-button:focus-visible,
-input:focus-visible,
-select:focus-visible {
-
-  outline:
-    3px solid
-    rgba(37,99,235,0.25);
-
-  outline-offset:
-    2px;
-
-}
-
-
-/* =========================================================
-   SAFE AREA
+   SAFE AREA ANDROID / IPHONE
    ========================================================= */
 
 @supports (
-  padding: env(safe-area-inset-bottom)
+  padding-bottom:
+  env(safe-area-inset-bottom)
 ) {
 
-  body {
+  .bottom-nav {
 
     padding-bottom:
       calc(
-        var(--bottom-height) +
-        env(safe-area-inset-bottom) +
-        20px
+        7px +
+        env(safe-area-inset-bottom)
       );
 
   }
@@ -1521,49 +1544,114 @@ select:focus-visible {
 
 
 /* =========================================================
-   PRINT
+   PREVENT HORIZONTAL MOVEMENT
    ========================================================= */
 
-@media print {
+body,
+main,
+section,
+.panel,
+.form-card,
+.card,
+.list,
+.topbar {
 
-  .topbar,
-  .status-panel,
-  .bottom-nav,
-  .btn-primary,
-  .btn-small {
+  max-width: 100%;
 
-    display: none !important;
-
-  }
-
-
-  body {
-
-    padding: 0;
-
-    background:
-      white;
-
-  }
+}
 
 
-  .page {
+/* =========================================================
+   MOBILE TOUCH
+   ========================================================= */
 
-    display:
-      block !important;
+@media (max-width: 599px) {
+
+  input,
+  select,
+  button {
+
+    -webkit-appearance: none;
 
   }
 
 
-  .card,
-  .panel,
-  .form-card {
+  select {
 
-    box-shadow:
-      none;
+    background-image:
+      linear-gradient(
+        45deg,
+        transparent 50%,
+        #6b7280 50%
+      ),
+      linear-gradient(
+        135deg,
+        #6b7280 50%,
+        transparent 50%
+      );
 
-    border:
-      1px solid #ccc;
+    background-position:
+      calc(100% - 18px) 21px,
+      calc(100% - 13px) 21px;
+
+    background-size:
+      5px 5px,
+      5px 5px;
+
+    background-repeat:
+      no-repeat;
+
+    padding-right: 38px;
+
+  }
+
+
+  .card {
+
+    min-height: 95px;
+
+  }
+
+
+  .card > strong {
+
+    font-size: 18px;
+
+  }
+
+
+  .saldo-card strong {
+
+    font-size: 28px !important;
+
+  }
+
+}
+
+
+/* =========================================================
+   REDUCE MOTION
+   ========================================================= */
+
+@media (
+  prefers-reduced-motion: reduce
+) {
+
+  *,
+  *::before,
+  *::after {
+
+    animation-duration:
+      .01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+
+    transition-duration:
+      .01ms !important;
+
+    scroll-behavior:
+      auto !important;
 
   }
 
