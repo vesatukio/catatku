@@ -1,251 +1,296 @@
-<script>
+// Variabel global penyimpan data barang
 let globalBarangList = [];
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Set default tanggal hari ini
+// Jalankan fungsi setelah seluruh halaman HTML selesai dimuat
+document.addEventListener('DOMContentLoaded', () => {
+  // Set default input tanggal ke hari ini
   const today = new Date().toISOString().split('T')[0];
-  document.getElementById('out_tanggal').value = today;
-  document.getElementById('tx_tanggal').value = today;
-
-  // Load Data awal
-  loadBarangData();
-  loadPengeluaranData();
-  loadTransaksiData();
-
-  // Event Listener Kalkulasi Laba Barang
-  document.getElementById('brg_modal').addEventListener('input', calculateLabaBarang);
-  document.getElementById('brg_laba_persen').addEventListener('input', calculateLabaBarang);
-
-  // Form Submission
-  document.getElementById('formBarang').addEventListener('submit', handleSaveBarang);
-  document.getElementById('formPengeluaran').addEventListener('submit', handleSavePengeluaran);
-  document.getElementById('formTransaksi').addEventListener('submit', handleSaveTransaksi);
+  document.querySelectorAll('input[type="date"]').forEach(el => el.value = today);
+  
+  // Ambil data awal dari backend (Code.gs)
+  loadAllData();
 });
 
-// ==========================================
-// BARANG LOGIC
-// ==========================================
-
-function calculateLabaBarang() {
-  const modal = parseFloat(document.getElementById('brg_modal').value) || 0;
-  const labaPersen = parseFloat(document.getElementById('brg_laba_persen').value) || 0;
+/**
+ * MENGAMBIL DATA DARI BACKEND GOOGLE APPS SCRIPT
+ */
+function loadAllData() {
+  showLoadingStatus(true);
   
-  const labaNominal = modal * (labaPersen / 100);
-  const jual = modal + labaNominal;
-
-  document.getElementById('brg_laba_nominal').value = labaNominal.toLocaleString('id-ID');
-  document.getElementById('brg_jual').value = jual.toLocaleString('id-ID');
+  google.script.run
+    .withSuccessHandler(res => {
+      showLoadingStatus(false);
+      renderAllTables(res);
+    })
+    .withFailureHandler(err => {
+      showLoadingStatus(false);
+      alert("⚠️ Gagal terhubung ke Google Apps Script: " + (err.message || err));
+      console.error("Detail Error:", err);
+    })
+    .fetchAllData();
 }
 
-function loadBarangData() {
-  google.script.run.withSuccessHandler(renderTableBarang).getBarang();
+/**
+ * RENDER SEMUA TABEL
+ */
+function renderAllTables(res) {
+  renderTabelBarang(res.barang || []);
+  renderTabelPengeluaran(res.pengeluaran || []);
+  renderTabelData(res.transaksi || []);
 }
 
-function renderTableBarang(data) {
-  globalBarangList = data;
-  const tbody = document.querySelector('#tableBarang tbody');
-  const selectBarangTx = document.getElementById('tx_barang_id');
-  
+// 1. Render Tabel Barang
+function renderTabelBarang(dataBarang) {
+  globalBarangList = dataBarang;
+  const tbody = document.getElementById('tbl-barang');
+  if (!tbody) return;
   tbody.innerHTML = '';
-  selectBarangTx.innerHTML = '<option value="">-- Pilih Barang (Opsional) --</option>';
 
-  data.forEach(item => {
-    // Populate Table
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${item.ID}</td>
-      <td><strong>${item['Nama Barang']}</strong></td>
-      <td>${item.Kategori || '-'}</td>
-      <td>Rp ${Number(item.Modal).toLocaleString('id-ID')}</td>
-      <td>Rp ${Number(item.Jual).toLocaleString('id-ID')}</td>
-      <td><span class="badge ${item.Stok <= item.Minimum ? 'bg-danger' : 'bg-success'}">${item.Stok}</span></td>
-      <td>${item.Supplier || '-'}</td>
-      <td>
-        <button class="btn btn-sm btn-outline-primary py-0" onclick="editBarang('${item.ID}')">Edit</button>
-        <button class="btn btn-sm btn-outline-danger py-0" onclick="deleteBarang('${item.ID}')">Hapus</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
+  if (dataBarang.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">Belum ada data barang</td></tr>';
+  } else {
+    dataBarang.forEach(item => {
+      const isStokTipis = (parseFloat(item.Stok) <= parseFloat(item.Minimum));
+      tbody.innerHTML += `
+        <tr>
+          <td><code>${item.ID || '-'}</code></td>
+          <td><b>${item['Nama Barang'] || '-'}</b></td>
+          <td>${item.Kategori || '-'}</td>
+          <td>Rp ${formatRupiah(item.Modal)}</td>
+          <td>${item['Laba%'] || 0}%</td>
+          <td>Rp ${formatRupiah(item['Laba Nominal'])}</td>
+          <td><b>Rp ${formatRupiah(item.Jual)}</b></td>
+          <td>
+            <span class="badge ${isStokTipis ? 'bg-danger' : 'bg-success'}">
+              ${item.Stok || 0}
+            </span>
+          </td>
+          <td>${item.Minimum || 0}</td>
+          <td>${item.Supplier || '-'}</td>
+        </tr>`;
+    });
+  }
 
-    // Populate Dropdown Transaksi
-    const opt = document.createElement('option');
-    opt.value = item.ID;
-    opt.textContent = `${item['Nama Barang']} (Stok: ${item.Stok})`;
-    selectBarangTx.appendChild(opt);
-  });
+  // Update opsi dropdown barang di Form Transaksi
+  updateDropdownBarang(dataBarang);
 }
 
+// 2. Render Tabel Pengeluaran
+function renderTabelPengeluaran(dataPengeluaran) {
+  const tbody = document.getElementById('tbl-pengeluaran');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (dataPengeluaran.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Belum ada catatan pengeluaran</td></tr>';
+  } else {
+    dataPengeluaran.forEach(item => {
+      tbody.innerHTML += `
+        <tr>
+          <td><code>${item.ID || '-'}</code></td>
+          <td>${formatTanggal(item.Tanggal)}</td>
+          <td><span class="badge bg-secondary">${item.Kategori || '-'}</span></td>
+          <td>${item.Keterangan || '-'}</td>
+          <td class="text-danger fw-bold">Rp ${formatRupiah(item.Nominal)}</td>
+          <td>${item.Jenis || '-'}</td>
+          <td>${item.Rekening || '-'}</td>
+        </tr>`;
+    });
+  }
+}
+
+// 3. Render Tabel DATA (Transaksi)
+function renderTabelData(dataTransaksi) {
+  const tbody = document.getElementById('tbl-data');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (dataTransaksi.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">Belum ada transaksi</td></tr>';
+  } else {
+    dataTransaksi.forEach(item => {
+      const isKeluar = (item.Jenis === 'Keluar' || item.Jenis === 'Penjualan');
+      tbody.innerHTML += `
+        <tr>
+          <td><code>${item.ID || '-'}</code></td>
+          <td>${item.Data || '-'}</td>
+          <td>${formatTanggal(item.Tanggal)}</td>
+          <td><span class="badge ${isKeluar ? 'bg-warning text-dark' : 'bg-info'}">${item.Jenis || '-'}</span></td>
+          <td>${item.Kategori || '-'}</td>
+          <td>${item.BarangNama || '-'}</td>
+          <td>${item.Qty || 0}</td>
+          <td>Rp ${formatRupiah(item.Harga)}</td>
+          <td class="fw-bold">Rp ${formatRupiah(item.Nominal)}</td>
+          <td><span class="badge ${item.Status === 'Lunas' ? 'bg-success' : 'bg-danger'}">${item.Status || 'Lunas'}</span></td>
+        </tr>`;
+    });
+  }
+}
+
+/**
+ * HANDLER SIMPAN FORM
+ */
+
+// Simpan Barang
 function handleSaveBarang(e) {
   e.preventDefault();
-  const payload = {
-    ID: document.getElementById('brg_id').value,
-    'Nama Barang': document.getElementById('brg_nama').value,
-    Kategori: document.getElementById('brg_kategori').value,
-    Modal: document.getElementById('brg_modal').value,
-    'Laba%': document.getElementById('brg_laba_persen').value,
-    Stok: document.getElementById('brg_stok').value,
-    Minimum: document.getElementById('brg_min').value,
-    Supplier: document.getElementById('brg_supplier').value
-  };
+  const btnSubmit = e.target.querySelector('button[type="submit"]');
+  toggleButtonLoading(btnSubmit, true);
 
-  google.script.run.withSuccessHandler(res => {
-    alert(res.message);
-    resetFormBarang();
-    loadBarangData();
-  }).saveBarang(payload);
-}
-
-function editBarang(id) {
-  const item = globalBarangList.find(b => b.ID === id);
-  if (!item) return;
-
-  document.getElementById('brg_id').value = item.ID;
-  document.getElementById('brg_nama').value = item['Nama Barang'];
-  document.getElementById('brg_kategori').value = item.Kategori;
-  document.getElementById('brg_modal').value = item.Modal;
-  document.getElementById('brg_laba_persen').value = item['Laba%'];
-  document.getElementById('brg_stok').value = item.Stok;
-  document.getElementById('brg_min').value = item.Minimum;
-  document.getElementById('brg_supplier').value = item.Supplier;
+  const formData = Object.fromEntries(new FormData(e.target));
   
-  calculateLabaBarang();
+  google.script.run
+    .withSuccessHandler(res => {
+      toggleButtonLoading(btnSubmit, false);
+      const modalEl = document.getElementById('modalBarang');
+      if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();
+      e.target.reset();
+      loadAllData();
+    })
+    .withFailureHandler(err => {
+      toggleButtonLoading(btnSubmit, false);
+      alert("Gagal menyimpan barang: " + (err.message || err));
+    })
+    .saveBarang(formData);
 }
 
-function deleteBarang(id) {
-  if (confirm('Yakin ingin menghapus barang ini?')) {
-    google.script.run.withSuccessHandler(res => {
-      alert(res.message);
-      loadBarangData();
-    }).deleteBarang(id);
-  }
-}
-
-function resetFormBarang() {
-  document.getElementById('formBarang').reset();
-  document.getElementById('brg_id').value = '';
-}
-
-// ==========================================
-// PENGELUARAN LOGIC
-// ==========================================
-
-function loadPengeluaranData() {
-  google.script.run.withSuccessHandler(renderTablePengeluaran).getPengeluaran();
-}
-
-function renderTablePengeluaran(data) {
-  const tbody = document.querySelector('#tablePengeluaran tbody');
-  tbody.innerHTML = '';
-
-  data.forEach(item => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${item.ID}</td>
-      <td>${item.Tanggal}</td>
-      <td>${item.Kategori}</td>
-      <td>Rp ${Number(item.Nominal).toLocaleString('id-ID')}</td>
-      <td>${item.Jenis}</td>
-      <td>${item.Rekening || '-'}</td>
-      <td>${item.Keterangan || '-'}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
+// Simpan Pengeluaran
 function handleSavePengeluaran(e) {
   e.preventDefault();
-  const payload = {
-    Tanggal: document.getElementById('out_tanggal').value,
-    Kategori: document.getElementById('out_kategori').value,
-    Nominal: document.getElementById('out_nominal').value,
-    Jenis: document.getElementById('out_jenis').value,
-    Rekening: document.getElementById('out_rekening').value,
-    Keterangan: document.getElementById('out_keterangan').value
-  };
+  const btnSubmit = e.target.querySelector('button[type="submit"]');
+  toggleButtonLoading(btnSubmit, true);
 
-  google.script.run.withSuccessHandler(res => {
-    alert(res.message);
-    document.getElementById('formPengeluaran').reset();
-    loadPengeluaranData();
-  }).savePengeluaran(payload);
+  const formData = Object.fromEntries(new FormData(e.target));
+
+  google.script.run
+    .withSuccessHandler(res => {
+      toggleButtonLoading(btnSubmit, false);
+      const modalEl = document.getElementById('modalPengeluaran');
+      if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();
+      e.target.reset();
+      loadAllData();
+    })
+    .withFailureHandler(err => {
+      toggleButtonLoading(btnSubmit, false);
+      alert("Gagal menyimpan pengeluaran: " + (err.message || err));
+    })
+    .savePengeluaran(formData);
 }
 
-// ==========================================
-// TRANSAKSI LOGIC
-// ==========================================
+// Simpan Transaksi (DATA)
+function handleSaveData(e) {
+  e.preventDefault();
+  const btnSubmit = e.target.querySelector('button[type="submit"]');
+  toggleButtonLoading(btnSubmit, true);
 
-function onSelectBarang(id) {
-  if (!id) return;
-  const item = globalBarangList.find(b => b.ID === id);
-  if (item) {
-    const jenis = document.getElementById('tx_jenis').value;
-    const harga = jenis === 'Penjualan' ? item.Jual : item.Modal;
-    document.getElementById('tx_harga').value = harga;
-    document.getElementById('tx_supplier').value = item.Supplier || '';
-    calculateTxTotal();
+  const formData = Object.fromEntries(new FormData(e.target));
+
+  google.script.run
+    .withSuccessHandler(res => {
+      toggleButtonLoading(btnSubmit, false);
+      const modalEl = document.getElementById('modalData');
+      if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();
+      e.target.reset();
+      loadAllData();
+    })
+    .withFailureHandler(err => {
+      toggleButtonLoading(btnSubmit, false);
+      alert("Gagal menyimpan transaksi: " + (err.message || err));
+    })
+    .saveData(formData);
+}
+
+/**
+ * FUNGSI KALKULASI & UTILITY
+ */
+
+// Hitung Otomatis Laba Nominal & Harga Jual
+function calcLaba() {
+  const modal = parseFloat(document.getElementById('brg-modal').value) || 0;
+  const labaP = parseFloat(document.getElementById('brg-laba-p').value) || 0;
+  
+  const labaNominal = modal * (labaP / 100);
+  const hargaJual = modal + labaNominal;
+
+  document.getElementById('brg-laba-n').value = Math.round(labaNominal);
+  document.getElementById('brg-jual').value = Math.round(hargaJual);
+}
+
+// Hitung Otomatis Total Nominal (Qty x Harga)
+function calcTrxNominal() {
+  const qty = parseFloat(document.getElementById('trx-qty').value) || 0;
+  const harga = parseFloat(document.getElementById('trx-harga').value) || 0;
+  document.getElementById('trx-nominal').value = qty * harga;
+}
+
+// Auto-fill Nama Barang & Harga saat Barang dipilih
+function onSelectBarang(elem) {
+  const selectedID = elem.value;
+  const barang = globalBarangList.find(b => String(b.ID) === String(selectedID));
+
+  if (barang) {
+    document.getElementById('trx-barang-nama').value = barang['Nama Barang'] || '';
+    document.getElementById('trx-harga').value = barang.Jual || 0;
+  } else {
+    document.getElementById('trx-barang-nama').value = '';
+    document.getElementById('trx-harga').value = 0;
   }
+  calcTrxNominal();
 }
 
-function calculateTxTotal() {
-  const qty = parseFloat(document.getElementById('tx_qty').value) || 0;
-  const harga = parseFloat(document.getElementById('tx_harga').value) || 0;
-  const total = qty * harga;
-  document.getElementById('tx_nominal').value = total;
-  document.getElementById('tx_dibayar').value = total;
+// Reset Modal Form Barang
+function resetFormBarang() {
+  const form = document.getElementById('form-barang');
+  if (form) form.reset();
+  const idEl = document.getElementById('brg-id');
+  if (idEl) idEl.value = '';
 }
 
-function loadTransaksiData() {
-  google.script.run.withSuccessHandler(renderTableData).getDataTransaksi();
-}
+// Update Pilihan Barang di Form Transaksi
+function updateDropdownBarang(listBarang) {
+  const optBarang = document.getElementById('trx-barang');
+  if (!optBarang) return;
 
-function renderTableData(data) {
-  const tbody = document.querySelector('#tableData tbody');
-  tbody.innerHTML = '';
-
-  data.forEach(item => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${item.ID}</td>
-      <td>${item.Tanggal}</td>
-      <td><span class="badge ${item.Jenis === 'Penjualan' ? 'bg-success' : 'bg-info'}">${item.Jenis}</span></td>
-      <td>${item.BarangNama || '-'}</td>
-      <td>${item.Qty || 0}</td>
-      <td>Rp ${Number(item.Harga || 0).toLocaleString('id-ID')}</td>
-      <td>Rp ${Number(item.Nominal || 0).toLocaleString('id-ID')}</td>
-      <td><span class="badge bg-secondary">${item.Status}</span></td>
-    `;
-    tbody.appendChild(tr);
+  optBarang.innerHTML = '<option value="">-- Non-Barang / Lainnya --</option>';
+  listBarang.forEach(b => {
+    optBarang.innerHTML += `<option value="${b.ID}">${b['Nama Barang']} (Stok: ${b.Stok})</option>`;
   });
 }
 
-function handleSaveTransaksi(e) {
-  e.preventDefault();
-  const barangId = document.getElementById('tx_barang_id').value;
-  const selectedBarang = globalBarangList.find(b => b.ID === barangId);
-
-  const payload = {
-    Tanggal: document.getElementById('tx_tanggal').value,
-    Jenis: document.getElementById('tx_jenis').value,
-    Kategori: document.getElementById('tx_jenis').value,
-    BarangID: barangId,
-    BarangNama: selectedBarang ? selectedBarang['Nama Barang'] : '',
-    Qty: document.getElementById('tx_qty').value,
-    Harga: document.getElementById('tx_harga').value,
-    Nominal: document.getElementById('tx_nominal').value,
-    Pelanggan: document.getElementById('tx_pelanggan').value,
-    Supplier: document.getElementById('tx_supplier').value,
-    Rekening: document.getElementById('tx_rekening').value,
-    Status: document.getElementById('tx_status').value,
-    Dibayar: document.getElementById('tx_dibayar').value,
-    JatuhTempo: document.getElementById('tx_jatuh_tempo').value,
-    Data: 'Transaksi Web'
-  };
-
-  google.script.run.withSuccessHandler(res => {
-    alert(res.message);
-    document.getElementById('formTransaksi').reset();
-    loadTransaksiData();
-    loadBarangData(); // Refresh stok barang
-  }).saveTransaksi(payload);
+/**
+ * FORMATTING & UI HELPER
+ */
+function formatRupiah(num) {
+  const val = parseFloat(num) || 0;
+  return val.toLocaleString('id-ID');
 }
-</script>
+
+function formatTanggal(dateStr) {
+  if (!dateStr) return '-';
+  if (typeof dateStr === 'string' && dateStr.includes('T')) {
+    return dateStr.split('T')[0];
+  }
+  return dateStr;
+}
+
+function showLoadingStatus(isLoading) {
+  const tables = ['tbl-barang', 'tbl-pengeluaran', 'tbl-data'];
+  if (isLoading) {
+    tables.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '<tr><td colspan="10" class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div> Memuat data...</td></tr>';
+    });
+  }
+}
+
+function toggleButtonLoading(btn, isLoading) {
+  if (!btn) return;
+  if (isLoading) {
+    btn.disabled = true;
+    btn.dataset.oldText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = btn.dataset.oldText || 'Simpan';
+  }
+}
