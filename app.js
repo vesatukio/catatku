@@ -39,7 +39,7 @@ const DB_NAME =
   "CatatKuDB";
 
 const DB_VERSION =
-  1;
+  2;
 
 const STORE = {
 
