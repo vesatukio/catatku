@@ -1,6 +1,6 @@
-const CACHE_NAME = "catatku-v3";
+const CACHE_NAME = "catatku-v1";
 
-const APP_FILES = [
+const APP_SHELL = [
   "./",
   "./index.html",
   "./style.css",
@@ -8,89 +8,101 @@ const APP_FILES = [
   "./manifest.json"
 ];
 
-// INSTALL
 self.addEventListener("install", event => {
-  console.log("CatatKu SW: install", CACHE_NAME);
 
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(APP_FILES))
+      .then(cache => cache.addAll(APP_SHELL))
       .then(() => self.skipWaiting())
   );
+
 });
 
-// ACTIVATE
+
 self.addEventListener("activate", event => {
-  console.log("CatatKu SW: activate", CACHE_NAME);
 
   event.waitUntil(
+
     caches.keys()
-      .then(keys =>
-        Promise.all(
+      .then(keys => {
+
+        return Promise.all(
+
           keys
             .filter(key => key !== CACHE_NAME)
             .map(key => caches.delete(key))
-        )
-      )
+
+        );
+
+      })
       .then(() => self.clients.claim())
+
   );
+
 });
 
-// FETCH
+
 self.addEventListener("fetch", event => {
 
   const request = event.request;
 
-  // Hanya GET
-  if (request.method !== "GET") return;
+  /*
+   * Jangan cache request Google Apps Script.
+   * Data GAS harus selalu mengambil data terbaru.
+   */
 
-  const url = new URL(request.url);
-
-  // Jangan cache Google Apps Script
   if (
-    url.hostname.includes("script.google.com") ||
-    url.hostname.includes("googleusercontent.com")
+    request.url.includes("script.google.com")
   ) {
-    event.respondWith(fetch(request));
-    return;
-  }
-
-  // Untuk HTML: NETWORK FIRST
-  // agar tampilan terbaru langsung digunakan
-  if (
-    request.mode === "navigate" ||
-    request.destination === "document"
-  ) {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-
-          const copy = response.clone();
-
-          caches.open(CACHE_NAME)
-            .then(cache => cache.put(request, copy));
-
-          return response;
-        })
-        .catch(() => caches.match(request))
-    );
 
     return;
+
   }
 
-  // JS / CSS / manifest:
-  // NETWORK FIRST
+
   event.respondWith(
-    fetch(request)
-      .then(response => {
 
-        const copy = response.clone();
+    caches.match(request)
+      .then(cached => {
 
-        caches.open(CACHE_NAME)
-          .then(cache => cache.put(request, copy));
+        if (cached) {
+          return cached;
+        }
 
-        return response;
+        return fetch(request)
+          .then(response => {
+
+            if (
+              !response ||
+              response.status !== 200 ||
+              response.type === "opaque"
+            ) {
+
+              return response;
+
+            }
+
+            const copy =
+              response.clone();
+
+            caches.open(CACHE_NAME)
+              .then(cache => {
+                cache.put(request, copy);
+              });
+
+            return response;
+
+          })
+          .catch(() => {
+
+            return caches.match(
+              "./index.html"
+            );
+
+          });
+
       })
-      .catch(() => caches.match(request))
+
   );
+
 });
