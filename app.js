@@ -383,237 +383,79 @@ function openDB() {
    DATABASE HELPER
    ========================================================= */
 
-async function dbPut(
-  storeName,
-  data
-) {
+function dbPut(storeName, data) {
+  return new Promise((resolve, reject) => {
 
-  const db =
-    await openDB();
-
-
-  return new Promise(
-    (resolve, reject) => {
-
-      const transaction =
-        db.transaction(
-          storeName,
-          "readwrite"
-        );
-
-
-      const store =
-        transaction.objectStore(
-          storeName
-        );
-
-
-      const request =
-        store.put(data);
-
-
-      request.onsuccess =
-        () => resolve(data);
-
-
-      request.onerror =
-        () =>
-          reject(
-            request.error
-          );
-
+    if (!db) {
+      reject(new Error("Database belum siap"));
+      return;
     }
-  );
 
-}
+    try {
 
+      if (!data || typeof data !== "object") {
+        reject(new Error("Data IndexedDB tidak valid"));
+        return;
+      }
 
-async function dbGet(
-  storeName,
-  id
-) {
+      const item = {
+        ...data
+      };
 
-  const db =
-    await openDB();
+      // Pastikan selalu mempunyai primary key
+      if (
+        item.id === undefined ||
+        item.id === null ||
+        item.id === ""
+      ) {
+        item.id =
+          (crypto.randomUUID
+            ? crypto.randomUUID()
+            : Date.now() + "-" +
+              Math.random()
+                .toString(36)
+                .substring(2, 10));
+      }
 
+      const tx = db.transaction(
+        storeName,
+        "readwrite"
+      );
 
-  return new Promise(
-    (resolve, reject) => {
+      const store = tx.objectStore(
+        storeName
+      );
 
-      const transaction =
-        db.transaction(
-          storeName,
-          "readonly"
+      const request = store.put(item);
+
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+
+      request.onerror = () => {
+        reject(
+          request.error ||
+          new Error(
+            "Gagal menyimpan IndexedDB"
+          )
         );
+      };
 
-
-      const store =
-        transaction.objectStore(
-          storeName
+      tx.onerror = () => {
+        reject(
+          tx.error ||
+          new Error(
+            "Transaksi IndexedDB gagal"
+          )
         );
+      };
 
-
-      const request =
-        store.get(id);
-
-
-      request.onsuccess =
-        () =>
-          resolve(
-            request.result
-          );
-
-
-      request.onerror =
-        () =>
-          reject(
-            request.error
-          );
-
+    } catch (error) {
+      reject(error);
     }
-  );
 
+  });
 }
-
-
-async function dbDelete(
-  storeName,
-  id
-) {
-
-  const db =
-    await openDB();
-
-
-  return new Promise(
-    (resolve, reject) => {
-
-      const transaction =
-        db.transaction(
-          storeName,
-          "readwrite"
-        );
-
-
-      const store =
-        transaction.objectStore(
-          storeName
-        );
-
-
-      const request =
-        store.delete(id);
-
-
-      request.onsuccess =
-        () =>
-          resolve(true);
-
-
-      request.onerror =
-        () =>
-          reject(
-            request.error
-          );
-
-    }
-  );
-
-}
-
-
-async function dbGetAll(
-  storeName
-) {
-
-  const db =
-    await openDB();
-
-
-  return new Promise(
-    (resolve, reject) => {
-
-      const transaction =
-        db.transaction(
-          storeName,
-          "readonly"
-        );
-
-
-      const store =
-        transaction.objectStore(
-          storeName
-        );
-
-
-      const request =
-        store.getAll();
-
-
-      request.onsuccess =
-        () =>
-          resolve(
-            request.result || []
-          );
-
-
-      request.onerror =
-        () =>
-          reject(
-            request.error
-          );
-
-    }
-  );
-
-}
-
-
-async function dbClear(
-  storeName
-) {
-
-  const db =
-    await openDB();
-
-
-  return new Promise(
-    (resolve, reject) => {
-
-      const transaction =
-        db.transaction(
-          storeName,
-          "readwrite"
-        );
-
-
-      const store =
-        transaction.objectStore(
-          storeName
-        );
-
-
-      const request =
-        store.clear();
-
-
-      request.onsuccess =
-        () =>
-          resolve(true);
-
-
-      request.onerror =
-        () =>
-          reject(
-            request.error
-          );
-
-    }
-  );
-
-}
-
-
 /* =========================================================
    SYNC QUEUE
    ========================================================= */
