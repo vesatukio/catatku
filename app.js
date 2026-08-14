@@ -13,7 +13,7 @@
    ========================================================= */
 
 const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbxzB5mSm2_3_RUb6VlWxxxytsaSDv68DE6PkpBlttOTd6Y2cjrcyypPTMVWw2UeIY3J/exec";
+  "https://script.google.com/macros/s/AKfycbxxLldieVxzRZQqYKz9WvSbN0ZUKTqvV7YtMe-qhpr69QuftnzkFs4KONSCkj3Qi8CQ/exec";
 
 
 /* =========================================================
