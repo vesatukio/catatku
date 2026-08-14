@@ -1017,7 +1017,154 @@
 
 
 </section>
+<!-- =====================================================
+     LAPORAN
+     ===================================================== -->
 
+<section
+  id="laporan"
+  class="page"
+>
+
+  <div class="section-title">
+
+    <div>
+
+      <h2>Laporan</h2>
+
+      <p>
+        Uang masuk dan keluar
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- FILTER PERIODE -->
+
+  <div class="form-card">
+
+    <label>
+      Periode
+
+      <select id="laporanPeriode">
+
+        <option value="hari">
+          Hari Ini
+        </option>
+
+        <option value="minggu">
+          Minggu Ini
+        </option>
+
+        <option value="bulan">
+          Bulan Ini
+        </option>
+
+      </select>
+
+    </label>
+
+    <button
+      type="button"
+      class="btn-primary"
+      onclick="loadLaporan()"
+    >
+      Tampilkan Laporan
+    </button>
+
+  </div>
+
+
+  <!-- RINGKASAN -->
+
+  <div class="summary-grid">
+
+    <div class="card">
+
+      <span>
+        Uang Masuk
+      </span>
+
+      <strong
+        id="laporanMasuk"
+        class="text-success"
+      >
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <div class="card">
+
+      <span>
+        Uang Keluar
+      </span>
+
+      <strong
+        id="laporanKeluar"
+        class="text-danger"
+      >
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <div class="card saldo-card">
+
+      <span>
+        Saldo
+      </span>
+
+      <strong id="laporanSaldo">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <div class="card">
+
+      <span>
+        Jumlah Transaksi
+      </span>
+
+      <strong id="laporanJumlah">
+        0
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <!-- DETAIL -->
+
+  <div class="panel">
+
+    <div class="panel-header">
+
+      <h3>
+        Detail Laporan
+      </h3>
+
+    </div>
+
+    <div
+      id="laporanList"
+      class="list"
+    >
+
+      Pilih periode laporan.
+
+    </div>
+
+  </div>
+
+</section>
 </main>
 
 
