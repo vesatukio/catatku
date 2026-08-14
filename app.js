@@ -1761,7 +1761,46 @@ async function saveTransaksi(
 /* =========================================================
    SIMPAN BARANG
    ========================================================= */
+async function generateLocalKodeBarang() {
 
+  const semuaBarang =
+    await dbGetAll(
+      STORES.barang
+    );
+
+  let nomorTerbesar = 0;
+
+  semuaBarang.forEach(function(item) {
+
+    const kode =
+      String(item.kode || "")
+        .trim()
+        .toUpperCase();
+
+    const match =
+      kode.match(/^BRG-(\d+)$/);
+
+    if (match) {
+
+      const nomor =
+        Number(match[1]);
+
+      if (nomor > nomorTerbesar) {
+        nomorTerbesar = nomor;
+      }
+
+    }
+
+  });
+
+  return (
+    "BRG-" +
+    String(
+      nomorTerbesar + 1
+    ).padStart(4, "0")
+  );
+
+}
 async function saveBarang(
   data = {}
 ) {
