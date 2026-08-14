@@ -1,18 +1,25 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Test IndexedDB</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <title>CatatKu Storage Test</title>
 </head>
 
 <body>
 
-<h2>TEST INDEXEDDB</h2>
+<h2>CATATKU STORAGE TEST</h2>
 
 <div id="hasil">
   Sedang mengetes...
 </div>
+
 
 <script>
 
@@ -21,54 +28,73 @@
 const hasil =
   document.getElementById("hasil");
 
+
+/* =====================================================
+   TEST INDEXEDDB
+   ===================================================== */
+
+let hasilIDB = "";
+
 try {
 
   if (!window.indexedDB) {
 
-    hasil.innerHTML =
-      "❌ IndexedDB tidak tersedia";
+    hasilIDB =
+      "❌ IndexedDB TIDAK TERSEDIA";
 
   }
   else {
 
-    const nama =
-      "TestDB_" +
+    const namaDB =
+      "CatatKuTest_" +
       Date.now();
 
     const request =
       indexedDB.open(
-        nama,
+        namaDB,
         1
       );
+
 
     request.onupgradeneeded =
       function(event) {
 
-        const db =
+        const database =
           event.target.result;
 
-        db.createObjectStore(
-          "test",
-          {
-            keyPath: "id"
-          }
-        );
+        if (
+          !database.objectStoreNames.contains(
+            "test"
+          )
+        ) {
+
+          database.createObjectStore(
+            "test",
+            {
+              keyPath: "id"
+            }
+          );
+
+        }
 
       };
+
 
     request.onsuccess =
       function(event) {
 
-        const db =
+        const database =
           event.target.result;
 
-        hasil.innerHTML =
-          "✅ INDEXEDDB BERHASIL<br><br>" +
-          "Browser HP mengizinkan database.";
+        hasilIDB =
+          "✅ IndexedDB BERHASIL";
 
-        db.close();
+        database.close();
+
+        tampilkanHasil();
 
       };
+
 
     request.onerror =
       function(event) {
@@ -76,13 +102,24 @@ try {
         const error =
           event.target.error;
 
-        hasil.innerHTML =
-          "❌ INDEXEDDB GAGAL<br><br>" +
+        hasilIDB =
+          "❌ IndexedDB GAGAL<br><br>" +
+
           "Nama: " +
-          (error?.name || "Unknown") +
+          (
+            error?.name ||
+            "Unknown"
+          ) +
+
           "<br><br>" +
+
           "Pesan: " +
-          (error?.message || "Tidak ada pesan");
+          (
+            error?.message ||
+            "Tidak ada pesan"
+          );
+
+        tampilkanHasil();
 
       };
 
@@ -91,45 +128,109 @@ try {
 }
 catch(error) {
 
-  hasil.innerHTML =
-    "❌ ERROR<br><br>" +
+  hasilIDB =
+    "❌ IndexedDB EXCEPTION<br><br>" +
+
     error.name +
     "<br><br>" +
+
     error.message;
 
 }
 
-</script>
+
+/* =====================================================
+   TEST LOCAL STORAGE
+   ===================================================== */
+
+let hasilLS = "";
+
 try {
 
+  const testKey =
+    "catatku_storage_test";
+
   localStorage.setItem(
-    "catatku_test",
-    "OK"
+    testKey,
+    "BERHASIL"
   );
 
-  const hasilLS =
+  const nilai =
     localStorage.getItem(
-      "catatku_test"
+      testKey
     );
 
-  document.body.innerHTML +=
-    "<hr>" +
-    (
-      hasilLS === "OK"
-        ? "✅ localStorage BERHASIL"
-        : "❌ localStorage GAGAL"
-    );
+  if (
+    nilai === "BERHASIL"
+  ) {
+
+    hasilLS =
+      "✅ localStorage BERHASIL";
+
+  }
+  else {
+
+    hasilLS =
+      "❌ localStorage GAGAL";
+
+  }
 
 }
 catch(error) {
 
-  document.body.innerHTML +=
-    "<hr>" +
-    "❌ localStorage GAGAL<br>" +
+  hasilLS =
+    "❌ localStorage GAGAL<br><br>" +
+
+    "Nama: " +
     error.name +
-    "<br>" +
+
+    "<br><br>" +
+
+    "Pesan: " +
     error.message;
 
 }
+
+
+/* =====================================================
+   HASIL
+   ===================================================== */
+
+function tampilkanHasil() {
+
+  hasil.innerHTML =
+
+    "<h3>HASIL TES</h3>" +
+
+    "<p>" +
+    hasilIDB +
+    "</p>" +
+
+    "<hr>" +
+
+    "<p>" +
+    hasilLS +
+    "</p>";
+
+}
+
+
+/*
+ * Jika IndexedDB langsung gagal,
+ * tampilkan localStorage sekarang.
+ */
+
+setTimeout(
+  function() {
+
+    tampilkanHasil();
+
+  },
+  1000
+);
+
+</script>
+
 </body>
+
 </html>
