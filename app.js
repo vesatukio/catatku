@@ -3916,3 +3916,8 @@ window.testIndexedDB = function () {
   }
 
 };
+setTimeout(function () {
+
+  testIndexedDB();
+
+}, 2000);
