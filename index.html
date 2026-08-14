@@ -1,285 +1,1135 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
+
   <meta charset="UTF-8">
-  <title>Aplikasi Manajemen Toko</title>
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body { background-color: #f8f9fa; font-size: 0.9rem; }
-    .nav-tabs .nav-link.active { font-weight: bold; border-top: 3px solid #0d6efd; }
-    .card { border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .table-sm td, .table-sm th { padding: 0.5rem; }
-  </style>
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+  >
+
+  <meta
+    name="theme-color"
+    content="#2563eb"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
+
+  <title>CatatKu</title>
+
+  <link
+    rel="manifest"
+    href="manifest.json"
+  >
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
 </head>
+
+
 <body>
 
-<div class="container-fluid py-3">
-  <h4 class="mb-3 fw-bold text-primary">Sistem Pengelolaan Stok & Keuangan</h4>
 
-  <!-- Tab Navigation -->
-  <ul class="nav nav-tabs mb-3" id="mainTab" role="tablist">
-    <li class="nav-item">
-      <button class="nav-link active" id="barang-tab" data-bs-toggle="tab" data-bs-target="#tab-barang">Data Barang</button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" id="pengeluaran-tab" data-bs-toggle="tab" data-bs-target="#tab-pengeluaran">Pengeluaran</button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" id="data-tab" data-bs-toggle="tab" data-bs-target="#tab-data">Data Transaksi</button>
-    </li>
-  </ul>
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
 
-  <!-- Tab Content -->
-  <div class="tab-content" id="mainTabContent">
-    
-    <!-- TAB BARANG -->
-    <div class="tab-pane fade show active" id="tab-barang">
-      <div class="row">
-        <div class="col-md-4">
-          <div class="card p-3 mb-3">
-            <h6 class="fw-bold" id="form-barang-title">Tambah / Edit Barang</h6>
-            <form id="formBarang">
-              <input type="hidden" id="brg_id">
-              <div class="mb-2">
-                <label class="form-label">Nama Barang</label>
-                <input type="text" class="form-control form-control-sm" id="brg_nama" required>
-              </div>
-              <div class="mb-2">
-                <label class="form-label">Kategori</label>
-                <input type="text" class="form-control form-control-sm" id="brg_kategori">
-              </div>
-              <div class="row">
-                <div class="col-6 mb-2">
-                  <label class="form-label">Modal (Rp)</label>
-                  <input type="number" class="form-control form-control-sm" id="brg_modal" value="0">
-                </div>
-                <div class="col-6 mb-2">
-                  <label class="form-label">Laba (%)</label>
-                  <input type="number" class="form-control form-control-sm" id="brg_laba_persen" value="0">
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-6 mb-2">
-                  <label class="form-label">Laba Nominal</label>
-                  <input type="text" class="form-control form-control-sm" id="brg_laba_nominal" readonly class="bg-light">
-                </div>
-                <div class="col-6 mb-2">
-                  <label class="form-label">Harga Jual</label>
-                  <input type="text" class="form-control form-control-sm" id="brg_jual" readonly class="bg-light fw-bold">
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-6 mb-2">
-                  <label class="form-label">Stok</label>
-                  <input type="number" class="form-control form-control-sm" id="brg_stok" value="0">
-                </div>
-                <div class="col-6 mb-2">
-                  <label class="form-label">Minimum Stok</label>
-                  <input type="number" class="form-control form-control-sm" id="brg_min" value="0">
-                </div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Supplier</label>
-                <input type="text" class="form-control form-control-sm" id="brg_supplier">
-              </div>
-              <button type="submit" class="btn btn-primary btn-sm w-100">Simpan Barang</button>
-              <button type="button" class="btn btn-secondary btn-sm w-100 mt-1" onclick="resetFormBarang()">Reset</button>
-            </form>
-          </div>
-        </div>
-        <div class="col-md-8">
-          <div class="card p-3">
-            <h6 class="fw-bold">Daftar Barang</h6>
-            <div class="table-responsive">
-              <table class="table table-sm table-hover table-striped align-middle" id="tableBarang">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Nama</th>
-                    <th>Kategori</th>
-                    <th>Modal</th>
-                    <th>Jual</th>
-                    <th>Stok</th>
-                    <th>Supplier</th>
-                    <th>Aksi</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+<header class="topbar">
+
+  <div>
+
+    <h1>CatatKu</h1>
+
+    <p>
+      Keuangan & Stok Toko
+    </p>
+
+  </div>
+
+  <div
+    id="connectionStatus"
+    class="status-badge"
+  >
+    ...
+  </div>
+
+</header>
+
+
+<!-- =====================================================
+     DATABASE STATUS
+     ===================================================== -->
+
+<div class="status-panel">
+
+  <span id="databaseStatus">
+    Mengecek database...
+  </span>
+
+  <span id="syncStatus">
+    ...
+  </span>
+
+</div>
+
+
+<!-- =====================================================
+     MAIN
+     ===================================================== -->
+
+<main class="container">
+
+
+<!-- =====================================================
+     DASHBOARD
+     ===================================================== -->
+
+<section
+  id="dashboard"
+  class="page active"
+>
+
+  <div class="section-title">
+
+    <div>
+
+      <h2>Ringkasan</h2>
+
+      <p>
+        Kondisi keuangan toko
+      </p>
+
     </div>
 
-    <!-- TAB PENGELUARAN -->
-    <div class="tab-pane fade" id="tab-pengeluaran">
-      <div class="row">
-        <div class="col-md-4">
-          <div class="card p-3 mb-3">
-            <h6 class="fw-bold">Catat Pengeluaran</h6>
-            <form id="formPengeluaran">
-              <div class="mb-2">
-                <label class="form-label">Tanggal</label>
-                <input type="date" class="form-control form-control-sm" id="out_tanggal" required>
-              </div>
-              <div class="mb-2">
-                <label class="form-label">Kategori</label>
-                <input type="text" class="form-control form-control-sm" id="out_kategori" required placeholder="Operasional, Gaji, dll">
-              </div>
-              <div class="mb-2">
-                <label class="form-label">Nominal (Rp)</label>
-                <input type="number" class="form-control form-control-sm" id="out_nominal" required>
-              </div>
-              <div class="mb-2">
-                <label class="form-label">Jenis</label>
-                <select class="form-select form-select-sm" id="out_jenis">
-                  <option value="Rutin">Rutin</option>
-                  <option value="Non-Rutin">Non-Rutin</option>
-                </select>
-              </div>
-              <div class="mb-2">
-                <label class="form-label">Rekening / Kas</label>
-                <input type="text" class="form-control form-control-sm" id="out_rekening" placeholder="Tunai, Bank, dll">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Keterangan</label>
-                <textarea class="form-control form-control-sm" id="out_keterangan" rows="2"></textarea>
-              </div>
-              <button type="submit" class="btn btn-danger btn-sm w-100">Simpan Pengeluaran</button>
-            </form>
-          </div>
-        </div>
-        <div class="col-md-8">
-          <div class="card p-3">
-            <h6 class="fw-bold">Riwayat Pengeluaran</h6>
-            <div class="table-responsive">
-              <table class="table table-sm table-striped" id="tablePengeluaran">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Tanggal</th>
-                    <th>Kategori</th>
-                    <th>Nominal</th>
-                    <th>Jenis</th>
-                    <th>Rekening</th>
-                    <th>Keterangan</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+    <button
+      type="button"
+      class="btn-small"
+      onclick="CatatKu.refresh()"
+    >
+      ↻
+    </button>
+
+  </div>
+
+
+  <div class="summary-grid">
+
+
+    <!-- SALDO -->
+
+    <div class="card saldo-card">
+
+      <span>
+        Saldo
+      </span>
+
+      <strong id="saldo">
+        Rp0
+      </strong>
+
     </div>
 
-    <!-- TAB DATA TRANSAKSI -->
-    <div class="tab-pane fade" id="tab-data">
-      <div class="card p-3 mb-3">
-        <h6 class="fw-bold">Input Transaksi (Penjualan / Pembelian)</h6>
-        <form id="formTransaksi">
-          <div class="row">
-            <div class="col-md-2 mb-2">
-              <label class="form-label">Tanggal</label>
-              <input type="date" class="form-control form-control-sm" id="tx_tanggal" required>
-            </div>
-            <div class="col-md-2 mb-2">
-              <label class="form-label">Jenis</label>
-              <select class="form-select form-select-sm" id="tx_jenis">
-                <option value="Penjualan">Penjualan</option>
-                <option value="Pembelian">Pembelian</option>
-              </select>
-            </div>
-            <div class="col-md-3 mb-2">
-              <label class="form-label">Barang</label>
-              <select class="form-select form-select-sm" id="tx_barang_id" onchange="onSelectBarang(this.value)">
-                <option value="">-- Pilih Barang (Opsional) --</option>
-              </select>
-            </div>
-            <div class="col-md-2 mb-2">
-              <label class="form-label">Qty</label>
-              <input type="number" class="form-control form-control-sm" id="tx_qty" value="1" oninput="calculateTxTotal()">
-            </div>
-            <div class="col-md-3 mb-2">
-              <label class="form-label">Harga Satuan</label>
-              <input type="number" class="form-control form-control-sm" id="tx_harga" value="0" oninput="calculateTxTotal()">
-            </div>
-          </div>
 
-          <div class="row">
-            <div class="col-md-3 mb-2">
-              <label class="form-label">Total Nominal</label>
-              <input type="number" class="form-control form-control-sm fw-bold" id="tx_nominal" readonly>
-            </div>
-            <div class="col-md-3 mb-2">
-              <label class="form-label">Pelanggan / Buyer</label>
-              <input type="text" class="form-control form-control-sm" id="tx_pelanggan">
-            </div>
-            <div class="col-md-3 mb-2">
-              <label class="form-label">Supplier</label>
-              <input type="text" class="form-control form-control-sm" id="tx_supplier">
-            </div>
-            <div class="col-md-3 mb-2">
-              <label class="form-label">Rekening / Kas</label>
-              <input type="text" class="form-control form-control-sm" id="tx_rekening" placeholder="Tunai / BCA">
-            </div>
-          </div>
+    <!-- MASUK -->
 
-          <div class="row">
-            <div class="col-md-3 mb-2">
-              <label class="form-label">Status Bayar</label>
-              <select class="form-select form-select-sm" id="tx_status">
-                <option value="Lunas">Lunas</option>
-                <option value="Piutang">Piutang</option>
-                <option value="Hutang">Hutang</option>
-              </select>
-            </div>
-            <div class="col-md-3 mb-2">
-              <label class="form-label">Nominal Dibayar</label>
-              <input type="number" class="form-control form-control-sm" id="tx_dibayar" value="0">
-            </div>
-            <div class="col-md-3 mb-2">
-              <label class="form-label">Jatuh Tempo</label>
-              <input type="date" class="form-control form-control-sm" id="tx_jatuh_tempo">
-            </div>
-            <div class="col-md-3 mb-2 align-self-end">
-              <button type="submit" class="btn btn-success btn-sm w-100">Simpan Transaksi</button>
-            </div>
-          </div>
-        </form>
-      </div>
+    <div class="card">
 
-      <div class="card p-3">
-        <h6 class="fw-bold">Log Data Transaksi</h6>
-        <div class="table-responsive">
-          <table class="table table-sm table-striped" id="tableData">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Tanggal</th>
-                <th>Jenis</th>
-                <th>Barang</th>
-                <th>Qty</th>
-                <th>Harga</th>
-                <th>Nominal</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
+      <span>
+        Uang Masuk
+      </span>
+
+      <strong
+        id="pemasukan"
+        class="text-success"
+      >
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- KELUAR -->
+
+    <div class="card">
+
+      <span>
+        Uang Keluar
+      </span>
+
+      <strong
+        id="pengeluaran"
+        class="text-danger"
+      >
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- OMZET -->
+
+    <div class="card">
+
+      <span>
+        Omzet Penjualan
+      </span>
+
+      <strong id="omzet">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- UNTUNG -->
+
+    <div class="card">
+
+      <span>
+        Untung
+      </span>
+
+      <strong
+        id="untung"
+        class="text-success"
+      >
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- STOK -->
+
+    <div class="card">
+
+      <span>
+        Nilai Stok
+      </span>
+
+      <strong id="nilaiStok">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- JUMLAH BARANG -->
+
+    <div class="card">
+
+      <span>
+        Jenis Barang
+      </span>
+
+      <strong id="jumlahBarang">
+        0
+      </strong>
+
+    </div>
+
+
+    <!-- TOTAL STOK -->
+
+    <div class="card">
+
+      <span>
+        Total Stok
+      </span>
+
+      <strong id="jumlahStok">
+        0
+      </strong>
+
     </div>
 
   </div>
+
+
+  <!-- PENJUALAN TERBARU -->
+
+  <div class="panel">
+
+    <div class="panel-header">
+
+      <h3>
+        Penjualan Terbaru
+      </h3>
+
+    </div>
+
+    <div
+      id="penjualanList"
+      class="list"
+    >
+      Belum ada penjualan.
+    </div>
+
+  </div>
+
+
+</section>
+
+
+<!-- =====================================================
+     KEUANGAN
+     ===================================================== -->
+
+<section
+  id="keuangan"
+  class="page"
+>
+
+  <div class="section-title">
+
+    <div>
+
+      <h2>Keuangan</h2>
+
+      <p>
+        Catat uang masuk dan keluar
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <form
+    id="transaksiForm"
+    class="form-card"
+  >
+
+
+    <label>
+      Tanggal
+
+      <input
+        type="date"
+        name="tanggal"
+        required
+      >
+
+    </label>
+
+
+    <label>
+      Jenis
+
+      <select
+        name="jenis"
+        required
+      >
+
+        <option value="masuk">
+          Uang Masuk
+        </option>
+
+        <option value="keluar">
+          Uang Keluar
+        </option>
+
+      </select>
+
+    </label>
+
+
+    <label>
+      Kategori
+
+      <input
+        type="text"
+        name="kategori"
+        placeholder="Contoh: Penjualan"
+      >
+
+    </label>
+
+
+    <label>
+      Keterangan
+
+      <input
+        type="text"
+        name="keterangan"
+        placeholder="Contoh: Jual LED"
+      >
+
+    </label>
+
+
+    <label>
+      Jumlah
+
+      <input
+        type="number"
+        name="jumlah"
+        min="1"
+        inputmode="numeric"
+        placeholder="0"
+        required
+      >
+
+    </label>
+
+
+    <label>
+      Sumber
+
+      <select name="sumber">
+
+        <option value="toko">
+          Toko
+        </option>
+
+        <option value="pribadi">
+          Pribadi
+        </option>
+
+      </select>
+
+    </label>
+
+
+    <button
+      type="submit"
+      class="btn-primary"
+    >
+      Simpan Transaksi
+    </button>
+
+
+  </form>
+
+
+  <div class="panel">
+
+    <div class="panel-header">
+
+      <h3>
+        Riwayat Transaksi
+      </h3>
+
+    </div>
+
+
+    <div
+      id="transaksiList"
+      class="list"
+    >
+
+      Belum ada transaksi.
+
+    </div>
+
+  </div>
+
+
+</section>
+
+
+<!-- =====================================================
+     BARANG
+     ===================================================== -->
+
+<section
+  id="barang"
+  class="page"
+>
+
+  <div class="section-title">
+
+    <div>
+
+      <h2>Barang</h2>
+
+      <p>
+        Stok dan harga barang
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <form
+    id="barangForm"
+    class="form-card"
+  >
+
+
+    <label>
+      Kode Barang
+
+      <input
+        type="text"
+        name="kode"
+        placeholder="Contoh: LED05"
+      >
+
+    </label>
+
+
+    <label>
+      Nama Barang
+
+      <input
+        type="text"
+        name="nama"
+        placeholder="Contoh: Modul LED 5W"
+        required
+      >
+
+    </label>
+
+
+    <label>
+      Stok Awal
+
+      <input
+        type="number"
+        name="stok"
+        min="0"
+        inputmode="numeric"
+        value="0"
+      >
+
+    </label>
+
+
+    <label>
+      Harga Modal
+
+      <input
+        type="number"
+        name="hargaModal"
+        min="0"
+        inputmode="numeric"
+        placeholder="0"
+      >
+
+    </label>
+
+
+    <label>
+      Harga Jual
+
+      <input
+        type="number"
+        name="hargaJual"
+        min="0"
+        inputmode="numeric"
+        placeholder="0"
+      >
+
+    </label>
+
+
+    <label>
+      Batas Stok Minimum
+
+      <input
+        type="number"
+        name="stokMin"
+        min="0"
+        value="2"
+      >
+
+    </label>
+
+
+    <button
+      type="submit"
+      class="btn-primary"
+    >
+      Simpan Barang
+    </button>
+
+
+  </form>
+
+
+  <div class="panel">
+
+    <div class="panel-header">
+
+      <h3>
+        Daftar Barang
+      </h3>
+
+    </div>
+
+
+    <div
+      id="barangList"
+      class="list"
+    >
+
+      Belum ada barang.
+
+    </div>
+
+  </div>
+
+
+</section>
+
+
+<!-- =====================================================
+     PENJUALAN
+     ===================================================== -->
+
+<section
+  id="penjualan"
+  class="page"
+>
+
+  <div class="section-title">
+
+    <div>
+
+      <h2>Penjualan</h2>
+
+      <p>
+        Stok berkurang dan untung dihitung otomatis
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <form
+    id="penjualanForm"
+    class="form-card"
+  >
+
+
+    <label>
+      Tanggal
+
+      <input
+        type="date"
+        name="tanggal"
+        required
+      >
+
+    </label>
+
+
+    <label>
+      Barang
+
+      <select
+        id="barangId"
+        name="barangId"
+        required
+      >
+
+        <option value="">
+          Pilih barang
+        </option>
+
+      </select>
+
+    </label>
+
+
+    <label>
+      Jumlah
+
+      <input
+        type="number"
+        name="qty"
+        min="1"
+        inputmode="numeric"
+        value="1"
+        required
+      >
+
+    </label>
+
+
+    <label>
+      Harga Jual
+
+      <input
+        type="number"
+        name="hargaJual"
+        min="0"
+        inputmode="numeric"
+        placeholder="Otomatis"
+      >
+
+    </label>
+
+
+    <button
+      type="submit"
+      class="btn-primary"
+    >
+      Simpan Penjualan
+    </button>
+
+
+  </form>
+
+
+  <div class="panel">
+
+    <div class="panel-header">
+
+      <h3>
+        Riwayat Penjualan
+      </h3>
+
+    </div>
+
+
+    <div
+      id="penjualanHistory"
+      class="list"
+    >
+
+      Belum ada penjualan.
+
+    </div>
+
+  </div>
+
+
+</section>
+
+
+</main>
+
+
+<!-- =====================================================
+     BOTTOM NAV
+     ===================================================== -->
+
+<nav class="bottom-nav">
+
+
+  <button
+    type="button"
+    class="nav-item active"
+    data-page="dashboard"
+  >
+
+    <span>
+      🏠
+    </span>
+
+    <small>
+      Beranda
+    </small>
+
+  </button>
+
+
+  <button
+    type="button"
+    class="nav-item"
+    data-page="keuangan"
+  >
+
+    <span>
+      💰
+    </span>
+
+    <small>
+      Keuangan
+    </small>
+
+  </button>
+
+
+  <button
+    type="button"
+    class="nav-item"
+    data-page="barang"
+  >
+
+    <span>
+      📦
+    </span>
+
+    <small>
+      Barang
+    </small>
+
+  </button>
+
+
+  <button
+    type="button"
+    class="nav-item"
+    data-page="penjualan"
+  >
+
+    <span>
+      🛒
+    </span>
+
+    <small>
+      Jual
+    </small>
+
+  </button>
+
+
+</nav>
+
+
+<!-- =====================================================
+     TOAST
+     ===================================================== -->
+
+<div
+  id="catatkuToast"
+  class="toast"
+>
 </div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Load JavaScript Logic -->
-<?!= include('app.js'); ?>
+<!-- =====================================================
+     JAVASCRIPT
+     ===================================================== -->
+
+<script
+  src="app.js"
+></script>
+
+
+<script>
+
+"use strict";
+
+
+/* =====================================================
+   NAVIGASI
+   ===================================================== */
+
+document
+  .querySelectorAll(
+    ".nav-item"
+  )
+  .forEach(
+    function(button) {
+
+      button.addEventListener(
+        "click",
+        function() {
+
+          const page =
+            button.dataset.page;
+
+
+          document
+            .querySelectorAll(
+              ".page"
+            )
+            .forEach(
+              function(section) {
+
+                section.classList.toggle(
+                  "active",
+                  section.id === page
+                );
+
+              }
+            );
+
+
+          document
+            .querySelectorAll(
+              ".nav-item"
+            )
+            .forEach(
+              function(item) {
+
+                item.classList.toggle(
+                  "active",
+                  item === button
+                );
+
+              }
+            );
+
+
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+          });
+
+        }
+      );
+
+    }
+  );
+
+
+/* =====================================================
+   DEFAULT TANGGAL
+   ===================================================== */
+
+document
+  .querySelectorAll(
+    'input[type="date"]'
+  )
+  .forEach(
+    function(input) {
+
+      if (!input.value) {
+
+        const d =
+          new Date();
+
+
+        const y =
+          d.getFullYear();
+
+
+        const m =
+          String(
+            d.getMonth() + 1
+          ).padStart(
+            2,
+            "0"
+          );
+
+
+        const day =
+          String(
+            d.getDate()
+          ).padStart(
+            2,
+            "0"
+          );
+
+
+        input.value =
+          y +
+          "-" +
+          m +
+          "-" +
+          day;
+
+      }
+
+    }
+  );
+
+
+/* =====================================================
+   RENDER PENJUALAN HISTORY
+   ===================================================== */
+
+async function renderPenjualanHistory() {
+
+  if (
+    !window.CatatKu
+  ) {
+
+    return;
+
+  }
+
+
+  const container =
+    document.getElementById(
+      "penjualanHistory"
+    );
+
+
+  if (!container) {
+
+    return;
+
+  }
+
+
+  try {
+
+    const data =
+      await CatatKu.loadPenjualan();
+
+
+    if (
+      !data.length
+    ) {
+
+      container.innerHTML =
+        "<p>Belum ada penjualan.</p>";
+
+      return;
+
+    }
+
+
+    container.innerHTML =
+      data
+        .map(
+          function(item) {
+
+            return `
+
+              <div class="penjualan-item">
+
+                <div>
+
+                  <strong>
+                    ${escapeHtml(
+                      item.namaBarang
+                    )}
+                  </strong>
+
+                  <small>
+                    ${item.tanggal}
+                    ·
+                    ${item.qty} pcs
+                  </small>
+
+                </div>
+
+                <div>
+
+                  <strong>
+                    ${formatRupiah(
+                      item.omzet
+                    )}
+                  </strong>
+
+                  <small>
+                    Untung:
+                    ${formatRupiah(
+                      item.untung
+                    )}
+                  </small>
+
+                </div>
+
+              </div>
+
+            `;
+
+          }
+        )
+        .join("");
+
+  }
+
+  catch(error) {
+
+    console.error(
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   HELPER HTML
+   ===================================================== */
+
+function escapeHtml(value) {
+
+  return String(
+    value ?? ""
+  )
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
+}
+
+
+function formatRupiah(value) {
+
+  return new Intl.NumberFormat(
+    "id-ID",
+    {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0
+    }
+  ).format(
+    Number(value || 0)
+  );
+
+}
+
+
+/* =====================================================
+   REFRESH TAMBAHAN
+   ===================================================== */
+
+setTimeout(
+  function() {
+
+    renderPenjualanHistory();
+
+  },
+  1000
+);
+
+
+setInterval(
+  function() {
+
+    if (
+      window.CatatKu
+    ) {
+
+      CatatKu.loadDashboard();
+
+      CatatKu.sync();
+
+    }
+
+
+    renderPenjualanHistory();
+
+  },
+  60000
+);
+
+</script>
+
+
 </body>
+
 </html>
