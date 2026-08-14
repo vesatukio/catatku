@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1">
+
+<title>CatatKu DB Test</title>
+
+<style>
+body{
+  font-family:Arial,sans-serif;
+  padding:20px;
+  font-size:18px;
+  line-height:1.6;
+}
+
+.ok{
+  color:green;
+  font-weight:bold;
+}
+
+.fail{
+  color:red;
+  font-weight:bold;
+}
+
+.box{
+  padding:15px;
+  margin:15px 0;
+  border:1px solid #ccc;
+  border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>CATATKU DATABASE TEST</h2>
+
+<div id="hasil">
+Sedang mengetes...
+</div>
+
+<script>
+
+const hasil =
+document.getElementById("hasil");
+
+
+try {
+
+  const request =
+    indexedDB.open(
+      "CatatKuDB",
+      2
+    );
+
+
+  request.onupgradeneeded =
+    function(event){
+
+      const db =
+        event.target.result;
+
+
+      const stores = [
+
+        "transaksi",
+        "barang",
+        "penjualan",
+        "queue"
+
+      ];
+
+
+      stores.forEach(
+        function(name){
+
+          if(
+            !db.objectStoreNames
+              .contains(name)
+          ){
+
+            db.createObjectStore(
+              name,
+              {
+                keyPath:"id"
+              }
+            );
+
+          }
+
+        }
+      );
+
+    };
+
+
+  request.onsuccess =
+    function(event){
+
+      const db =
+        event.target.result;
+
+
+      hasil.innerHTML = `
+
+        <div class="box ok">
+
+          ✅ CatatKuDB BERHASIL
+
+          <br><br>
+
+          Nama:
+          ${db.name}
+
+          <br>
+
+          Version:
+          ${db.version}
+
+          <br><br>
+
+          Store:
+
+          <br>
+
+          ${Array.from(
+            db.objectStoreNames
+          ).join("<br>")}
+
+        </div>
+
+      `;
+
+
+      db.close();
+
+    };
+
+
+  request.onerror =
+    function(event){
+
+      const error =
+        event.target.error;
+
+
+      hasil.innerHTML = `
+
+        <div class="box fail">
+
+          ❌ CatatKuDB GAGAL
+
+          <br><br>
+
+          Nama:
+
+          ${error?.name || "Unknown"}
+
+          <br>
+
+          Pesan:
+
+          ${error?.message || "Tidak ada"}
+
+          <br>
+
+          Code:
+
+          ${error?.code ?? 0}
+
+        </div>
+
+      `;
+
+    };
+
+
+}
+catch(error){
+
+  hasil.innerHTML = `
+
+    <div class="box fail">
+
+      ❌ ERROR
+
+      <br><br>
+
+      Nama:
+      ${error.name}
+
+      <br>
+
+      Pesan:
+      ${error.message}
+
+    </div>
+
+  `;
+
+}
+
+</script>
+
+</body>
+</html>
