@@ -720,7 +720,303 @@
   </div>
 
 </section>
+<!-- =====================================================
+     LAPORAN
+     ===================================================== -->
 
+<section
+  id="laporan"
+  class="page"
+>
+
+  <div class="section-title">
+
+    <div>
+
+      <h2>Laporan</h2>
+
+      <p>
+        Ringkasan keuangan dan penjualan
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       PILIH PERIODE
+       =================================================== -->
+
+  <div class="report-tabs">
+
+    <button
+      type="button"
+      class="report-tab active"
+      data-period="hari"
+    >
+      Hari
+    </button>
+
+    <button
+      type="button"
+      class="report-tab"
+      data-period="minggu"
+    >
+      Minggu
+    </button>
+
+    <button
+      type="button"
+      class="report-tab"
+      data-period="bulan"
+    >
+      Bulan
+    </button>
+
+  </div>
+
+
+  <!-- ===================================================
+       TANGGAL
+       =================================================== -->
+
+  <div class="report-date">
+
+    <label>
+
+      Tanggal laporan
+
+      <input
+        type="date"
+        id="laporanTanggal"
+      >
+
+    </label>
+
+    <button
+      type="button"
+      class="btn-primary"
+      id="btnLoadLaporan"
+    >
+      Tampilkan
+    </button>
+
+  </div>
+
+
+  <!-- ===================================================
+       PERIODE AKTIF
+       =================================================== -->
+
+  <div
+    class="report-period"
+    id="laporanPeriode"
+  >
+    Laporan hari ini
+  </div>
+
+
+  <!-- ===================================================
+       KEUANGAN
+       =================================================== -->
+
+  <div class="report-grid">
+
+
+    <!-- UANG MASUK -->
+
+    <div class="report-card report-income">
+
+      <span>
+        Uang Masuk
+      </span>
+
+      <strong id="laporanMasuk">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- UANG KELUAR -->
+
+    <div class="report-card report-expense">
+
+      <span>
+        Uang Keluar
+      </span>
+
+      <strong id="laporanKeluar">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- SALDO -->
+
+    <div class="report-card report-balance">
+
+      <span>
+        Saldo
+      </span>
+
+      <strong id="laporanSaldo">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- OMZET -->
+
+    <div class="report-card">
+
+      <span>
+        Omzet
+      </span>
+
+      <strong id="laporanOmzet">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- MODAL -->
+
+    <div class="report-card">
+
+      <span>
+        Modal
+      </span>
+
+      <strong id="laporanModal">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- UNTUNG -->
+
+    <div class="report-card report-profit">
+
+      <span>
+        Untung
+      </span>
+
+      <strong id="laporanUntung">
+        Rp0
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       STATISTIK
+       =================================================== -->
+
+  <div class="report-stat-grid">
+
+
+    <div class="stat-box">
+
+      <span>
+        Transaksi
+      </span>
+
+      <strong id="laporanJumlahTransaksi">
+        0
+      </strong>
+
+    </div>
+
+
+    <div class="stat-box">
+
+      <span>
+        Penjualan
+      </span>
+
+      <strong id="laporanJumlahPenjualan">
+        0
+      </strong>
+
+    </div>
+
+
+    <div class="stat-box">
+
+      <span>
+        Barang Terjual
+      </span>
+
+      <strong id="laporanBarangTerjual">
+        0
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       TRANSAKSI
+       =================================================== -->
+
+  <div class="panel">
+
+    <div class="panel-header">
+
+      <h3>
+        Uang Masuk & Keluar
+      </h3>
+
+    </div>
+
+    <div
+      id="laporanTransaksiList"
+      class="list"
+    >
+
+      Belum ada transaksi.
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       PENJUALAN
+       =================================================== -->
+
+  <div class="panel">
+
+    <div class="panel-header">
+
+      <h3>
+        Penjualan
+      </h3>
+
+    </div>
+
+    <div
+      id="laporanPenjualanList"
+      class="list"
+    >
+
+      Belum ada penjualan.
+
+    </div>
+
+  </div>
+
+
+</section>
 
 </main>
 
@@ -802,7 +1098,14 @@
     </small>
 
   </button>
-
+<button
+    type="button"
+    class="nav-item"
+    data-page="laporan"
+  >
+    <span>📊</span>
+    <small>Laporan</small>
+  </button>
 
 </nav>
 
@@ -995,7 +1298,632 @@ function formatRupiah(value) {
 }
 
 
+/* =====================================================
+   LAPORAN
+   ===================================================== */
 
+let laporanPeriode =
+  "hari";
+
+
+/* =====================================================
+   TANGGAL LAPORAN
+   ===================================================== */
+
+const laporanTanggal =
+  document.getElementById(
+    "laporanTanggal"
+  );
+
+
+if (laporanTanggal) {
+
+  const sekarang =
+    new Date();
+
+  const tahun =
+    sekarang.getFullYear();
+
+  const bulan =
+    String(
+      sekarang.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const hari =
+    String(
+      sekarang.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+  laporanTanggal.value =
+    tahun +
+    "-" +
+    bulan +
+    "-" +
+    hari;
+
+}
+
+
+/* =====================================================
+   TAB HARI / MINGGU / BULAN
+   ===================================================== */
+
+document
+  .querySelectorAll(
+    ".report-tab"
+  )
+  .forEach(
+    function(button) {
+
+      button.addEventListener(
+        "click",
+        function() {
+
+          document
+            .querySelectorAll(
+              ".report-tab"
+            )
+            .forEach(
+              function(item) {
+
+                item.classList.remove(
+                  "active"
+                );
+
+              }
+            );
+
+
+          button.classList.add(
+            "active"
+          );
+
+
+          laporanPeriode =
+            button.dataset.period;
+
+
+          loadLaporan();
+
+        }
+      );
+
+    }
+  );
+
+
+/* =====================================================
+   BUTTON LAPORAN
+   ===================================================== */
+
+const btnLoadLaporan =
+  document.getElementById(
+    "btnLoadLaporan"
+  );
+
+
+if (btnLoadLaporan) {
+
+  btnLoadLaporan.addEventListener(
+    "click",
+    function() {
+
+      loadLaporan();
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   LOAD LAPORAN
+   ===================================================== */
+
+async function loadLaporan() {
+
+  const tanggal =
+    laporanTanggal
+      ? laporanTanggal.value
+      : "";
+
+
+  const url =
+    GAS_URL +
+    "?action=laporan" +
+    "&periode=" +
+    encodeURIComponent(
+      laporanPeriode
+    ) +
+    "&tanggal=" +
+    encodeURIComponent(
+      tanggal
+    );
+
+
+  try {
+
+    const response =
+      await fetch(
+        url,
+        {
+          method: "GET",
+          cache: "no-store"
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "HTTP " +
+        response.status
+      );
+
+    }
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !result.success
+    ) {
+
+      throw new Error(
+        result.error ||
+        "Laporan gagal dimuat"
+      );
+
+    }
+
+
+    renderLaporan(
+      result
+    );
+
+  }
+  catch(error) {
+
+    console.error(
+      "Laporan:",
+      error
+    );
+
+
+    showToast(
+      "Laporan gagal dimuat"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   RENDER LAPORAN
+   ===================================================== */
+
+function renderLaporan(data) {
+
+  setText(
+    "laporanMasuk",
+    formatRupiah(
+      data.uangMasuk
+    )
+  );
+
+
+  setText(
+    "laporanKeluar",
+    formatRupiah(
+      data.uangKeluar
+    )
+  );
+
+
+  setText(
+    "laporanSaldo",
+    formatRupiah(
+      data.saldo
+    )
+  );
+
+
+  setText(
+    "laporanOmzet",
+    formatRupiah(
+      data.omzet
+    )
+  );
+
+
+  setText(
+    "laporanModal",
+    formatRupiah(
+      data.modal
+    )
+  );
+
+
+  setText(
+    "laporanUntung",
+    formatRupiah(
+      data.untung
+    )
+  );
+
+
+  setText(
+    "laporanJumlahTransaksi",
+    data.jumlahTransaksi || 0
+  );
+
+
+  setText(
+    "laporanJumlahPenjualan",
+    data.jumlahPenjualan || 0
+  );
+
+
+  setText(
+    "laporanBarangTerjual",
+    data.totalBarangTerjual || 0
+  );
+
+
+  /* ---------------------------------------------------
+     PERIODE
+     --------------------------------------------------- */
+
+  const periodeText = {
+
+    hari:
+      "Laporan Hari",
+
+    minggu:
+      "Laporan Minggu",
+
+    bulan:
+      "Laporan Bulan"
+
+  };
+
+
+  setText(
+    "laporanPeriode",
+
+    (
+      periodeText[
+        data.periode
+      ] ||
+      "Laporan"
+    ) +
+
+    " · " +
+
+    formatTanggalIndonesia(
+      data.tanggalMulai
+    ) +
+
+    " - " +
+
+    formatTanggalIndonesia(
+      data.tanggalSelesai
+    )
+
+  );
+
+
+  renderLaporanTransaksi(
+    data.transaksi || []
+  );
+
+
+  renderLaporanPenjualan(
+    data.penjualan || []
+  );
+
+}
+
+
+/* =====================================================
+   TRANSAKSI LAPORAN
+   ===================================================== */
+
+function renderLaporanTransaksi(
+  data
+) {
+
+  const container =
+    document.getElementById(
+      "laporanTransaksiList"
+    );
+
+
+  if (!container) {
+
+    return;
+
+  }
+
+
+  if (
+    !data.length
+  ) {
+
+    container.innerHTML =
+      "<p>Belum ada transaksi pada periode ini.</p>";
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+    data
+      .slice()
+      .reverse()
+      .map(
+        function(item) {
+
+          const masuk =
+            item.jenis === "masuk";
+
+
+          return `
+
+            <div class="report-list-item">
+
+              <div>
+
+                <strong>
+                  ${escapeHtml(
+                    item.keterangan ||
+                    item.kategori ||
+                    "Transaksi"
+                  )}
+                </strong>
+
+                <small>
+                  ${escapeHtml(
+                    item.tanggal
+                  )}
+                  ·
+                  ${escapeHtml(
+                    item.sumber
+                  )}
+                </small>
+
+              </div>
+
+              <strong class="${
+                masuk
+                  ? "text-success"
+                  : "text-danger"
+              }">
+
+                ${
+                  masuk
+                    ? "+"
+                    : "-"
+                }
+
+                ${formatRupiah(
+                  item.jumlah
+                )}
+
+              </strong>
+
+            </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   PENJUALAN LAPORAN
+   ===================================================== */
+
+function renderLaporanPenjualan(
+  data
+) {
+
+  const container =
+    document.getElementById(
+      "laporanPenjualanList"
+    );
+
+
+  if (!container) {
+
+    return;
+
+  }
+
+
+  if (
+    !data.length
+  ) {
+
+    container.innerHTML =
+      "<p>Belum ada penjualan pada periode ini.</p>";
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+    data
+      .slice()
+      .reverse()
+      .map(
+        function(item) {
+
+          return `
+
+            <div class="report-list-item">
+
+              <div>
+
+                <strong>
+                  ${escapeHtml(
+                    item.namaBarang
+                  )}
+                </strong>
+
+                <small>
+                  ${escapeHtml(
+                    item.tanggal
+                  )}
+                  ·
+                  ${item.qty}
+                  pcs
+                </small>
+
+              </div>
+
+              <div>
+
+                <strong>
+                  ${formatRupiah(
+                    item.omzet
+                  )}
+                </strong>
+
+                <small class="text-success">
+                  Untung
+                  ${formatRupiah(
+                    item.untung
+                  )}
+                </small>
+
+              </div>
+
+            </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   HELPER SET TEXT
+   ===================================================== */
+
+function setText(
+  id,
+  value
+) {
+
+  const element =
+    document.getElementById(
+      id
+    );
+
+
+  if (element) {
+
+    element.textContent =
+      value;
+
+  }
+
+}
+
+
+/* =====================================================
+   FORMAT TANGGAL INDONESIA
+   ===================================================== */
+
+function formatTanggalIndonesia(
+  value
+) {
+
+  if (!value) {
+
+    return "-";
+
+  }
+
+
+  const date =
+    new Date(
+      value + "T00:00:00"
+    );
+
+
+  if (
+    isNaN(
+      date.getTime()
+    )
+  ) {
+
+    return value;
+
+  }
+
+
+  return new Intl.DateTimeFormat(
+    "id-ID",
+    {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    }
+  ).format(
+    date
+  );
+
+}
+
+
+/* =====================================================
+   LOAD SAAT MENU LAPORAN DIBUKA
+   ===================================================== */
+
+document
+  .querySelectorAll(
+    '.nav-item[data-page="laporan"]'
+  )
+  .forEach(
+    function(button) {
+
+      button.addEventListener(
+        "click",
+        function() {
+
+          setTimeout(
+            function() {
+
+              loadLaporan();
+
+            },
+            100
+          );
+
+        }
+      );
+
+    }
+  );
 /* =====================================================
    ESCAPE HTML
    ===================================================== */
