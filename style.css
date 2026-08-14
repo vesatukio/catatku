@@ -1617,3 +1617,15 @@ section,
   }
 
 }
+/* =========================================================
+   LAPORAN
+   ========================================================= */
+
+.nav-item[data-page="laporan"].active {
+  background: #fefce8;
+  color: #ca8a04;
+}
+
+.nav-item[data-page="laporan"].active span {
+  background: #fef3c7;
+}
