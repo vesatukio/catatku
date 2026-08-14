@@ -1,59 +1,43 @@
 /* =========================================================
    CATATKU
-   STYLE.CSS FINAL
-   MOBILE FIRST
-   WALLET / POS PROFESSIONAL UI
+   FINAL STYLE
+   Wallet + POS Mobile App
    ========================================================= */
 
 :root {
-
-  --blue: #2563eb;
-  --blue-dark: #1d4ed8;
-  --blue-soft: #eff6ff;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
 
   --green: #16a34a;
   --green-dark: #15803d;
-  --green-soft: #f0fdf4;
 
   --red: #dc2626;
-  --red-dark: #b91c1c;
-  --red-soft: #fef2f2;
-
   --orange: #ea580c;
+
+  --blue-soft: #eff6ff;
+  --green-soft: #f0fdf4;
+  --red-soft: #fef2f2;
   --orange-soft: #fff7ed;
 
   --purple: #7c3aed;
   --purple-soft: #f5f3ff;
 
-  --cyan: #0891b2;
-  --cyan-soft: #ecfeff;
-
   --yellow: #ca8a04;
   --yellow-soft: #fefce8;
 
-  --dark: #111827;
-  --text: #1f2937;
-  --muted: #6b7280;
-
-  --bg: #f3f6fb;
-  --card: #ffffff;
+  --text: #172033;
+  --text-soft: #64748b;
   --border: #e5e7eb;
 
-  --shadow-sm:
-    0 2px 8px rgba(15, 23, 42, .05);
+  --background: #f5f7fb;
+  --card: #ffffff;
+
+  --radius: 18px;
 
   --shadow:
-    0 6px 20px rgba(15, 23, 42, .08);
+    0 4px 18px rgba(15, 23, 42, .07);
 
-  --shadow-lg:
-    0 12px 30px rgba(15, 23, 42, .12);
-
-  --radius-sm: 10px;
-  --radius: 16px;
-  --radius-lg: 22px;
-
-  --bottom-nav-height: 78px;
-
+  --bottom-nav-height: 76px;
 }
 
 
@@ -62,132 +46,94 @@
    ========================================================= */
 
 * {
-
   box-sizing: border-box;
-
-  margin: 0;
-
-  padding: 0;
-
+  -webkit-tap-highlight-color: transparent;
 }
 
 
 html {
-
   width: 100%;
-
   min-height: 100%;
-
   overflow-x: hidden;
-
   scroll-behavior: smooth;
-
 }
 
 
 body {
+  margin: 0;
+  padding: 0;
 
   width: 100%;
-
   min-height: 100vh;
 
-  overflow-x: hidden;
-
-  background:
-    linear-gradient(
-      180deg,
-      #eef4ff 0,
-      #f3f6fb 180px,
-      #f3f6fb 100%
-    );
+  background: var(--background);
 
   color: var(--text);
 
   font-family:
-    Inter,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     Roboto,
+    Helvetica,
     Arial,
     sans-serif;
 
-  font-size: 15px;
+  font-size: 16px;
 
-  line-height: 1.5;
+  line-height: 1.45;
+
+  overflow-x: hidden;
 
   padding-bottom:
     calc(
       var(--bottom-nav-height) +
-      25px
+      24px
     );
-
-  -webkit-font-smoothing:
-    antialiased;
-
-  -webkit-tap-highlight-color:
-    transparent;
-
 }
 
-
-/* =========================================================
-   ELEMENT
-   ========================================================= */
 
 button,
 input,
 select,
 textarea {
-
-  font: inherit;
-
+  font-family: inherit;
 }
 
 
 button {
-
-  border: 0;
-
   cursor: pointer;
-
 }
 
 
-input,
-select,
-textarea {
-
-  width: 100%;
-
-}
-
-
-button,
-input,
-select {
-
-  min-height: 48px;
-
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 
 /* =========================================================
-   HEADER
+   TOPBAR
    ========================================================= */
 
 .topbar {
 
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 
   width: 100%;
 
-  padding:
-    22px
-    18px
-    26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-  color: #fff;
+  gap: 12px;
+
+  padding:
+    15px
+    16px
+    14px;
 
   background:
     linear-gradient(
@@ -196,144 +142,118 @@ select {
       #1d4ed8
     );
 
-  border-radius:
-    0
-    0
-    28px
-    28px;
+  color: white;
 
   box-shadow:
-    0 8px 25px
+    0 3px 12px
     rgba(37, 99, 235, .22);
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  gap: 12px;
-
 }
 
 
 .topbar h1 {
 
-  font-size: 26px;
+  margin: 0;
+
+  font-size: 24px;
 
   line-height: 1.1;
 
   font-weight: 800;
 
-  letter-spacing: -.5px;
-
+  letter-spacing: -.4px;
 }
 
 
 .topbar p {
 
-  margin-top: 5px;
+  margin: 4px 0 0;
 
   color:
-    rgba(255,255,255,.78);
+    rgba(255,255,255,.82);
 
   font-size: 13px;
 
   font-weight: 500;
-
 }
 
+
+/* =========================================================
+   CONNECTION STATUS
+   ========================================================= */
 
 .status-badge {
 
   flex-shrink: 0;
 
-  min-width: 74px;
+  min-width: 58px;
 
   padding:
-    8px
-    11px;
+    7px
+    10px;
 
   border-radius: 999px;
 
   background:
-    rgba(255,255,255,.17);
+    rgba(255,255,255,.18);
 
   border:
     1px solid
-    rgba(255,255,255,.22);
+    rgba(255,255,255,.25);
 
-  color: #fff;
+  color: white;
 
-  text-align: center;
-
-  font-size: 11px;
+  font-size: 12px;
 
   font-weight: 700;
 
-  backdrop-filter:
-    blur(8px);
+  text-align: center;
 
+  backdrop-filter: blur(8px);
 }
 
 
 /* =========================================================
-   STATUS DATABASE
+   DATABASE / SYNC STATUS
    ========================================================= */
 
 .status-panel {
 
-  width: calc(100% - 28px);
-
-  margin:
-    -10px
-    auto
-    14px;
-
-  min-height: 42px;
-
-  padding:
-    9px
-    13px;
-
-  background: #fff;
-
-  border:
-    1px solid
-    rgba(229,231,235,.8);
-
-  border-radius: 13px;
-
-  box-shadow: var(--shadow-sm);
+  width: 100%;
 
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
 
-  gap: 10px;
+  gap: 8px;
 
-  font-size: 11px;
+  padding:
+    8px
+    14px;
 
-  color: var(--muted);
+  background: white;
 
-}
+  border-bottom:
+    1px solid var(--border);
 
+  color: var(--text-soft);
 
-#databaseStatus {
+  font-size: 12px;
 
   font-weight: 600;
 
+  overflow: hidden;
 }
 
 
-#syncStatus {
+.status-panel span {
 
-  color: var(--blue);
+  min-width: 0;
 
-  font-weight: 700;
+  overflow: hidden;
 
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
 }
 
 
@@ -350,9 +270,9 @@ select {
   margin: 0 auto;
 
   padding:
-    0
-    14px;
-
+    16px
+    14px
+    10px;
 }
 
 
@@ -366,37 +286,28 @@ select {
 
   width: 100%;
 
+  min-width: 0;
+
   animation:
     pageIn .18s ease;
-
 }
 
 
 .page.active {
-
   display: block;
-
 }
 
 
 @keyframes pageIn {
 
   from {
-
     opacity: 0;
-
-    transform:
-      translateY(5px);
-
+    transform: translateY(5px);
   }
 
   to {
-
     opacity: 1;
-
-    transform:
-      translateY(0);
-
+    transform: translateY(0);
   }
 
 }
@@ -417,165 +328,82 @@ select {
   gap: 12px;
 
   margin:
-    12px
+    3px
     2px
-    16px;
-
+    14px;
 }
 
 
 .section-title h2 {
 
-  font-size: 22px;
+  margin: 0;
 
-  line-height: 1.2;
+  font-size: 23px;
 
   font-weight: 800;
 
-  color: var(--dark);
-
   letter-spacing: -.3px;
-
 }
 
 
 .section-title p {
 
-  margin-top: 4px;
+  margin:
+    3px
+    0
+    0;
 
-  color: var(--muted);
+  color: var(--text-soft);
 
   font-size: 13px;
-
 }
 
 
+/* =========================================================
+   SMALL BUTTON
+   ========================================================= */
+
 .btn-small {
 
-  width: 44px;
+  width: 42px;
+  height: 42px;
 
-  min-width: 44px;
+  display: flex;
 
-  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
 
   border-radius: 13px;
 
-  background: #fff;
+  background: white;
 
-  color: var(--blue);
+  color: var(--primary);
 
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow);
 
-  font-size: 23px;
+  font-size: 22px;
 
   font-weight: 700;
 
   transition:
-    .15s ease;
-
+    transform .15s ease,
+    background .15s ease;
 }
 
 
 .btn-small:active {
 
-  transform:
-    scale(.93);
+  transform: scale(.92);
 
+  background:
+    var(--blue-soft);
 }
 
 
 /* =========================================================
-   DASHBOARD
-   ========================================================= */
-
-/*
-   SALDO BESAR
-*/
-
-.saldo-card {
-
-  grid-column:
-    1 / -1;
-
-  min-height: 145px;
-
-  padding: 22px;
-
-  color: #fff !important;
-
-  background:
-    linear-gradient(
-      135deg,
-      #2563eb,
-      #1e40af
-    ) !important;
-
-  border: 0 !important;
-
-  border-radius: 22px !important;
-
-  box-shadow:
-    0 12px 28px
-    rgba(37,99,235,.25) !important;
-
-  position: relative;
-
-  overflow: hidden;
-
-}
-
-
-.saldo-card::after {
-
-  content: "";
-
-  position: absolute;
-
-  width: 150px;
-
-  height: 150px;
-
-  right: -55px;
-
-  top: -60px;
-
-  border-radius: 50%;
-
-  background:
-    rgba(255,255,255,.09);
-
-}
-
-
-.saldo-card span {
-
-  color:
-    rgba(255,255,255,.78) !important;
-
-  font-size: 13px;
-
-}
-
-
-.saldo-card strong {
-
-  display: block;
-
-  margin-top: 8px;
-
-  color: #fff !important;
-
-  font-size: 31px !important;
-
-  font-weight: 800;
-
-  letter-spacing: -.7px;
-
-}
-
-
-/* =========================================================
-   SUMMARY GRID
+   DASHBOARD SUMMARY
    ========================================================= */
 
 .summary-grid {
@@ -587,10 +415,15 @@ select {
 
   gap: 10px;
 
-  margin-bottom: 18px;
+  width: 100%;
 
+  margin-bottom: 16px;
 }
 
+
+/* =========================================================
+   CARD
+   ========================================================= */
 
 .card {
 
@@ -598,52 +431,118 @@ select {
 
   min-height: 100px;
 
-  padding: 16px;
+  display: flex;
 
-  background: var(--card);
+  flex-direction: column;
+
+  justify-content: center;
+
+  padding:
+    15px;
+
+  background:
+    var(--card);
 
   border:
     1px solid
-    rgba(229,231,235,.85);
+    rgba(226,232,240,.9);
 
-  border-radius: 17px;
+  border-radius:
+    var(--radius);
 
-  box-shadow: var(--shadow-sm);
+  box-shadow:
+    var(--shadow);
+
+  overflow: hidden;
+}
+
+
+.card span {
+
+  display: block;
+
+  margin-bottom: 6px;
+
+  color:
+    var(--text-soft);
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+
+.card strong {
+
+  display: block;
+
+  max-width: 100%;
 
   overflow: hidden;
 
-}
+  text-overflow: ellipsis;
 
+  white-space: nowrap;
 
-.card > span {
+  color:
+    var(--text);
 
-  display: block;
-
-  color: var(--muted);
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-}
-
-
-.card > strong {
-
-  display: block;
-
-  margin-top: 7px;
-
-  color: var(--dark);
-
-  font-size: 19px;
+  font-size: 20px;
 
   line-height: 1.2;
 
   font-weight: 800;
 
-  word-break: break-word;
+  letter-spacing: -.4px;
+}
 
+
+/* =========================================================
+   SALDO CARD
+   ========================================================= */
+
+.saldo-card {
+
+  grid-column:
+    1 / -1;
+
+  min-height: 145px;
+
+  padding: 21px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb 0%,
+      #1d4ed8 100%
+    );
+
+  border: none;
+
+  color: white;
+
+  box-shadow:
+    0 8px 25px
+    rgba(37,99,235,.23);
+}
+
+
+.saldo-card span {
+
+  color:
+    rgba(255,255,255,.82);
+
+  font-size: 14px;
+}
+
+
+.saldo-card strong {
+
+  color: white;
+
+  font-size: 32px;
+
+  letter-spacing: -.8px;
 }
 
 
@@ -652,57 +551,47 @@ select {
    ========================================================= */
 
 .text-success {
-
-  color:
-    var(--green) !important;
-
+  color: var(--green) !important;
 }
 
 
 .text-danger {
-
-  color:
-    var(--red) !important;
-
+  color: var(--red) !important;
 }
 
 
 /* =========================================================
-   PANELS
+   PANEL
    ========================================================= */
 
 .panel {
 
   width: 100%;
 
+  min-width: 0;
+
   margin-top: 14px;
 
-  background: #fff;
+  padding: 15px;
+
+  background:
+    var(--card);
 
   border:
     1px solid
-    rgba(229,231,235,.8);
+    var(--border);
 
-  border-radius: 18px;
+  border-radius:
+    var(--radius);
 
-  box-shadow: var(--shadow-sm);
+  box-shadow:
+    var(--shadow);
 
   overflow: hidden;
-
 }
 
 
 .panel-header {
-
-  min-height: 55px;
-
-  padding:
-    15px
-    16px;
-
-  border-bottom:
-    1px solid
-    var(--border);
 
   display: flex;
 
@@ -710,24 +599,47 @@ select {
 
   justify-content: space-between;
 
+  margin-bottom: 12px;
 }
 
 
 .panel-header h3 {
 
-  color: var(--dark);
+  margin: 0;
 
-  font-size: 16px;
+  font-size: 17px;
 
   font-weight: 800;
-
 }
 
+
+/* =========================================================
+   LIST
+   ========================================================= */
 
 .list {
 
   width: 100%;
 
+  min-width: 0;
+
+  color:
+    var(--text-soft);
+
+  font-size: 14px;
+}
+
+
+.list > p {
+
+  margin:
+    10px
+    0;
+
+  text-align: center;
+
+  color:
+    #94a3b8;
 }
 
 
@@ -739,45 +651,68 @@ select {
 
   width: 100%;
 
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 13px;
+
+  margin-bottom: 15px;
+
   padding: 17px;
 
-  background: #fff;
+  background:
+    white;
 
   border:
     1px solid
-    rgba(229,231,235,.8);
+    var(--border);
 
-  border-radius: 20px;
+  border-radius:
+    var(--radius);
 
-  box-shadow: var(--shadow-sm);
-
+  box-shadow:
+    var(--shadow);
 }
 
+
+/* =========================================================
+   FORM LABEL
+   ========================================================= */
 
 .form-card label {
 
-  display: block;
+  display: flex;
 
-  margin-bottom: 14px;
+  flex-direction: column;
 
-  color: #374151;
+  gap: 6px;
 
-  font-size: 13px;
+  width: 100%;
+
+  min-width: 0;
+
+  color:
+    #334155;
+
+  font-size: 14px;
 
   font-weight: 700;
-
 }
 
 
+/* =========================================================
+   INPUT / SELECT
+   ========================================================= */
+
 .form-card input,
-.form-card select,
-.form-card textarea {
+.form-card select {
 
-  display: block;
+  width: 100%;
 
-  margin-top: 7px;
+  min-width: 0;
 
-  min-height: 51px;
+  height: 50px;
 
   padding:
     0
@@ -785,41 +720,62 @@ select {
 
   border:
     1px solid
-    #d7dce5;
+    #dbe2ea;
 
-  border-radius: 13px;
+  border-radius:
+    13px;
 
   outline: none;
 
-  background: #fafbfc;
+  background:
+    #f8fafc;
 
-  color: var(--dark);
+  color:
+    var(--text);
 
   font-size: 16px;
 
   font-weight: 500;
 
-  transition:
-    border-color .15s,
-    box-shadow .15s,
-    background .15s;
+  appearance: auto;
 
+  transition:
+    border-color .15s ease,
+    box-shadow .15s ease,
+    background .15s ease;
 }
 
 
 .form-card input:focus,
-.form-card select:focus,
-.form-card textarea:focus {
+.form-card select:focus {
 
-  background: #fff;
+  background: white;
 
   border-color:
-    var(--blue);
+    var(--primary);
 
   box-shadow:
     0 0 0 3px
     rgba(37,99,235,.10);
+}
 
+
+.form-card input::placeholder {
+
+  color:
+    #94a3b8;
+}
+
+
+/* =========================================================
+   NUMBER INPUT
+   ========================================================= */
+
+.form-card input[type="number"] {
+
+  font-size: 17px;
+
+  font-weight: 700;
 }
 
 
@@ -831,37 +787,35 @@ select {
 
   width: 100%;
 
-  min-height: 54px;
+  min-height: 52px;
 
   margin-top: 4px;
 
-  padding:
-    0
-    18px;
+  border: 0;
 
-  border-radius: 14px;
+  border-radius:
+    14px;
 
   background:
     linear-gradient(
       135deg,
-      var(--blue),
-      var(--blue-dark)
+      #2563eb,
+      #1d4ed8
     );
 
-  color: #fff;
+  color: white;
 
-  font-size: 15px;
+  font-size: 16px;
 
   font-weight: 800;
 
   box-shadow:
-    0 7px 16px
-    rgba(37,99,235,.22);
+    0 6px 15px
+    rgba(37,99,235,.20);
 
   transition:
-    transform .12s,
-    box-shadow .12s;
-
+    transform .12s ease,
+    box-shadow .12s ease;
 }
 
 
@@ -872,8 +826,7 @@ select {
 
   box-shadow:
     0 3px 8px
-    rgba(37,99,235,.18);
-
+    rgba(37,99,235,.15);
 }
 
 
@@ -881,19 +834,7 @@ select {
    TRANSAKSI LIST
    ========================================================= */
 
-.transaksi-item,
-.penjualan-item,
-.barang-item {
-
-  width: 100%;
-
-  padding:
-    14px
-    15px;
-
-  border-bottom:
-    1px solid
-    #edf0f4;
+.transaksi-item {
 
   display: flex;
 
@@ -903,38 +844,65 @@ select {
 
   gap: 12px;
 
+  padding:
+    13px
+    0;
+
+  border-bottom:
+    1px solid
+    #edf0f4;
 }
 
 
-.transaksi-item:last-child,
-.penjualan-item:last-child,
-.barang-item:last-child {
+.transaksi-item:last-child {
 
   border-bottom: 0;
-
 }
 
 
-.transaksi-item > div,
-.penjualan-item > div,
-.barang-item > div {
+/* =========================================================
+   PENJUALAN ITEM
+   ========================================================= */
+
+.penjualan-item {
+
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding:
+    13px
+    0;
+
+  border-bottom:
+    1px solid
+    #edf0f4;
+}
+
+
+.penjualan-item:last-child {
+
+  border-bottom: 0;
+}
+
+
+.penjualan-item > div {
 
   min-width: 0;
-
 }
 
 
-.transaksi-item strong,
-.penjualan-item strong,
-.barang-item strong {
+.penjualan-item strong {
 
   display: block;
 
-  color: var(--dark);
-
-  font-size: 14px;
-
-  font-weight: 800;
+  max-width: 100%;
 
   overflow: hidden;
 
@@ -942,21 +910,25 @@ select {
 
   white-space: nowrap;
 
+  color:
+    var(--text);
+
+  font-size: 14px;
+
+  font-weight: 800;
 }
 
 
-.transaksi-item small,
-.penjualan-item small,
-.barang-item small {
+.penjualan-item small {
 
   display: block;
 
   margin-top: 3px;
 
-  color: var(--muted);
+  color:
+    var(--text-soft);
 
-  font-size: 11px;
-
+  font-size: 12px;
 }
 
 
@@ -965,104 +937,64 @@ select {
   flex-shrink: 0;
 
   text-align: right;
-
-}
-
-
-.penjualan-item > div:last-child strong {
-
-  color: var(--green);
-
 }
 
 
 /* =========================================================
-   BARANG
+   BARANG ITEM
    ========================================================= */
 
 .barang-item {
 
-  align-items: flex-start;
+  width: 100%;
 
-}
-
-
-.barang-item > div:first-child {
-
-  flex: 1;
-
-}
-
-
-.barang-item > div:last-child {
-
-  flex-shrink: 0;
-
-  text-align: right;
-
-}
-
-
-.barang-stock {
-
-  display: inline-flex;
+  display: flex;
 
   align-items: center;
 
-  justify-content: center;
+  justify-content: space-between;
 
-  margin-top: 7px;
+  gap: 12px;
 
   padding:
-    5px
-    9px;
+    14px
+    0;
 
-  border-radius: 999px;
-
-  background:
-    var(--green-soft);
-
-  color:
-    var(--green);
-
-  font-size: 11px;
-
-  font-weight: 800;
-
+  border-bottom:
+    1px solid
+    #edf0f4;
 }
 
 
-.barang-stock.low {
+.barang-item:last-child {
 
-  background:
-    var(--red-soft);
-
-  color:
-    var(--red);
-
+  border-bottom: 0;
 }
 
 
 /* =========================================================
-   BOTTOM NAV
+   BOTTOM NAVIGATION
    ========================================================= */
 
 .bottom-nav {
 
   position: fixed;
 
-  z-index: 1000;
-
   left: 0;
-
   right: 0;
-
   bottom: 0;
+
+  z-index: 999;
 
   width: 100%;
 
   height:
     var(--bottom-nav-height);
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
 
   padding:
     7px
@@ -1073,41 +1005,30 @@ select {
     );
 
   background:
-    rgba(255,255,255,.96);
+    rgba(255,255,255,.97);
 
   border-top:
     1px solid
-    rgba(229,231,235,.9);
+    #e5e7eb;
 
   box-shadow:
-    0 -8px 25px
+    0 -5px 20px
     rgba(15,23,42,.08);
 
   backdrop-filter:
-    blur(16px);
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(4, 1fr);
-
-  gap: 6px;
-
+    blur(12px);
 }
 
+
+/* =========================================================
+   NAV ITEM
+   ========================================================= */
 
 .nav-item {
 
   position: relative;
 
   min-width: 0;
-
-  min-height: 60px;
-
-  border-radius: 15px;
-
-  background:
-    transparent;
 
   display: flex;
 
@@ -1119,135 +1040,179 @@ select {
 
   gap: 3px;
 
-  color: #6b7280;
+  margin:
+    2px;
+
+  padding:
+    5px
+    2px;
+
+  border: 0;
+
+  border-radius:
+    14px;
+
+  background:
+    transparent;
+
+  color:
+    #64748b;
 
   transition:
-    transform .12s,
-    background .15s,
-    color .15s;
-
+    transform .15s ease,
+    background .15s ease,
+    color .15s ease;
 }
 
 
 .nav-item span {
 
-  width: 30px;
-
-  height: 30px;
+  width: 34px;
+  height: 28px;
 
   display: flex;
 
   align-items: center;
-
   justify-content: center;
 
-  border-radius: 10px;
+  border-radius:
+    10px;
 
-  font-size: 19px;
+  font-size: 20px;
 
+  line-height: 1;
 }
 
 
 .nav-item small {
 
-  font-size: 10px;
+  font-size: 11px;
 
-  line-height: 1;
+  line-height: 1.1;
 
-  font-weight: 800;
+  font-weight: 700;
 
+  white-space: nowrap;
 }
 
 
 /* =========================================================
-   MENU COLORS
+   NAV COLORS
    ========================================================= */
 
 /* BERANDA */
 
-.nav-item:nth-child(1) span {
+.nav-item[data-page="dashboard"].active {
 
   background:
     #eff6ff;
-
-}
-
-.nav-item:nth-child(1).active {
 
   color:
-    var(--blue);
+    #2563eb;
+}
+
+
+.nav-item[data-page="dashboard"].active span {
 
   background:
-    #eff6ff;
-
+    #dbeafe;
 }
 
 
 /* KEUANGAN */
 
-.nav-item:nth-child(2) span {
+.nav-item[data-page="keuangan"].active {
 
   background:
     #f0fdf4;
-
-}
-
-.nav-item:nth-child(2).active {
 
   color:
-    var(--green);
+    #16a34a;
+}
+
+
+.nav-item[data-page="keuangan"].active span {
 
   background:
-    #f0fdf4;
-
+    #dcfce7;
 }
 
 
 /* BARANG */
 
-.nav-item:nth-child(3) span {
+.nav-item[data-page="barang"].active {
 
   background:
     #fff7ed;
 
+  color:
+    #ea580c;
 }
 
-.nav-item:nth-child(3).active {
 
-  color:
-    var(--orange);
+.nav-item[data-page="barang"].active span {
 
   background:
-    #fff7ed;
-
+    #ffedd5;
 }
 
 
-/* JUAL */
+/* PENJUALAN */
 
-.nav-item:nth-child(4) span {
+.nav-item[data-page="penjualan"].active {
 
   background:
     #f5f3ff;
 
+  color:
+    #7c3aed;
 }
 
-.nav-item:nth-child(4).active {
 
-  color:
-    var(--purple);
+.nav-item[data-page="penjualan"].active span {
 
   background:
-    #f5f3ff;
-
+    #ede9fe;
 }
 
+
+/* =========================================================
+   NAV ACTIVE INDICATOR
+   ========================================================= */
+
+.nav-item.active::before {
+
+  content: "";
+
+  position: absolute;
+
+  top: -7px;
+
+  left: 50%;
+
+  width: 28px;
+
+  height: 3px;
+
+  transform:
+    translateX(-50%);
+
+  border-radius:
+    999px;
+
+  background:
+    currentColor;
+}
+
+
+/* =========================================================
+   MOBILE PRESS
+   ========================================================= */
 
 .nav-item:active {
 
   transform:
     scale(.94);
-
 }
 
 
@@ -1259,8 +1224,6 @@ select {
 
   position: fixed;
 
-  z-index: 2000;
-
   left: 50%;
 
   bottom:
@@ -1269,40 +1232,47 @@ select {
       16px
     );
 
+  z-index: 2000;
+
   max-width:
-    calc(100% - 32px);
+    calc(
+      100vw - 32px
+    );
 
   padding:
     12px
     17px;
 
-  border-radius: 13px;
+  transform:
+    translateX(-50%)
+    translateY(20px);
+
+  border-radius:
+    13px;
 
   background:
-    rgba(17,24,39,.95);
+    #172033;
 
-  color: #fff;
+  color:
+    white;
 
-  font-size: 13px;
+  font-size: 14px;
 
   font-weight: 700;
 
   text-align: center;
 
-  box-shadow:
-    0 10px 30px
-    rgba(0,0,0,.18);
-
-  transform:
-    translate(-50%, 20px);
-
   opacity: 0;
 
   pointer-events: none;
 
-  transition:
-    .2s ease;
+  box-shadow:
+    0 8px 25px
+    rgba(0,0,0,.18);
 
+  transition:
+    opacity .2s ease,
+    transform .2s ease;
 }
 
 
@@ -1311,34 +1281,8 @@ select {
   opacity: 1;
 
   transform:
-    translate(-50%, 0);
-
-}
-
-
-/* =========================================================
-   EMPTY STATE
-   ========================================================= */
-
-.list:empty {
-
-  min-height: 70px;
-
-}
-
-
-.list p {
-
-  padding:
-    22px
-    16px;
-
-  color: var(--muted);
-
-  font-size: 13px;
-
-  text-align: center;
-
+    translateX(-50%)
+    translateY(0);
 }
 
 
@@ -1349,7 +1293,6 @@ select {
 ::-webkit-scrollbar {
 
   width: 5px;
-
 }
 
 
@@ -1357,7 +1300,6 @@ select {
 
   background:
     transparent;
-
 }
 
 
@@ -1366,23 +1308,57 @@ select {
   background:
     #cbd5e1;
 
-  border-radius: 999px;
-
+  border-radius:
+    999px;
 }
 
 
 /* =========================================================
-   TABLET
+   DESKTOP
    ========================================================= */
 
-@media (min-width: 600px) {
+@media (min-width: 700px) {
+
+  body {
+
+    padding-bottom: 20px;
+
+  }
+
 
   .topbar {
 
+    position: relative;
+
     padding:
-      25px
-      24px
-      30px;
+      20px
+      max(
+        20px,
+        calc(
+          (100vw - 1100px) / 2
+        )
+      );
+
+  }
+
+
+  .status-panel {
+
+    padding-left:
+      max(
+        20px,
+        calc(
+          (100vw - 1100px) / 2
+        )
+      );
+
+    padding-right:
+      max(
+        20px,
+        calc(
+          (100vw - 1100px) / 2
+        )
+      );
 
   }
 
@@ -1390,18 +1366,17 @@ select {
   .container {
 
     padding:
-      0
+      25px
       20px;
-
   }
 
 
   .summary-grid {
 
     grid-template-columns:
-      repeat(4, minmax(0, 1fr));
+      repeat(4, minmax(0,1fr));
 
-    gap: 13px;
+    gap: 14px;
 
   }
 
@@ -1409,7 +1384,7 @@ select {
   .saldo-card {
 
     grid-column:
-      1 / -1;
+      span 2;
 
   }
 
@@ -1423,30 +1398,34 @@ select {
 
   .bottom-nav {
 
+    position: fixed;
+
     left: 50%;
 
     right: auto;
 
+    bottom: 20px;
+
     width:
       min(
-        560px,
-        calc(100% - 20px)
+        600px,
+        calc(100% - 40px)
       );
+
+    height: 70px;
 
     transform:
       translateX(-50%);
 
     border:
       1px solid
-      rgba(229,231,235,.9);
-
-    border-bottom: 0;
+      var(--border);
 
     border-radius:
-      20px
-      20px
-      0
-      0;
+      20px;
+
+    padding:
+      7px;
 
   }
 
@@ -1454,67 +1433,124 @@ select {
 
 
 /* =========================================================
-   DESKTOP
+   LARGE DESKTOP
    ========================================================= */
 
-@media (min-width: 900px) {
+@media (min-width: 1000px) {
 
-  body {
+  .container {
 
-    padding-bottom: 25px;
+    max-width:
+      1150px;
+
+  }
+
+
+  .summary-grid {
+
+    grid-template-columns:
+      repeat(4, 1fr);
+
+  }
+
+
+  .saldo-card {
+
+    grid-column:
+      span 2;
+
+  }
+
+}
+
+
+/* =========================================================
+   SMALL ANDROID
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+  .container {
+
+    padding:
+      13px
+      10px;
 
   }
 
 
   .topbar {
 
-    border-radius: 0;
+    padding:
+      13px
+      12px;
+
+  }
+
+
+  .topbar h1 {
+
+    font-size:
+      22px;
+
+  }
+
+
+  .summary-grid {
+
+    gap:
+      8px;
+
+  }
+
+
+  .card {
 
     padding:
-      25px
-      max(
-        24px,
-        calc(
-          (100vw - 1100px) / 2
-        )
-      );
+      13px;
+
+    min-height:
+      92px;
 
   }
 
 
-  .status-panel {
+  .card strong {
 
-    max-width: 1060px;
+    font-size:
+      18px;
 
   }
 
 
-  .container {
+  .saldo-card {
+
+    min-height:
+      132px;
+
+  }
+
+
+  .saldo-card strong {
+
+    font-size:
+      28px;
+
+  }
+
+
+  .form-card {
 
     padding:
-      0
-      20px;
+      14px;
 
   }
 
 
-  .bottom-nav {
+  .nav-item small {
 
-    position: sticky;
-
-    top: 0;
-
-    bottom: auto;
-
-    margin:
-      20px
-      auto;
-
-    border:
-      1px solid
-      var(--border);
-
-    border-radius: 18px;
+    font-size:
+      10px;
 
   }
 
@@ -1522,7 +1558,7 @@ select {
 
 
 /* =========================================================
-   SAFE AREA ANDROID / IPHONE
+   SAFE AREA ANDROID / IOS
    ========================================================= */
 
 @supports (
@@ -1547,111 +1583,36 @@ select {
    PREVENT HORIZONTAL MOVEMENT
    ========================================================= */
 
+html,
 body,
 main,
 section,
+.container,
 .panel,
 .form-card,
-.card,
-.list,
-.topbar {
+.list {
 
   max-width: 100%;
 
-}
-
-
-/* =========================================================
-   MOBILE TOUCH
-   ========================================================= */
-
-@media (max-width: 599px) {
-
-  input,
-  select,
-  button {
-
-    -webkit-appearance: none;
-
-  }
-
-
-  select {
-
-    background-image:
-      linear-gradient(
-        45deg,
-        transparent 50%,
-        #6b7280 50%
-      ),
-      linear-gradient(
-        135deg,
-        #6b7280 50%,
-        transparent 50%
-      );
-
-    background-position:
-      calc(100% - 18px) 21px,
-      calc(100% - 13px) 21px;
-
-    background-size:
-      5px 5px,
-      5px 5px;
-
-    background-repeat:
-      no-repeat;
-
-    padding-right: 38px;
-
-  }
-
-
-  .card {
-
-    min-height: 95px;
-
-  }
-
-
-  .card > strong {
-
-    font-size: 18px;
-
-  }
-
-
-  .saldo-card strong {
-
-    font-size: 28px !important;
-
-  }
+  overflow-x: hidden;
 
 }
 
 
 /* =========================================================
-   REDUCE MOTION
+   TABLET
    ========================================================= */
 
 @media (
-  prefers-reduced-motion: reduce
+  min-width: 600px
+) and (
+  max-width: 699px
 ) {
 
-  *,
-  *::before,
-  *::after {
+  .summary-grid {
 
-    animation-duration:
-      .01ms !important;
-
-    animation-iteration-count:
-      1 !important;
-
-    transition-duration:
-      .01ms !important;
-
-    scroll-behavior:
-      auto !important;
+    grid-template-columns:
+      repeat(2, 1fr);
 
   }
 
