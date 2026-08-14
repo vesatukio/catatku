@@ -338,145 +338,517 @@ window.addEventListener(
    INDEXED DB
    ========================================================= */
 
+/* =========================================================
+   INDEXED DB - DEBUG KHUSUS HP
+   Menampilkan error lengkap di layar
+   ========================================================= */
+
 function openDB() {
 
   return new Promise(function(resolve, reject) {
 
+    /* -----------------------------------------------------
+       Jika database sudah terbuka
+       ----------------------------------------------------- */
+
     if (db) {
+
       resolve(db);
+
       return;
+
     }
+
+
+    /* -----------------------------------------------------
+       Cek dukungan IndexedDB
+       ----------------------------------------------------- */
 
     if (!window.indexedDB) {
 
-      console.error("IndexedDB tidak tersedia");
+      const message =
+        "IndexedDB tidak tersedia di browser HP";
+
+      console.error(
+        "CATATKU DATABASE ERROR:",
+        message
+      );
 
       setDatabaseStatus(
-        "IndexedDB tidak tersedia"
+        message
+      );
+
+      toast(
+        message
       );
 
       reject(
-        new Error(
-          "IndexedDB tidak tersedia"
-        )
+        new Error(message)
       );
 
       return;
+
     }
 
-    const request = indexedDB.open(
-      DB_NAME,
-      DB_VERSION
-    );
 
-    request.onupgradeneeded = function(event) {
+    /* -----------------------------------------------------
+       Buka database
+       ----------------------------------------------------- */
 
-      const database = event.target.result;
+    let request;
 
-      console.log(
-        "IndexedDB upgrade:",
-        event.oldVersion,
-        "->",
-        event.newVersion
+    try {
+
+      request =
+        indexedDB.open(
+          DB_NAME,
+          DB_VERSION
+        );
+
+    }
+    catch(error) {
+
+      showDatabaseError(
+        "indexedDB.open gagal",
+        error
       );
 
-      Object.values(STORE).forEach(
-        function(storeName) {
+      reject(error);
 
-          if (
-            !database.objectStoreNames.contains(
-              storeName
-            )
-          ) {
+      return;
 
-            console.log(
-              "Membuat store:",
-              storeName
-            );
+    }
 
-            database.createObjectStore(
-              storeName,
-              {
-                keyPath: "id"
+
+    /* -----------------------------------------------------
+       UPGRADE DATABASE
+       ----------------------------------------------------- */
+
+    request.onupgradeneeded =
+      function(event) {
+
+        try {
+
+          const database =
+            event.target.result;
+
+          console.log(
+            "CATATKU DB UPGRADE",
+            {
+              oldVersion:
+                event.oldVersion,
+
+              newVersion:
+                event.newVersion,
+
+              name:
+                DB_NAME
+            }
+          );
+
+
+          Object
+            .values(STORE)
+            .forEach(
+              function(storeName) {
+
+                if (
+                  !database.objectStoreNames
+                    .contains(storeName)
+                ) {
+
+                  console.log(
+                    "Membuat object store:",
+                    storeName
+                  );
+
+                  database.createObjectStore(
+                    storeName,
+                    {
+                      keyPath: "id"
+                    }
+                  );
+
+                }
+
               }
             );
 
-          }
+        }
+        catch(error) {
+
+          showDatabaseError(
+            "onupgradeneeded",
+            error
+          );
+
+          throw error;
 
         }
-      );
-
-    };
-
-    request.onsuccess = function(event) {
-
-      db = event.target.result;
-
-      db.onversionchange = function() {
-
-        db.close();
-
-        db = null;
 
       };
 
-      setDatabaseStatus(
-        "Database lokal siap"
-      );
 
-      console.log(
-        "DATABASE OK",
-        DB_NAME,
-        "version",
-        DB_VERSION
-      );
+    /* -----------------------------------------------------
+       BERHASIL
+       ----------------------------------------------------- */
 
-      resolve(db);
+    request.onsuccess =
+      function(event) {
 
-    };
+        try {
 
-    request.onerror = function(event) {
+          db =
+            event.target.result;
 
-      db = null;
 
-      console.error(
-        "DATABASE ERROR:",
-        event.target.error
-      );
+          /* -----------------------------------------------
+             Jika database berubah dari tab/browser lain
+             ----------------------------------------------- */
 
-      setDatabaseStatus(
-        "Database lokal error: " +
-        (
-          event.target.error?.name ||
-          "UnknownError"
-        )
-      );
+          db.onversionchange =
+            function() {
 
-      reject(
-        event.target.error ||
-        new Error(
-          "Database gagal dibuka"
-        )
-      );
+              console.warn(
+                "Database version berubah"
+              );
 
-    };
+              db.close();
 
-    request.onblocked = function() {
+              db = null;
 
-      console.error(
-        "DATABASE BLOCKED"
-      );
+            };
 
-      setDatabaseStatus(
-        "Database sedang diblokir"
-      );
 
-    };
+          db.onclose =
+            function() {
+
+              console.warn(
+                "Database ditutup"
+              );
+
+              db = null;
+
+            };
+
+
+          console.log(
+            "CATATKU DATABASE BERHASIL",
+            {
+              name:
+                DB_NAME,
+
+              version:
+                db.version,
+
+              stores:
+                Array.from(
+                  db.objectStoreNames
+                )
+            }
+          );
+
+
+          setDatabaseStatus(
+            "Database lokal siap"
+          );
+
+
+          resolve(db);
+
+        }
+        catch(error) {
+
+          showDatabaseError(
+            "onsuccess",
+            error
+          );
+
+          reject(error);
+
+        }
+
+      };
+
+
+    /* -----------------------------------------------------
+       ERROR DATABASE
+       ----------------------------------------------------- */
+
+    request.onerror =
+      function(event) {
+
+        const error =
+          event.target.error;
+
+        showDatabaseError(
+          "request.onerror",
+          error
+        );
+
+        db = null;
+
+        reject(
+          error ||
+          new Error(
+            "IndexedDB gagal dibuka"
+          )
+        );
+
+      };
+
+
+    /* -----------------------------------------------------
+       DATABASE BLOCKED
+       ----------------------------------------------------- */
+
+    request.onblocked =
+      function() {
+
+        const message =
+          "Database diblokir. Tutup tab CatatKu lain lalu buka kembali.";
+
+        console.error(
+          "CATATKU DATABASE BLOCKED:",
+          message
+        );
+
+        setDatabaseStatus(
+          message
+        );
+
+        toast(
+          message
+        );
+
+      };
 
   });
 
 }
 
+
+/* =========================================================
+   TAMPILKAN ERROR DATABASE DI HP
+   ========================================================= */
+
+function showDatabaseError(
+  lokasi,
+  error
+) {
+
+  let name =
+    "UnknownError";
+
+  let message =
+    "Tidak ada pesan error";
+
+  let code =
+    "";
+
+  if (error) {
+
+    name =
+      error.name ||
+      "UnknownError";
+
+    message =
+      error.message ||
+      String(error);
+
+    code =
+      error.code !== undefined
+        ? String(error.code)
+        : "";
+
+  }
+
+
+  const detail =
+    "DATABASE ERROR\n\n" +
+
+    "Lokasi: " +
+    lokasi +
+    "\n\n" +
+
+    "Nama: " +
+    name +
+    "\n\n" +
+
+    "Pesan: " +
+    message +
+    "\n\n" +
+
+    "Code: " +
+    code +
+    "\n\n" +
+
+    "DB: " +
+    DB_NAME +
+    "\n\n" +
+
+    "Version: " +
+    DB_VERSION;
+
+
+  console.error(
+    "================================"
+  );
+
+  console.error(
+    "CATATKU DATABASE ERROR"
+  );
+
+  console.error(
+    "Lokasi:",
+    lokasi
+  );
+
+  console.error(
+    "Nama:",
+    name
+  );
+
+  console.error(
+    "Pesan:",
+    message
+  );
+
+  console.error(
+    "Code:",
+    code
+  );
+
+  console.error(
+    "Database:",
+    DB_NAME
+  );
+
+  console.error(
+    "Version:",
+    DB_VERSION
+  );
+
+  console.error(
+    "================================"
+  );
+
+
+  /* -------------------------------------------------------
+     Status pendek
+     ------------------------------------------------------- */
+
+  setDatabaseStatus(
+    "Database error: " +
+    name
+  );
+
+
+  /* -------------------------------------------------------
+     Tampilkan detail di HP
+     ------------------------------------------------------- */
+
+  let debug =
+    document.getElementById(
+      "catatkuDatabaseDebug"
+    );
+
+
+  if (!debug) {
+
+    debug =
+      document.createElement(
+        "div"
+      );
+
+    debug.id =
+      "catatkuDatabaseDebug";
+
+
+    debug.style.position =
+      "fixed";
+
+    debug.style.left =
+      "10px";
+
+    debug.style.right =
+      "10px";
+
+    debug.style.bottom =
+      "10px";
+
+    debug.style.zIndex =
+      "999999";
+
+
+    debug.style.background =
+      "#7f1d1d";
+
+    debug.style.color =
+      "#ffffff";
+
+    debug.style.padding =
+      "16px";
+
+
+    debug.style.borderRadius =
+      "12px";
+
+
+    debug.style.fontFamily =
+      "monospace";
+
+
+    debug.style.fontSize =
+      "13px";
+
+
+    debug.style.lineHeight =
+      "1.5";
+
+
+    debug.style.whiteSpace =
+      "pre-wrap";
+
+
+    debug.style.maxHeight =
+      "70vh";
+
+
+    debug.style.overflow =
+      "auto";
+
+
+    document.body.appendChild(
+      debug
+    );
+
+  }
+
+
+  debug.textContent =
+    detail;
+
+
+  /* -------------------------------------------------------
+     Toast
+     ------------------------------------------------------- */
+
+  try {
+
+    toast(
+      "Database error: " +
+      name
+    );
+
+  }
+  catch(e) {
+
+    console.error(e);
+
+  }
+
+}
 
 /* =========================================================
    DB PUT
