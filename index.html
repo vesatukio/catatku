@@ -12,7 +12,7 @@
 
   <meta
     name="theme-color"
-    content="#2563eb"
+    content="#0f172a"
   >
 
   <meta
@@ -44,26 +44,48 @@
 
 
 <!-- =====================================================
-     HEADER
+     APP
      ===================================================== -->
 
-<header class="topbar">
+<div class="app">
 
-  <div>
 
-    <h1>CatatKu</h1>
+<!-- =====================================================
+     TOP HEADER
+     ===================================================== -->
 
-    <p>
-      Keuangan & Stok Toko
-    </p>
+<header class="wallet-header">
+
+  <div class="header-left">
+
+    <div class="app-logo">
+      CK
+    </div>
+
+    <div>
+
+      <h1>CatatKu</h1>
+
+      <p>
+        Keuangan & Stok Toko
+      </p>
+
+    </div>
 
   </div>
 
+
   <div
     id="connectionStatus"
-    class="status-badge"
+    class="connection-badge"
   >
-    ...
+
+    <span class="connection-dot"></span>
+
+    <span>
+      Online
+    </span>
+
   </div>
 
 </header>
@@ -73,13 +95,25 @@
      DATABASE STATUS
      ===================================================== -->
 
-<div class="status-panel">
+<div class="sync-bar">
 
-  <span id="databaseStatus">
-    Mengecek database...
-  </span>
+  <div class="sync-left">
 
-  <span id="syncStatus">
+    <span class="sync-icon">
+      ☁
+    </span>
+
+    <span id="databaseStatus">
+      Mengecek database...
+    </span>
+
+  </div>
+
+
+  <span
+    id="syncStatus"
+    class="sync-text"
+  >
     ...
   </span>
 
@@ -90,7 +124,7 @@
      MAIN
      ===================================================== -->
 
-<main class="container">
+<main class="main-content">
 
 
 <!-- =====================================================
@@ -102,22 +136,29 @@
   class="page active"
 >
 
-  <div class="section-title">
+
+  <!-- GREETING -->
+
+  <div class="welcome">
 
     <div>
 
-      <h2>Ringkasan</h2>
+      <span class="eyebrow">
+        RINGKASAN TOKO
+      </span>
 
-      <p>
-        Kondisi keuangan toko
-      </p>
+      <h2>
+        Dashboard
+      </h2>
 
     </div>
 
+
     <button
       type="button"
-      class="btn-small"
+      class="refresh-button"
       onclick="CatatKu.refresh()"
+      aria-label="Refresh"
     >
       ↻
     </button>
@@ -125,157 +166,326 @@
   </div>
 
 
-  <div class="summary-grid">
+  <!-- =================================================
+       SALDO WALLET
+       ================================================= -->
 
+  <div class="wallet-card">
 
-    <!-- SALDO -->
-
-    <div class="card saldo-card">
+    <div class="wallet-card-top">
 
       <span>
-        Saldo
+        Saldo Saat Ini
       </span>
 
-      <strong id="saldo">
-        Rp0
-      </strong>
+      <span class="wallet-chip">
+        CATATKU
+      </span>
 
     </div>
 
 
-    <!-- MASUK -->
-
-    <div class="card">
-
-      <span>
-        Uang Masuk
-      </span>
-
-      <strong
-        id="pemasukan"
-        class="text-success"
-      >
-        Rp0
-      </strong>
-
-    </div>
+    <strong
+      id="saldo"
+      class="wallet-balance"
+    >
+      Rp0
+    </strong>
 
 
-    <!-- KELUAR -->
+    <div class="wallet-footer">
 
-    <div class="card">
+      <div>
 
-      <span>
-        Uang Keluar
-      </span>
+        <small>
+          Uang masuk
+        </small>
 
-      <strong
-        id="pengeluaran"
-        class="text-danger"
-      >
-        Rp0
-      </strong>
+        <strong
+          id="pemasukan"
+        >
+          Rp0
+        </strong>
 
-    </div>
-
-
-    <!-- OMZET -->
-
-    <div class="card">
-
-      <span>
-        Omzet Penjualan
-      </span>
-
-      <strong id="omzet">
-        Rp0
-      </strong>
-
-    </div>
+      </div>
 
 
-    <!-- UNTUNG -->
+      <div>
 
-    <div class="card">
+        <small>
+          Uang keluar
+        </small>
 
-      <span>
-        Untung
-      </span>
+        <strong
+          id="pengeluaran"
+        >
+          Rp0
+        </strong>
 
-      <strong
-        id="untung"
-        class="text-success"
-      >
-        Rp0
-      </strong>
-
-    </div>
-
-
-    <!-- STOK -->
-
-    <div class="card">
-
-      <span>
-        Nilai Stok
-      </span>
-
-      <strong id="nilaiStok">
-        Rp0
-      </strong>
-
-    </div>
-
-
-    <!-- JUMLAH BARANG -->
-
-    <div class="card">
-
-      <span>
-        Jenis Barang
-      </span>
-
-      <strong id="jumlahBarang">
-        0
-      </strong>
-
-    </div>
-
-
-    <!-- TOTAL STOK -->
-
-    <div class="card">
-
-      <span>
-        Total Stok
-      </span>
-
-      <strong id="jumlahStok">
-        0
-      </strong>
+      </div>
 
     </div>
 
   </div>
 
 
-  <!-- PENJUALAN TERBARU -->
+  <!-- =================================================
+       QUICK ACTION
+       ================================================= -->
 
-  <div class="panel">
+  <div class="quick-section">
 
-    <div class="panel-header">
+    <div class="section-heading">
 
       <h3>
-        Penjualan Terbaru
+        Aksi Cepat
       </h3>
 
     </div>
+
+
+    <div class="quick-grid">
+
+
+      <button
+        type="button"
+        class="quick-button quick-income"
+        onclick="openPage('keuangan')"
+      >
+
+        <span class="quick-icon">
+          +
+        </span>
+
+        <span>
+          Uang Masuk
+        </span>
+
+      </button>
+
+
+      <button
+        type="button"
+        class="quick-button quick-expense"
+        onclick="openPage('keuangan')"
+      >
+
+        <span class="quick-icon">
+          −
+        </span>
+
+        <span>
+          Uang Keluar
+        </span>
+
+      </button>
+
+
+      <button
+        type="button"
+        class="quick-button quick-product"
+        onclick="openPage('barang')"
+      >
+
+        <span class="quick-icon">
+          +
+        </span>
+
+        <span>
+          Tambah Barang
+        </span>
+
+      </button>
+
+
+      <button
+        type="button"
+        class="quick-button quick-sale"
+        onclick="openPage('penjualan')"
+      >
+
+        <span class="quick-icon">
+          🛒
+        </span>
+
+        <span>
+          Penjualan
+        </span>
+
+      </button>
+
+
+    </div>
+
+  </div>
+
+
+  <!-- =================================================
+       SUMMARY
+       ================================================= -->
+
+  <div class="section-heading">
+
+    <h3>
+      Ringkasan Bisnis
+    </h3>
+
+  </div>
+
+
+  <div class="business-grid">
+
+
+    <div class="business-card omzet-card">
+
+      <div class="business-icon">
+        Rp
+      </div>
+
+      <div>
+
+        <small>
+          Omzet Penjualan
+        </small>
+
+        <strong id="omzet">
+          Rp0
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="business-card profit-card">
+
+      <div class="business-icon">
+        ↑
+      </div>
+
+      <div>
+
+        <small>
+          Keuntungan
+        </small>
+
+        <strong id="untung">
+          Rp0
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="business-card stock-value-card">
+
+      <div class="business-icon">
+        📦
+      </div>
+
+      <div>
+
+        <small>
+          Nilai Stok
+        </small>
+
+        <strong id="nilaiStok">
+          Rp0
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="business-card item-card">
+
+      <div class="business-icon">
+        #
+      </div>
+
+      <div>
+
+        <small>
+          Jenis Barang
+        </small>
+
+        <strong id="jumlahBarang">
+          0
+        </strong>
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+
+  <!-- =================================================
+       STOCK INFO
+       ================================================= -->
+
+  <div class="mini-stat">
+
+    <div>
+
+      <span class="mini-icon">
+        📦
+      </span>
+
+      <div>
+
+        <small>
+          Total stok barang
+        </small>
+
+        <strong id="jumlahStok">
+          0
+        </strong>
+
+      </div>
+
+    </div>
+
+    <span>
+      pcs
+    </span>
+
+  </div>
+
+
+  <!-- =================================================
+       PENJUALAN TERBARU
+       ================================================= -->
+
+  <div class="panel modern-panel">
+
+    <div class="panel-header">
+
+      <div>
+
+        <span class="eyebrow">
+          AKTIVITAS
+        </span>
+
+        <h3>
+          Penjualan Terbaru
+        </h3>
+
+      </div>
+
+    </div>
+
 
     <div
       id="penjualanList"
       class="list"
     >
+
       Belum ada penjualan.
+
     </div>
 
   </div>
@@ -293,11 +503,25 @@
   class="page"
 >
 
-  <div class="section-title">
+  <div class="page-title">
+
+    <button
+      type="button"
+      class="back-button"
+      onclick="openPage('dashboard')"
+    >
+      ←
+    </button>
 
     <div>
 
-      <h2>Keuangan</h2>
+      <span class="eyebrow">
+        WALLET
+      </span>
+
+      <h2>
+        Keuangan
+      </h2>
 
       <p>
         Catat uang masuk dan keluar
@@ -314,8 +538,32 @@
   >
 
 
+    <div class="form-title">
+
+      <span class="form-title-icon">
+        💰
+      </span>
+
+      <div>
+
+        <strong>
+          Transaksi Baru
+        </strong>
+
+        <small>
+          Catat pemasukan atau pengeluaran
+        </small>
+
+      </div>
+
+    </div>
+
+
     <label>
-      Tanggal
+
+      <span>
+        Tanggal
+      </span>
 
       <input
         type="date"
@@ -327,7 +575,10 @@
 
 
     <label>
-      Jenis
+
+      <span>
+        Jenis Transaksi
+      </span>
 
       <select
         name="jenis"
@@ -348,7 +599,10 @@
 
 
     <label>
-      Kategori
+
+      <span>
+        Kategori
+      </span>
 
       <input
         type="text"
@@ -360,7 +614,10 @@
 
 
     <label>
-      Keterangan
+
+      <span>
+        Keterangan
+      </span>
 
       <input
         type="text"
@@ -372,22 +629,36 @@
 
 
     <label>
-      Jumlah
 
-      <input
-        type="number"
-        name="jumlah"
-        min="1"
-        inputmode="numeric"
-        placeholder="0"
-        required
-      >
+      <span>
+        Jumlah
+      </span>
+
+      <div class="money-input">
+
+        <span>
+          Rp
+        </span>
+
+        <input
+          type="number"
+          name="jumlah"
+          min="1"
+          inputmode="numeric"
+          placeholder="0"
+          required
+        >
+
+      </div>
 
     </label>
 
 
     <label>
-      Sumber
+
+      <span>
+        Sumber Dana
+      </span>
 
       <select name="sumber">
 
@@ -406,22 +677,32 @@
 
     <button
       type="submit"
-      class="btn-primary"
+      class="submit-button blue-button"
     >
+
       Simpan Transaksi
+
     </button>
 
 
   </form>
 
 
-  <div class="panel">
+  <div class="panel modern-panel">
 
     <div class="panel-header">
 
-      <h3>
-        Riwayat Transaksi
-      </h3>
+      <div>
+
+        <span class="eyebrow">
+          RIWAYAT
+        </span>
+
+        <h3>
+          Transaksi
+        </h3>
+
+      </div>
 
     </div>
 
@@ -450,14 +731,28 @@
   class="page"
 >
 
-  <div class="section-title">
+  <div class="page-title">
+
+    <button
+      type="button"
+      class="back-button"
+      onclick="openPage('dashboard')"
+    >
+      ←
+    </button>
 
     <div>
 
-      <h2>Barang</h2>
+      <span class="eyebrow">
+        INVENTORI
+      </span>
+
+      <h2>
+        Barang
+      </h2>
 
       <p>
-        Stok dan harga barang
+        Kelola stok dan harga barang
       </p>
 
     </div>
@@ -471,20 +766,47 @@
   >
 
 
+    <div class="form-title">
+
+      <span class="form-title-icon green">
+        📦
+      </span>
+
+      <div>
+
+        <strong>
+          Barang Baru
+        </strong>
+
+        <small>
+          Kode otomatis jika dikosongkan
+        </small>
+
+      </div>
+
+    </div>
+
+
     <label>
-      Kode Barang
+
+      <span>
+        Kode Barang
+      </span>
 
       <input
         type="text"
         name="kode"
-        placeholder="Contoh: LED05"
+        placeholder="Otomatis"
       >
 
     </label>
 
 
     <label>
-      Nama Barang
+
+      <span>
+        Nama Barang
+      </span>
 
       <input
         type="text"
@@ -496,79 +818,109 @@
     </label>
 
 
-    <label>
-      Stok Awal
+    <div class="two-column">
 
-      <input
-        type="number"
-        name="stok"
-        min="0"
-        inputmode="numeric"
-        value="0"
-      >
+      <label>
 
-    </label>
+        <span>
+          Stok Awal
+        </span>
 
+        <input
+          type="number"
+          name="stok"
+          min="0"
+          inputmode="numeric"
+          value="0"
+        >
 
-    <label>
-      Harga Modal
-
-      <input
-        type="number"
-        name="hargaModal"
-        min="0"
-        inputmode="numeric"
-        placeholder="0"
-      >
-
-    </label>
+      </label>
 
 
-    <label>
-      Harga Jual
+      <label>
 
-      <input
-        type="number"
-        name="hargaJual"
-        min="0"
-        inputmode="numeric"
-        placeholder="0"
-      >
+        <span>
+          Stok Minimum
+        </span>
 
-    </label>
+        <input
+          type="number"
+          name="stokMin"
+          min="0"
+          value="2"
+        >
+
+      </label>
+
+    </div>
 
 
-    <label>
-      Batas Stok Minimum
+    <div class="two-column">
 
-      <input
-        type="number"
-        name="stokMin"
-        min="0"
-        value="2"
-      >
+      <label>
 
-    </label>
+        <span>
+          Harga Modal
+        </span>
+
+        <input
+          type="number"
+          name="hargaModal"
+          min="0"
+          inputmode="numeric"
+          placeholder="0"
+        >
+
+      </label>
+
+
+      <label>
+
+        <span>
+          Harga Jual
+        </span>
+
+        <input
+          type="number"
+          name="hargaJual"
+          min="0"
+          inputmode="numeric"
+          placeholder="0"
+        >
+
+      </label>
+
+    </div>
 
 
     <button
       type="submit"
-      class="btn-primary"
+      class="submit-button green-button"
     >
+
       Simpan Barang
+
     </button>
 
 
   </form>
 
 
-  <div class="panel">
+  <div class="panel modern-panel">
 
     <div class="panel-header">
 
-      <h3>
-        Daftar Barang
-      </h3>
+      <div>
+
+        <span class="eyebrow">
+          INVENTORI
+        </span>
+
+        <h3>
+          Daftar Barang
+        </h3>
+
+      </div>
 
     </div>
 
@@ -597,14 +949,28 @@
   class="page"
 >
 
-  <div class="section-title">
+  <div class="page-title">
+
+    <button
+      type="button"
+      class="back-button"
+      onclick="openPage('dashboard')"
+    >
+      ←
+    </button>
 
     <div>
 
-      <h2>Penjualan</h2>
+      <span class="eyebrow">
+        KASIR
+      </span>
+
+      <h2>
+        Penjualan
+      </h2>
 
       <p>
-        Stok berkurang dan untung dihitung otomatis
+        Jual barang dan kurangi stok otomatis
       </p>
 
     </div>
@@ -614,12 +980,36 @@
 
   <form
     id="penjualanForm"
-    class="form-card"
+    class="form-card sale-form"
   >
 
 
+    <div class="form-title">
+
+      <span class="form-title-icon orange">
+        🛒
+      </span>
+
+      <div>
+
+        <strong>
+          Penjualan Baru
+        </strong>
+
+        <small>
+          Untung dihitung otomatis
+        </small>
+
+      </div>
+
+    </div>
+
+
     <label>
-      Tanggal
+
+      <span>
+        Tanggal
+      </span>
 
       <input
         type="date"
@@ -631,7 +1021,10 @@
 
 
     <label>
-      Barang
+
+      <span>
+        Barang
+      </span>
 
       <select
         id="barangId"
@@ -648,53 +1041,73 @@
     </label>
 
 
-    <label>
-      Jumlah
+    <div class="two-column">
 
-      <input
-        type="number"
-        name="qty"
-        min="1"
-        inputmode="numeric"
-        value="1"
-        required
-      >
+      <label>
 
-    </label>
+        <span>
+          Jumlah
+        </span>
+
+        <input
+          type="number"
+          name="qty"
+          min="1"
+          inputmode="numeric"
+          value="1"
+          required
+        >
+
+      </label>
 
 
-    <label>
-      Harga Jual
+      <label>
 
-      <input
-        type="number"
-        name="hargaJual"
-        min="0"
-        inputmode="numeric"
-        placeholder="Otomatis"
-      >
+        <span>
+          Harga Jual
+        </span>
 
-    </label>
+        <input
+          type="number"
+          name="hargaJual"
+          min="0"
+          inputmode="numeric"
+          placeholder="Otomatis"
+        >
+
+      </label>
+
+    </div>
 
 
     <button
       type="submit"
-      class="btn-primary"
+      class="submit-button orange-button"
     >
+
       Simpan Penjualan
+
     </button>
 
 
   </form>
 
 
-  <div class="panel">
+  <div class="panel modern-panel">
 
     <div class="panel-header">
 
-      <h3>
-        Riwayat Penjualan
-      </h3>
+      <div>
+
+        <span class="eyebrow">
+          AKTIVITAS
+        </span>
+
+        <h3>
+          Riwayat Penjualan
+        </h3>
+
+      </div>
 
     </div>
 
@@ -718,7 +1131,7 @@
 
 
 <!-- =====================================================
-     BOTTOM NAV
+     BOTTOM NAVIGATION
      ===================================================== -->
 
 <nav class="bottom-nav">
@@ -726,11 +1139,11 @@
 
   <button
     type="button"
-    class="nav-item active"
+    class="nav-item nav-home active"
     data-page="dashboard"
   >
 
-    <span>
+    <span class="nav-icon">
       🏠
     </span>
 
@@ -743,11 +1156,11 @@
 
   <button
     type="button"
-    class="nav-item"
+    class="nav-item nav-money"
     data-page="keuangan"
   >
 
-    <span>
+    <span class="nav-icon">
       💰
     </span>
 
@@ -760,11 +1173,11 @@
 
   <button
     type="button"
-    class="nav-item"
+    class="nav-item nav-stock"
     data-page="barang"
   >
 
-    <span>
+    <span class="nav-icon">
       📦
     </span>
 
@@ -777,11 +1190,11 @@
 
   <button
     type="button"
-    class="nav-item"
+    class="nav-item nav-sale"
     data-page="penjualan"
   >
 
-    <span>
+    <span class="nav-icon">
       🛒
     </span>
 
@@ -802,85 +1215,79 @@
 <div
   id="catatkuToast"
   class="toast"
->
+></div>
+
+
 </div>
 
 
 <!-- =====================================================
-     JAVASCRIPT
+     APP JS
      ===================================================== -->
 
-<script
-  src="app.js"
-></script>
+<script src="app.js"></script>
 
 
 <script>
-
-"use strict";
-
 
 /* =====================================================
    NAVIGASI
    ===================================================== */
 
-document
-  .querySelectorAll(
-    ".nav-item"
-  )
-  .forEach(
-    function(button) {
+function openPage(page) {
 
-      button.addEventListener(
-        "click",
-        function() {
+  document
+    .querySelectorAll(".page")
+    .forEach(function(section) {
 
-          const page =
-            button.dataset.page;
-
-
-          document
-            .querySelectorAll(
-              ".page"
-            )
-            .forEach(
-              function(section) {
-
-                section.classList.toggle(
-                  "active",
-                  section.id === page
-                );
-
-              }
-            );
-
-
-          document
-            .querySelectorAll(
-              ".nav-item"
-            )
-            .forEach(
-              function(item) {
-
-                item.classList.toggle(
-                  "active",
-                  item === button
-                );
-
-              }
-            );
-
-
-          window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-          });
-
-        }
+      section.classList.toggle(
+        "active",
+        section.id === page
       );
 
-    }
-  );
+    });
+
+
+  document
+    .querySelectorAll(".nav-item")
+    .forEach(function(item) {
+
+      item.classList.toggle(
+        "active",
+        item.dataset.page === page
+      );
+
+    });
+
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
+
+
+/* =====================================================
+   BOTTOM NAV
+   ===================================================== */
+
+document
+  .querySelectorAll(".nav-item")
+  .forEach(function(button) {
+
+    button.addEventListener(
+      "click",
+      function() {
+
+        openPage(
+          button.dataset.page
+        );
+
+      }
+    );
+
+  });
 
 
 /* =====================================================
@@ -891,153 +1298,141 @@ document
   .querySelectorAll(
     'input[type="date"]'
   )
-  .forEach(
-    function(input) {
+  .forEach(function(input) {
 
-      if (!input.value) {
+    if (!input.value) {
 
-        const d =
-          new Date();
+      const d =
+        new Date();
 
+      const y =
+        d.getFullYear();
 
-        const y =
-          d.getFullYear();
+      const m =
+        String(
+          d.getMonth() + 1
+        ).padStart(
+          2,
+          "0"
+        );
 
+      const day =
+        String(
+          d.getDate()
+        ).padStart(
+          2,
+          "0"
+        );
 
-        const m =
-          String(
-            d.getMonth() + 1
-          ).padStart(
-            2,
-            "0"
-          );
-
-
-        const day =
-          String(
-            d.getDate()
-          ).padStart(
-            2,
-            "0"
-          );
-
-
-        input.value =
-          y +
-          "-" +
-          m +
-          "-" +
-          day;
-
-      }
+      input.value =
+        y +
+        "-" +
+        m +
+        "-" +
+        day;
 
     }
-  );
+
+  });
 
 
 /* =====================================================
-   RENDER PENJUALAN HISTORY
+   PENJUALAN HISTORY
    ===================================================== */
 
 async function renderPenjualanHistory() {
 
-  if (
-    !window.CatatKu
-  ) {
-
+  if (!window.CatatKu) {
     return;
-
   }
-
 
   const container =
     document.getElementById(
       "penjualanHistory"
     );
 
-
   if (!container) {
-
     return;
-
   }
-
 
   try {
 
     const data =
       await CatatKu.loadPenjualan();
 
-
-    if (
-      !data.length
-    ) {
+    if (!data || !data.length) {
 
       container.innerHTML =
-        "<p>Belum ada penjualan.</p>";
+        '<div class="empty-state">' +
+        '<span>🛒</span>' +
+        '<p>Belum ada penjualan.</p>' +
+        '</div>';
 
       return;
 
     }
 
-
     container.innerHTML =
       data
-        .map(
-          function(item) {
+        .slice()
+        .reverse()
+        .slice(0, 20)
+        .map(function(item) {
 
-            return `
+          return `
 
-              <div class="penjualan-item">
+            <div class="sale-history-item">
 
-                <div>
+              <div class="history-icon">
+                🛒
+              </div>
 
-                  <strong>
-                    ${escapeHtml(
-                      item.namaBarang
-                    )}
-                  </strong>
+              <div class="history-main">
 
-                  <small>
-                    ${item.tanggal}
-                    ·
-                    ${item.qty} pcs
-                  </small>
+                <strong>
+                  ${escapeHtml(
+                    item.namaBarang
+                  )}
+                </strong>
 
-                </div>
-
-                <div>
-
-                  <strong>
-                    ${formatRupiah(
-                      item.omzet
-                    )}
-                  </strong>
-
-                  <small>
-                    Untung:
-                    ${formatRupiah(
-                      item.untung
-                    )}
-                  </small>
-
-                </div>
+                <small>
+                  ${escapeHtml(
+                    item.tanggal
+                  )}
+                  ·
+                  ${item.qty} pcs
+                </small>
 
               </div>
 
-            `;
+              <div class="history-money">
 
-          }
-        )
+                <strong>
+                  ${formatRupiah(
+                    item.omzet
+                  )}
+                </strong>
+
+                <small>
+                  Untung
+                  ${formatRupiah(
+                    item.untung
+                  )}
+                </small>
+
+              </div>
+
+            </div>
+
+          `;
+
+        })
         .join("");
 
   }
-
   catch(error) {
 
-    console.error(
-      error
-    );
+    console.error(error);
 
   }
 
@@ -1045,7 +1440,7 @@ async function renderPenjualanHistory() {
 
 
 /* =====================================================
-   HELPER HTML
+   HELPER
    ===================================================== */
 
 function escapeHtml(value) {
@@ -1053,26 +1448,11 @@ function escapeHtml(value) {
   return String(
     value ?? ""
   )
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 
 }
 
@@ -1094,38 +1474,29 @@ function formatRupiah(value) {
 
 
 /* =====================================================
-   REFRESH TAMBAHAN
+   REFRESH HISTORY
    ===================================================== */
 
-setTimeout(
-  function() {
+setTimeout(function() {
 
-    renderPenjualanHistory();
+  renderPenjualanHistory();
 
-  },
-  1000
-);
+}, 1200);
 
 
-setInterval(
-  function() {
+setInterval(function() {
 
-    if (
-      window.CatatKu
-    ) {
+  if (window.CatatKu) {
 
-      CatatKu.loadDashboard();
+    CatatKu.loadDashboard();
 
-      CatatKu.sync();
+    CatatKu.sync();
 
-    }
+  }
 
+  renderPenjualanHistory();
 
-    renderPenjualanHistory();
-
-  },
-  60000
-);
+}, 60000);
 
 </script>
 
