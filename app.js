@@ -3796,3 +3796,123 @@ window.CatatKu = {
     }
 
 };
+/* =========================================================
+   TEST INDEXEDDB HP
+   ========================================================= */
+
+window.testIndexedDB = function () {
+
+  console.log("=== TEST INDEXEDDB HP ===");
+
+  if (!window.indexedDB) {
+
+    alert(
+      "IndexedDB TIDAK TERSEDIA di browser ini"
+    );
+
+    return;
+
+  }
+
+  const testName =
+    "CatatKuTest_" +
+    Date.now();
+
+  try {
+
+    const request =
+      indexedDB.open(
+        testName,
+        1
+      );
+
+    request.onupgradeneeded =
+      function (event) {
+
+        console.log(
+          "onupgradeneeded berhasil"
+        );
+
+        const database =
+          event.target.result;
+
+        if (
+          !database.objectStoreNames.contains(
+            "test"
+          )
+        ) {
+
+          database.createObjectStore(
+            "test",
+            {
+              keyPath: "id"
+            }
+          );
+
+        }
+
+      };
+
+    request.onsuccess =
+      function (event) {
+
+        const database =
+          event.target.result;
+
+        console.log(
+          "INDEXEDDB TEST BERHASIL",
+          database
+        );
+
+        database.close();
+
+        alert(
+          "TES BERHASIL\n\n" +
+          "HP mengizinkan IndexedDB.\n\n" +
+          "Berarti masalah ada pada CatatKuDB."
+        );
+
+      };
+
+    request.onerror =
+      function (event) {
+
+        console.error(
+          "INDEXEDDB TEST GAGAL",
+          event.target.error
+        );
+
+        alert(
+          "TES INDEXEDDB GAGAL\n\n" +
+          "Nama: " +
+          (
+            event.target.error?.name ||
+            "Unknown"
+          ) +
+          "\n\nPesan: " +
+          (
+            event.target.error?.message ||
+            "Tidak ada pesan"
+          )
+        );
+
+      };
+
+  }
+  catch (error) {
+
+    console.error(
+      "INDEXEDDB EXCEPTION",
+      error
+    );
+
+    alert(
+      "EXCEPTION\n\n" +
+      error.name +
+      "\n\n" +
+      error.message
+    );
+
+  }
+
+};
