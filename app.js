@@ -48,324 +48,129 @@ const GAS_URL =
  * Database lama di Chrome HP bermasalah.
  * Kita gunakan nama baru.
  */
-const DB_NAME =
-  "CatatKuDB_HP";
-
-
-const DB_VERSION =
-  1;
-
-
-const STORE = {
-
-  transaksi:
-    "transaksi",
-
-  barang:
-    "barang",
-
-  penjualan:
-    "penjualan",
-
-  queue:
-    "queue"
-
-};
-
-
-let db = null;
-
-let dbOpening = null;
-
-let syncRunning = false;
-
-
-/* =========================================================
-   UTILITAS
-   ========================================================= */
-
-function uid(prefix) {
-
-  return (
-    String(prefix) +
-    "-" +
-    Date.now().toString(36) +
-    "-" +
-    Math.random()
-      .toString(36)
-      .slice(2, 10)
-  );
-
-}
-
-
-function today() {
-
-  const d =
-    new Date();
-
-  return (
-
-    d.getFullYear() +
-    "-" +
-
-    String(
-      d.getMonth() + 1
-    ).padStart(2, "0") +
-
-    "-" +
-
-    String(
-      d.getDate()
-    ).padStart(2, "0")
-
-  );
-
-}
-
-
-function rupiah(value) {
-
-  return new Intl.NumberFormat(
-    "id-ID",
-    {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0
-    }
-  ).format(
-    Number(value || 0)
-  );
-
-}
-
-
-function escapeHtml(value) {
-
-  return String(
-    value ?? ""
-  )
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
-
-}
-
-
-/* =========================================================
-   TOAST
-   ========================================================= */
-
-function toast(message) {
-
-  const el =
-    document.getElementById(
-      "catatkuToast"
-    );
-
-  if (!el) {
-    return;
-  }
-
-  el.textContent =
-    message;
-
-  el.classList.add(
-    "show"
-  );
-
-  clearTimeout(
-    toast.timer
-  );
-
-  toast.timer =
-    setTimeout(
-      function() {
-
-        el.classList.remove(
-          "show"
-        );
-
-      },
-      2500
-    );
-
-}
-
-
-/* =========================================================
-   STATUS
-   ========================================================= */
-
-function setConnectionStatus(
-  online,
-  text
-) {
-
-  const el =
-    document.getElementById(
-      "connectionStatus"
-    );
-
-  if (!el) {
-    return;
-  }
-
-  el.textContent =
-    text ||
-    (
-      online
-        ? "Online"
-        : "Offline"
-    );
-
-  el.classList.toggle(
-    "online",
-    online
-  );
-
-  el.classList.toggle(
-    "offline",
-    !online
-  );
-
-}
-
-
-function setDatabaseStatus(text) {
-
-  const el =
-    document.getElementById(
-      "databaseStatus"
-    );
-
-  if (el) {
-    el.textContent =
-      text;
-  }
-
-}
-
-
-function setSyncStatus(text) {
-
-  const el =
-    document.getElementById(
-      "syncStatus"
-    );
-
-  if (el) {
-    el.textContent =
-      text;
-  }
-
-}
-
-
-/* =========================================================
-   KONEKSI INTERNET
-   ========================================================= */
-
-function updateConnection() {
-
-  if (navigator.onLine) {
-
-    setConnectionStatus(
-      true,
-      "Online"
-    );
-
-  }
-  else {
-
-    setConnectionStatus(
-      false,
-      "Offline"
-    );
-
-  }
-
-}
-
-
-window.addEventListener(
-  "online",
-  async function() {
-
-    updateConnection();
-
-    setSyncStatus(
-      "Internet kembali..."
-    );
-
-    try {
-
-      await sync();
-
-    }
-    catch(error) {
-
-      console.error(
-        "AUTO SYNC:",
-        error
-      );
-
-    }
-
-  }
-);
-
-
-window.addEventListener(
-  "offline",
-  function() {
-
-    updateConnection();
-
-    setSyncStatus(
-      "Offline - data tersimpan di HP"
-    );
-
-  }
-);
-
-
 /* =========================================================
    INDEXEDDB
-   VERSI AMAN UNTUK CHROME HP
+   CATATKU - CHROME HP SAFE
+   ========================================================= */
+
+const DB_NAME = "CatatKuDB_HP";
+const DB_VERSION = 3;
+
+const STORE = {
+  transaksi: "transaksi",
+  barang: "barang",
+  penjualan: "penjualan",
+  queue: "queue"
+};
+
+let db = null;
+let dbOpening = null;
+
+
+/* =========================================================
+   CEK OBJECT STORE
+   ========================================================= */
+
+function hasAllStores(database) {
+
+  return (
+    database.objectStoreNames.contains(STORE.transaksi) &&
+    database.objectStoreNames.contains(STORE.barang) &&
+    database.objectStoreNames.contains(STORE.penjualan) &&
+    database.objectStoreNames.contains(STORE.queue)
+  );
+
+}
+
+
+/* =========================================================
+   BUAT OBJECT STORE
+   ========================================================= */
+
+function createStores(database) {
+
+  if (
+    !database.objectStoreNames.contains(
+      STORE.transaksi
+    )
+  ) {
+
+    database.createObjectStore(
+      STORE.transaksi,
+      {
+        keyPath: "id"
+      }
+    );
+
+  }
+
+
+  if (
+    !database.objectStoreNames.contains(
+      STORE.barang
+    )
+  ) {
+
+    database.createObjectStore(
+      STORE.barang,
+      {
+        keyPath: "id"
+      }
+    );
+
+  }
+
+
+  if (
+    !database.objectStoreNames.contains(
+      STORE.penjualan
+    )
+  ) {
+
+    database.createObjectStore(
+      STORE.penjualan,
+      {
+        keyPath: "id"
+      }
+    );
+
+  }
+
+
+  if (
+    !database.objectStoreNames.contains(
+      STORE.queue
+    )
+  ) {
+
+    database.createObjectStore(
+      STORE.queue,
+      {
+        keyPath: "id"
+      }
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   OPEN DATABASE
    ========================================================= */
 
 function openDB() {
 
-  /*
-   * Jika sudah terbuka
-   */
+  /* -------------------------------------------------------
+     Jika database sudah terbuka
+     ------------------------------------------------------- */
+
   if (db) {
 
     try {
 
-      /*
-       * Pastikan koneksi masih aktif.
-       */
       if (
-        db.objectStoreNames
+        hasAllStores(db)
       ) {
 
         return Promise.resolve(
@@ -375,7 +180,19 @@ function openDB() {
       }
 
     }
-    catch(error) {
+    catch (error) {
+
+      console.warn(
+        "Koneksi DB lama tidak valid:",
+        error
+      );
+
+      try {
+
+        db.close();
+
+      }
+      catch (e) {}
 
       db = null;
 
@@ -384,10 +201,10 @@ function openDB() {
   }
 
 
-  /*
-   * Jika sedang membuka database,
-   * jangan membuka berkali-kali.
-   */
+  /* -------------------------------------------------------
+     Jangan buka database berkali-kali
+     ------------------------------------------------------- */
+
   if (dbOpening) {
 
     return dbOpening;
@@ -395,53 +212,61 @@ function openDB() {
   }
 
 
+  /* -------------------------------------------------------
+     Cek IndexedDB
+     ------------------------------------------------------- */
+
+  if (
+    !window.indexedDB
+  ) {
+
+    const error =
+      new Error(
+        "Chrome tidak menyediakan IndexedDB"
+      );
+
+    setDatabaseStatus(
+      "IndexedDB tidak tersedia"
+    );
+
+    return Promise.reject(
+      error
+    );
+
+  }
+
+
+  /* -------------------------------------------------------
+     Mulai membuka database
+     ------------------------------------------------------- */
+
   dbOpening =
     new Promise(
       function(resolve, reject) {
 
-        /*
-         * Cek IndexedDB
-         */
-        if (
-          !window.indexedDB
-        ) {
-
-          const error =
-            new Error(
-              "Browser tidak mendukung IndexedDB"
-            );
-
-          setDatabaseStatus(
-            "IndexedDB tidak tersedia"
-          );
-
-          reject(error);
-
-          return;
-
-        }
-
-
         let request;
+
 
         try {
 
           request =
-            window.indexedDB.open(
+            indexedDB.open(
               DB_NAME,
               DB_VERSION
             );
 
         }
-        catch(error) {
+        catch (error) {
 
           dbOpening = null;
 
           setDatabaseStatus(
-            "Database gagal dibuka"
+            "Gagal membuka database"
           );
 
-          reject(error);
+          reject(
+            error
+          );
 
           return;
 
@@ -449,7 +274,7 @@ function openDB() {
 
 
         /* =================================================
-           UPGRADE
+           UPGRADE DATABASE
            ================================================= */
 
         request.onupgradeneeded =
@@ -460,86 +285,26 @@ function openDB() {
               const database =
                 event.target.result;
 
-
-              /*
-               * Buat store satu per satu.
-               */
-
-              if (
-                !database.objectStoreNames.contains(
-                  STORE.transaksi
-                )
-              ) {
-
-                database.createObjectStore(
-                  STORE.transaksi,
-                  {
-                    keyPath: "id"
-                  }
-                );
-
-              }
+              console.log(
+                "IndexedDB upgrade:",
+                event.oldVersion,
+                "→",
+                event.newVersion
+              );
 
 
-              if (
-                !database.objectStoreNames.contains(
-                  STORE.barang
-                )
-              ) {
-
-                database.createObjectStore(
-                  STORE.barang,
-                  {
-                    keyPath: "id"
-                  }
-                );
-
-              }
-
-
-              if (
-                !database.objectStoreNames.contains(
-                  STORE.penjualan
-                )
-              ) {
-
-                database.createObjectStore(
-                  STORE.penjualan,
-                  {
-                    keyPath: "id"
-                  }
-                );
-
-              }
-
-
-              if (
-                !database.objectStoreNames.contains(
-                  STORE.queue
-                )
-              ) {
-
-                database.createObjectStore(
-                  STORE.queue,
-                  {
-                    keyPath: "id"
-                  }
-                );
-
-              }
+              createStores(
+                database
+              );
 
             }
-            catch(error) {
+            catch (error) {
 
               console.error(
-                "IndexedDB upgrade error:",
+                "IndexedDB UPGRADE ERROR:",
                 error
               );
 
-              /*
-               * Jangan manipulasi database
-               * dengan deleteDatabase di sini.
-               */
               throw error;
 
             }
@@ -559,65 +324,129 @@ function openDB() {
               const database =
                 event.target.result;
 
+
+              /* -----------------------------------------
+                 Pastikan semua store tersedia
+                 ----------------------------------------- */
+
+              if (
+                !hasAllStores(
+                  database
+                )
+              ) {
+
+                console.error(
+                  "Object store belum lengkap"
+                );
+
+                try {
+
+                  database.close();
+
+                }
+                catch (e) {}
+
+                db = null;
+                dbOpening = null;
+
+                reject(
+                  new Error(
+                    "Struktur database tidak lengkap"
+                  )
+                );
+
+                return;
+
+              }
+
+
               db =
                 database;
 
 
-              /*
-               * Jika database berubah,
-               * tutup koneksi.
-               */
+              /* -----------------------------------------
+                 Jika ada upgrade dari tab lain
+                 ----------------------------------------- */
 
               database.onversionchange =
                 function() {
+
+                  console.log(
+                    "Database version berubah"
+                  );
 
                   try {
 
                     database.close();
 
                   }
-                  catch(error) {
+                  catch (error) {
 
-                    console.error(
+                    console.warn(
                       error
                     );
 
                   }
 
-                  db = null;
+                  if (
+                    db === database
+                  ) {
+
+                    db = null;
+
+                  }
 
                 };
 
+
+              /* -----------------------------------------
+                 Jika koneksi ditutup
+                 ----------------------------------------- */
 
               database.onclose =
                 function() {
 
-                  db = null;
+                  console.warn(
+                    "IndexedDB connection closed"
+                  );
+
+                  if (
+                    db === database
+                  ) {
+
+                    db = null;
+
+                  }
 
                 };
 
+
+              /* -----------------------------------------
+                 Database siap
+                 ----------------------------------------- */
 
               setDatabaseStatus(
                 "Database lokal siap"
               );
 
 
-              dbOpening = null;
+              dbOpening =
+                null;
+
 
               resolve(
                 database
               );
 
             }
-            catch(error) {
+            catch (error) {
 
-              db =
-                null;
+              db = null;
+              dbOpening = null;
 
-              dbOpening =
-                null;
-
-              reject(error);
+              reject(
+                error
+              );
 
             }
 
@@ -640,15 +469,13 @@ function openDB() {
 
             console.error(
               "CATATKU IndexedDB ERROR:",
-              error
+              error.name,
+              error.message
             );
 
 
-            db =
-              null;
-
-            dbOpening =
-              null;
+            db = null;
+            dbOpening = null;
 
 
             setDatabaseStatus(
@@ -656,7 +483,9 @@ function openDB() {
             );
 
 
-            reject(error);
+            reject(
+              error
+            );
 
           };
 
@@ -669,7 +498,7 @@ function openDB() {
           function() {
 
             console.warn(
-              "IndexedDB blocked"
+              "IndexedDB OPEN BLOCKED"
             );
 
 
@@ -677,11 +506,6 @@ function openDB() {
               "Database sedang digunakan"
             );
 
-
-            /*
-             * Jangan membuat database baru
-             * dari callback blocked.
-             */
           };
 
       }
@@ -689,6 +513,63 @@ function openDB() {
 
 
   return dbOpening;
+
+}
+
+
+/* =========================================================
+   PASTIKAN DATABASE SIAP
+   ========================================================= */
+
+async function ensureDB() {
+
+  try {
+
+    const database =
+      await openDB();
+
+
+    if (
+      !database
+    ) {
+
+      throw new Error(
+        "Database tidak tersedia"
+      );
+
+    }
+
+
+    if (
+      !hasAllStores(
+        database
+      )
+    ) {
+
+      throw new Error(
+        "Object store database tidak lengkap"
+      );
+
+    }
+
+
+    return database;
+
+  }
+  catch (error) {
+
+    console.error(
+      "ensureDB:",
+      error
+    );
+
+
+    db = null;
+
+
+    throw error;
+
+  }
 
 }
 
@@ -703,13 +584,27 @@ async function dbPut(
 ) {
 
   const database =
-    await openDB();
+    await ensureDB();
+
+
+  if (
+    !Object.values(STORE)
+      .includes(storeName)
+  ) {
+
+    throw new Error(
+      "Store tidak dikenal: " +
+      storeName
+    );
+
+  }
 
 
   return new Promise(
     function(resolve, reject) {
 
       let tx;
+
 
       try {
 
@@ -767,9 +662,25 @@ async function dbPut(
           };
 
       }
-      catch(error) {
+      catch (error) {
 
-        reject(error);
+        console.error(
+          "dbPut:",
+          error
+        );
+
+
+        /* ---------------------------------------------
+           Jika koneksi DB sudah mati
+           coba buka ulang
+           --------------------------------------------- */
+
+        db = null;
+
+
+        reject(
+          error
+        );
 
       }
 
@@ -788,7 +699,7 @@ async function dbGetAll(
 ) {
 
   const database =
-    await openDB();
+    await ensureDB();
 
 
   return new Promise(
@@ -834,9 +745,13 @@ async function dbGetAll(
           };
 
       }
-      catch(error) {
+      catch (error) {
 
-        reject(error);
+        db = null;
+
+        reject(
+          error
+        );
 
       }
 
@@ -856,12 +771,14 @@ async function dbGet(
 ) {
 
   if (!id) {
+
     return undefined;
+
   }
 
 
   const database =
-    await openDB();
+    await ensureDB();
 
 
   return new Promise(
@@ -898,15 +815,22 @@ async function dbGet(
           function() {
 
             reject(
-              request.error
+              request.error ||
+              new Error(
+                "Gagal membaca data"
+              )
             );
 
           };
 
       }
-      catch(error) {
+      catch (error) {
 
-        reject(error);
+        db = null;
+
+        reject(
+          error
+        );
 
       }
 
@@ -926,12 +850,14 @@ async function dbDelete(
 ) {
 
   if (!id) {
+
     return false;
+
   }
 
 
   const database =
-    await openDB();
+    await ensureDB();
 
 
   return new Promise(
@@ -948,7 +874,9 @@ async function dbDelete(
 
         tx.objectStore(
           storeName
-        ).delete(id);
+        ).delete(
+          id
+        );
 
 
         tx.oncomplete =
@@ -965,16 +893,35 @@ async function dbDelete(
           function() {
 
             reject(
-              tx.error
+              tx.error ||
+              new Error(
+                "Gagal menghapus data"
+              )
             );
 
           };
 
 
-      }
-      catch(error) {
+        tx.onabort =
+          function() {
 
-        reject(error);
+            reject(
+              tx.error ||
+              new Error(
+                "Penghapusan dibatalkan"
+              )
+            );
+
+          };
+
+      }
+      catch (error) {
+
+        db = null;
+
+        reject(
+          error
+        );
 
       }
 
@@ -982,7 +929,6 @@ async function dbDelete(
   );
 
 }
-
 
 /* =========================================================
    QUEUE
@@ -3413,7 +3359,10 @@ async function init() {
      */
 
     await openDB();
-
+await dbGetAll(STORE.barang);
+await dbGetAll(STORE.transaksi);
+await dbGetAll(STORE.penjualan);
+await dbGetAll(STORE.queue);
 
     setDatabaseStatus(
       "Database lokal siap"
