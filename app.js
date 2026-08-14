@@ -2,9 +2,17 @@
    CATATKU
    app.js
    Frontend PWA + Google Apps Script
+   FIX:
+   - Tombol Simpan Barang
+   - Tombol Simpan Transaksi
+   - Simpan offline
+   - Queue IndexedDB
+   - Sinkronisasi otomatis
+   - Error handling
    ========================================================= */
 
 "use strict";
+
 
 /* =========================================================
    KONFIGURASI GAS
@@ -13,12 +21,25 @@
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbxrgQIppwaphvBIQjMbV6e5EO18C6O066k0jbBvRWPCKKV1rp9A7TQhZfM9_I01lL6a/exec";
 
-const API_KEY = "CATATKU-2026-PRIBADI";
+const API_KEY =
+  "CATATKU-2026-PRIBADI";
 
-const DB_NAME = "CatatKuDB";
-const DB_VERSION = 1;
-const QUEUE_STORE = "syncQueue";
-const CACHE_STORE = "appCache";
+
+/* =========================================================
+   INDEXED DB
+   ========================================================= */
+
+const DB_NAME =
+  "CatatKuDB";
+
+const DB_VERSION =
+  1;
+
+const QUEUE_STORE =
+  "syncQueue";
+
+const CACHE_STORE =
+  "appCache";
 
 
 /* =========================================================
@@ -26,77 +47,158 @@ const CACHE_STORE = "appCache";
    ========================================================= */
 
 let appData = {
+
   dashboard: {},
+
   kategori: [],
+
   barang: [],
+
   history: [],
+
   hutang: [],
+
   laporan: {}
+
 };
 
-let transactionType = "PEMASUKAN";
+
+let transactionType =
+  "PEMASUKAN";
+
 
 let db = null;
 
-let currentBarangList = [];
-let currentHistoryList = [];
 
-let syncRunning = false;
+let currentBarangList =
+  [];
+
+
+let currentHistoryList =
+  [];
+
+
+let syncRunning =
+  false;
+
+
+let toastTimer =
+  null;
 
 
 /* =========================================================
    START APPLICATION
    ========================================================= */
 
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener(
+  "DOMContentLoaded",
+  async function () {
 
-  console.log("CatatKu mulai...");
+    console.log(
+      "CatatKu mulai..."
+    );
 
-  initDates();
-  initEvents();
-  initDB();
 
-  updateOnlineStatus();
+    initDates();
 
-  window.addEventListener("online", function () {
+    initEvents();
+
     updateOnlineStatus();
-    syncOffline();
-  });
 
-  window.addEventListener("offline", function () {
-    updateOnlineStatus();
-    setSyncText("Offline — data akan disimpan di perangkat");
-  });
 
-  try {
+    window.addEventListener(
+      "online",
+      function () {
 
-    await openDatabase();
+        updateOnlineStatus();
 
-    await loadLocalCache();
+        setSyncText(
+          "Online — sinkronisasi..."
+        );
 
-    updateSyncBadge();
+        syncOffline();
 
-    if (navigator.onLine) {
-      await loadAppData();
-    } else {
-      setSyncText("Offline — menggunakan data tersimpan");
+      }
+    );
+
+
+    window.addEventListener(
+      "offline",
+      function () {
+
+        updateOnlineStatus();
+
+        setSyncText(
+          "Offline — data akan disimpan di perangkat"
+        );
+
+      }
+    );
+
+
+    try {
+
+      /*
+       * Buka IndexedDB terlebih dahulu.
+       */
+      await openDatabase();
+
+
+      /*
+       * Ambil cache lokal.
+       */
+      await loadLocalCache();
+
+
+      /*
+       * Update badge queue.
+       */
+      await updateSyncBadge();
+
+
+      /*
+       * Jika online,
+       * ambil data terbaru dari GAS.
+       */
+      if (navigator.onLine) {
+
+        await loadAppData();
+
+      } else {
+
+        setSyncText(
+          "Offline — menggunakan data tersimpan"
+        );
+
+      }
+
+
+    } catch (error) {
+
+      console.error(
+        "Startup error:",
+        error
+      );
+
+
+      setSyncText(
+        "Mode offline"
+      );
+
+
+      showToast(
+        "Aplikasi dibuka dalam mode offline"
+      );
+
+
+    } finally {
+
+      hideLoading();
+
     }
 
-  } catch (error) {
-
-    console.error("Startup error:", error);
-
-    setSyncText("Mode offline");
-
-    showToast("Aplikasi dibuka dalam mode offline");
-
-  } finally {
-
-    hideLoading();
-
   }
-
-});
+);
 
 
 /* =========================================================
@@ -105,8 +207,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 function initEvents() {
 
+
   const transactionForm =
-    document.getElementById("transactionForm");
+    document.getElementById(
+      "transactionForm"
+    );
+
 
   if (transactionForm) {
 
@@ -119,7 +225,10 @@ function initEvents() {
 
 
   const barangForm =
-    document.getElementById("barangForm");
+    document.getElementById(
+      "barangForm"
+    );
+
 
   if (barangForm) {
 
@@ -132,7 +241,10 @@ function initEvents() {
 
 
   const penjualanForm =
-    document.getElementById("penjualanForm");
+    document.getElementById(
+      "penjualanForm"
+    );
+
 
   if (penjualanForm) {
 
@@ -145,7 +257,10 @@ function initEvents() {
 
 
   const belanjaForm =
-    document.getElementById("belanjaForm");
+    document.getElementById(
+      "belanjaForm"
+    );
+
 
   if (belanjaForm) {
 
@@ -158,7 +273,10 @@ function initEvents() {
 
 
   const hutangForm =
-    document.getElementById("hutangForm");
+    document.getElementById(
+      "hutangForm"
+    );
+
 
   if (hutangForm) {
 
@@ -171,49 +289,74 @@ function initEvents() {
 
 
   const jualQty =
-    document.getElementById("jualQty");
+    document.getElementById(
+      "jualQty"
+    );
+
 
   const jualHarga =
-    document.getElementById("jualHarga");
+    document.getElementById(
+      "jualHarga"
+    );
+
 
   if (jualQty) {
+
     jualQty.addEventListener(
       "input",
       updateJualTotal
     );
+
   }
 
+
   if (jualHarga) {
+
     jualHarga.addEventListener(
       "input",
       updateJualTotal
     );
+
   }
 
 
   const belanjaQty =
-    document.getElementById("belanjaQty");
+    document.getElementById(
+      "belanjaQty"
+    );
+
 
   const belanjaHarga =
-    document.getElementById("belanjaHarga");
+    document.getElementById(
+      "belanjaHarga"
+    );
+
 
   if (belanjaQty) {
+
     belanjaQty.addEventListener(
       "input",
       updateBelanjaTotal
     );
+
   }
 
+
   if (belanjaHarga) {
+
     belanjaHarga.addEventListener(
       "input",
       updateBelanjaTotal
     );
+
   }
 
 
   const jualBarang =
-    document.getElementById("jualBarang");
+    document.getElementById(
+      "jualBarang"
+    );
+
 
   if (jualBarang) {
 
@@ -226,7 +369,10 @@ function initEvents() {
 
 
   const belanjaBarang =
-    document.getElementById("belanjaBarang");
+    document.getElementById(
+      "belanjaBarang"
+    );
+
 
   if (belanjaBarang) {
 
@@ -244,9 +390,16 @@ function initEvents() {
 
       if (event.key === "Escape") {
 
-        closeModal("barangModal");
-        closeModal("hutangModal");
+        closeModal(
+          "barangModal"
+        );
+
+        closeModal(
+          "hutangModal"
+        );
+
         closeMoreMenu();
+
         closeQuickAdd();
 
       }
@@ -263,36 +416,68 @@ function initEvents() {
 
 function initDates() {
 
-  const today = getLocalDate();
+  const today =
+    getLocalDate();
+
 
   const trxTanggal =
-    document.getElementById("trxTanggal");
+    document.getElementById(
+      "trxTanggal"
+    );
 
-  if (trxTanggal && !trxTanggal.value) {
-    trxTanggal.value = today;
+
+  if (
+    trxTanggal &&
+    !trxTanggal.value
+  ) {
+
+    trxTanggal.value =
+      today;
+
   }
+
 
   const reportStart =
-    document.getElementById("reportStart");
+    document.getElementById(
+      "reportStart"
+    );
+
 
   const reportEnd =
-    document.getElementById("reportEnd");
+    document.getElementById(
+      "reportEnd"
+    );
 
-  if (reportEnd && !reportEnd.value) {
-    reportEnd.value = today;
+
+  if (
+    reportEnd &&
+    !reportEnd.value
+  ) {
+
+    reportEnd.value =
+      today;
+
   }
 
-  if (reportStart && !reportStart.value) {
+
+  if (
+    reportStart &&
+    !reportStart.value
+  ) {
 
     const date =
       new Date();
+
 
     date.setDate(
       date.getDate() - 30
     );
 
+
     reportStart.value =
-      formatDateInput(date);
+      formatDateInput(
+        date
+      );
 
   }
 
@@ -301,38 +486,76 @@ function initDates() {
 
 function getLocalDate() {
 
-  const d = new Date();
+  const d =
+    new Date();
+
 
   const year =
     d.getFullYear();
 
+
   const month =
-    String(d.getMonth() + 1)
-      .padStart(2, "0");
+    String(
+      d.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
 
   const day =
-    String(d.getDate())
-      .padStart(2, "0");
+    String(
+      d.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
 
-  return `${year}-${month}-${day}`;
+
+  return (
+    year +
+    "-" +
+    month +
+    "-" +
+    day
+  );
 
 }
 
 
-function formatDateInput(date) {
+function formatDateInput(
+  date
+) {
 
   const year =
     date.getFullYear();
 
+
   const month =
-    String(date.getMonth() + 1)
-      .padStart(2, "0");
+    String(
+      date.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
 
   const day =
-    String(date.getDate())
-      .padStart(2, "0");
+    String(
+      date.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
 
-  return `${year}-${month}-${day}`;
+
+  return (
+    year +
+    "-" +
+    month +
+    "-" +
+    day
+  );
 
 }
 
@@ -341,147 +564,115 @@ function formatDateInput(date) {
    INDEXED DB
    ========================================================= */
 
-function initDB() {
-
-  try {
-
-    const request =
-      indexedDB.open(
-        DB_NAME,
-        DB_VERSION
-      );
-
-    request.onupgradeneeded =
-      function (event) {
-
-        const database =
-          event.target.result;
-
-        if (!database.objectStoreNames.contains(QUEUE_STORE)) {
-
-          database.createObjectStore(
-            QUEUE_STORE,
-            {
-              keyPath: "id",
-              autoIncrement: true
-            }
-          );
-
-        }
-
-        if (!database.objectStoreNames.contains(CACHE_STORE)) {
-
-          database.createObjectStore(
-            CACHE_STORE,
-            {
-              keyPath: "key"
-            }
-          );
-
-        }
-
-      };
-
-    request.onsuccess =
-      function (event) {
-
-        db =
-          event.target.result;
-
-        console.log(
-          "IndexedDB aktif"
-        );
-
-      };
-
-    request.onerror =
-      function (event) {
-
-        console.warn(
-          "IndexedDB gagal:",
-          event.target.error
-        );
-
-      };
-
-  } catch (error) {
-
-    console.warn(
-      "IndexedDB tidak tersedia:",
-      error
-    );
-
-  }
-
-}
-
-
 function openDatabase() {
 
-  return new Promise(function (resolve, reject) {
+  return new Promise(
+    function (resolve, reject) {
 
-    if (db) {
-      resolve(db);
-      return;
-    }
-
-    const request =
-      indexedDB.open(
-        DB_NAME,
-        DB_VERSION
-      );
-
-    request.onupgradeneeded =
-      function (event) {
-
-        const database =
-          event.target.result;
-
-        if (!database.objectStoreNames.contains(QUEUE_STORE)) {
-
-          database.createObjectStore(
-            QUEUE_STORE,
-            {
-              keyPath: "id",
-              autoIncrement: true
-            }
-          );
-
-        }
-
-        if (!database.objectStoreNames.contains(CACHE_STORE)) {
-
-          database.createObjectStore(
-            CACHE_STORE,
-            {
-              keyPath: "key"
-            }
-          );
-
-        }
-
-      };
-
-    request.onsuccess =
-      function (event) {
-
-        db =
-          event.target.result;
+      if (db) {
 
         resolve(db);
 
-      };
+        return;
 
-    request.onerror =
-      function () {
+      }
+
+
+      if (
+        !window.indexedDB
+      ) {
 
         reject(
-          request.error
+          new Error(
+            "IndexedDB tidak tersedia"
+          )
         );
 
-      };
+        return;
 
-  });
+      }
+
+
+      const request =
+        indexedDB.open(
+          DB_NAME,
+          DB_VERSION
+        );
+
+
+      request.onupgradeneeded =
+        function (event) {
+
+          const database =
+            event.target.result;
+
+
+          if (
+            !database.objectStoreNames.contains(
+              QUEUE_STORE
+            )
+          ) {
+
+            database.createObjectStore(
+              QUEUE_STORE,
+              {
+                keyPath: "id",
+                autoIncrement: true
+              }
+            );
+
+          }
+
+
+          if (
+            !database.objectStoreNames.contains(
+              CACHE_STORE
+            )
+          ) {
+
+            database.createObjectStore(
+              CACHE_STORE,
+              {
+                keyPath: "key"
+              }
+            );
+
+          }
+
+        };
+
+
+      request.onsuccess =
+        function (event) {
+
+          db =
+            event.target.result;
+
+
+          console.log(
+            "IndexedDB aktif"
+          );
+
+
+          resolve(db);
+
+        };
+
+
+      request.onerror =
+        function () {
+
+          reject(
+            request.error ||
+            new Error(
+              "Gagal membuka IndexedDB"
+            )
+          );
+
+        };
+
+    }
+  );
 
 }
 
@@ -490,85 +681,124 @@ function openDatabase() {
    CACHE
    ========================================================= */
 
-async function saveCache(key, value) {
+async function saveCache(
+  key,
+  value
+) {
 
-  if (!db) return;
+  if (!db) {
 
-  return new Promise(function (resolve, reject) {
+    await openDatabase();
 
-    const transaction =
-      db.transaction(
-        CACHE_STORE,
-        "readwrite"
-      );
+  }
 
-    const store =
-      transaction.objectStore(
-        CACHE_STORE
-      );
 
-    store.put({
-      key: key,
-      value: value,
-      savedAt: Date.now()
-    });
+  return new Promise(
+    function (resolve, reject) {
 
-    transaction.oncomplete =
-      function () {
-        resolve();
-      };
-
-    transaction.onerror =
-      function () {
-        reject(
-          transaction.error
+      const transaction =
+        db.transaction(
+          CACHE_STORE,
+          "readwrite"
         );
-      };
 
-  });
+
+      const store =
+        transaction.objectStore(
+          CACHE_STORE
+        );
+
+
+      store.put({
+        key: key,
+        value: value,
+        savedAt: Date.now()
+      });
+
+
+      transaction.oncomplete =
+        function () {
+
+          resolve();
+
+        };
+
+
+      transaction.onerror =
+        function () {
+
+          reject(
+            transaction.error
+          );
+
+        };
+
+    }
+  );
 
 }
 
 
-async function getCache(key) {
+async function getCache(
+  key
+) {
 
-  if (!db) return null;
+  if (!db) {
 
-  return new Promise(function (resolve) {
+    try {
 
-    const transaction =
-      db.transaction(
-        CACHE_STORE,
-        "readonly"
-      );
+      await openDatabase();
 
-    const store =
-      transaction.objectStore(
-        CACHE_STORE
-      );
+    } catch (error) {
 
-    const request =
-      store.get(key);
+      return null;
 
-    request.onsuccess =
-      function () {
+    }
 
-        resolve(
-          request.result
-            ? request.result.value
-            : null
+  }
+
+
+  return new Promise(
+    function (resolve) {
+
+      const transaction =
+        db.transaction(
+          CACHE_STORE,
+          "readonly"
         );
 
-      };
 
-    request.onerror =
-      function () {
+      const store =
+        transaction.objectStore(
+          CACHE_STORE
+        );
 
-        resolve(null);
 
-      };
+      const request =
+        store.get(key);
 
-  });
+
+      request.onsuccess =
+        function () {
+
+          resolve(
+            request.result
+              ? request.result.value
+              : null
+          );
+
+        };
+
+
+      request.onerror =
+        function () {
+
+          resolve(null);
+
+        };
+
+    }
+  );
 
 }
 
@@ -578,18 +808,31 @@ async function loadLocalCache() {
   try {
 
     const cached =
-      await getCache("appData");
+      await getCache(
+        "appData"
+      );
 
-    if (!cached) return;
+
+    if (!cached) {
+
+      return;
+
+    }
+
 
     appData =
-      normalizeAppData(cached);
+      normalizeAppData(
+        cached
+      );
+
 
     renderAll();
+
 
     console.log(
       "Data lokal dimuat"
     );
+
 
   } catch (error) {
 
@@ -607,35 +850,51 @@ async function loadLocalCache() {
    NORMALIZE DATA
    ========================================================= */
 
-function normalizeAppData(data) {
+function normalizeAppData(
+  data
+) {
 
   data =
     data || {};
+
 
   return {
 
     dashboard:
       data.dashboard || {},
 
+
     kategori:
-      Array.isArray(data.kategori)
+      Array.isArray(
+        data.kategori
+      )
         ? data.kategori
         : [],
 
+
     barang:
-      Array.isArray(data.barang)
+      Array.isArray(
+        data.barang
+      )
         ? data.barang
         : [],
 
+
     history:
-      Array.isArray(data.history)
+      Array.isArray(
+        data.history
+      )
         ? data.history
         : [],
 
+
     hutang:
-      Array.isArray(data.hutang)
+      Array.isArray(
+        data.hutang
+      )
         ? data.hutang
         : [],
+
 
     laporan:
       data.laporan || {}
@@ -655,55 +914,119 @@ async function gasRequest(
   method = "GET"
 ) {
 
+  console.log(
+    "GAS REQUEST:",
+    action,
+    params
+  );
+
+
   const data = {
-    action: action,
-    key: API_KEY,
+
+    action:
+      action,
+
+    key:
+      API_KEY,
+
     ...params
+
   };
+
 
   let url =
     GAS_URL;
 
-  let options = {
-    method: method,
-    redirect: "follow"
-  };
+
+  /*
+   * Gunakan GET untuk GAS.
+   * Ini menghindari masalah preflight
+   * yang sering terjadi pada fetch POST.
+   */
+
+  const query =
+    new URLSearchParams();
 
 
-  if (method === "GET") {
+  Object.keys(data).forEach(
+    function (key) {
 
-    const query =
-      new URLSearchParams(
-        data
-      ).toString();
+      const value =
+        data[key];
 
-    url +=
-      "?" + query;
 
-  } else {
+      if (
+        value !== undefined &&
+        value !== null
+      ) {
 
-    options.headers = {
-      "Content-Type":
-        "text/plain;charset=utf-8"
-    };
+        query.append(
+          key,
+          String(value)
+        );
 
-    options.body =
-      JSON.stringify(data);
+      }
+
+    }
+  );
+
+
+  url +=
+    "?" +
+    query.toString();
+
+
+  console.log(
+    "GAS URL:",
+    url
+  );
+
+
+  let response;
+
+
+  try {
+
+    response =
+      await fetch(
+        url,
+        {
+          method: "GET",
+          redirect: "follow",
+          cache: "no-store"
+        }
+      );
+
+
+  } catch (networkError) {
+
+    console.error(
+      "FETCH GAS ERROR:",
+      networkError
+    );
+
+
+    throw new Error(
+      "Tidak dapat terhubung ke server GAS"
+    );
 
   }
 
 
-  const response =
-    await fetch(
-      url,
-      options
-    );
+  console.log(
+    "GAS HTTP:",
+    response.status,
+    response.statusText
+  );
+
 
   if (!response.ok) {
 
     throw new Error(
       "HTTP " +
-      response.status
+      response.status +
+      " " +
+      response.statusText
     );
 
   }
@@ -712,12 +1035,31 @@ async function gasRequest(
   const text =
     await response.text();
 
+
+  console.log(
+    "GAS RAW RESPONSE:",
+    text
+  );
+
+
+  if (!text) {
+
+    throw new Error(
+      "GAS tidak mengirim response"
+    );
+
+  }
+
+
   let result;
+
 
   try {
 
     result =
-      JSON.parse(text);
+      JSON.parse(
+        text
+      );
 
   } catch (error) {
 
@@ -726,11 +1068,18 @@ async function gasRequest(
       text
     );
 
+
     throw new Error(
-      "Response GAS tidak valid"
+      "Response GAS bukan JSON"
     );
 
   }
+
+
+  console.log(
+    "GAS JSON:",
+    result
+  );
 
 
   if (
@@ -740,6 +1089,7 @@ async function gasRequest(
 
     throw new Error(
       result.error ||
+      result.message ||
       "GAS mengembalikan error"
     );
 
@@ -780,6 +1130,7 @@ async function loadAppData() {
         "appData"
       );
 
+
     if (
       result &&
       result.success === false
@@ -792,12 +1143,6 @@ async function loadAppData() {
 
     }
 
-
-    /*
-     * Beberapa versi GAS mengembalikan
-     * data langsung, beberapa memakai
-     * result.data.
-     */
 
     const data =
       result.data ||
@@ -818,18 +1163,26 @@ async function loadAppData() {
 
     renderAll();
 
+
     setSyncText(
       "Data tersinkron"
     );
 
-    updateSyncBadge();
 
+    await updateSyncBadge();
+
+
+    /*
+     * Sinkronkan queue jika ada.
+     */
 
     if (navigator.onLine) {
 
       setTimeout(
         function () {
+
           syncOffline();
+
         },
         500
       );
@@ -844,12 +1197,19 @@ async function loadAppData() {
       error
     );
 
+
     setSyncText(
       "Gagal terhubung — data lokal digunakan"
     );
 
-    showToast(
-      "Server tidak dapat diakses"
+
+    /*
+     * Jangan terlalu sering menampilkan
+     * toast ketika startup.
+     */
+
+    console.warn(
+      "Data lokal tetap digunakan"
     );
 
   }
@@ -952,7 +1312,12 @@ function renderRecentTransactions() {
       "recentTransactions"
     );
 
-  if (!container) return;
+
+  if (!container) {
+
+    return;
+
+  }
 
 
   const list =
@@ -966,9 +1331,11 @@ function renderRecentTransactions() {
   if (!list.length) {
 
     container.innerHTML =
-      `<div class="empty">
+      `
+      <div class="empty">
         Belum ada transaksi
-      </div>`;
+      </div>
+      `;
 
     return;
 
@@ -977,7 +1344,10 @@ function renderRecentTransactions() {
 
   container.innerHTML =
     list
-      .slice(0, 5)
+      .slice(
+        0,
+        5
+      )
       .map(
         transactionHTML
       )
@@ -997,7 +1367,12 @@ function renderKategori() {
       "trxKategori"
     );
 
-  if (!select) return;
+
+  if (!select) {
+
+    return;
+
+  }
 
 
   const oldValue =
@@ -1005,9 +1380,11 @@ function renderKategori() {
 
 
   let html =
-    `<option value="">
+    `
+    <option value="">
       Pilih kategori
-    </option>`;
+    </option>
+    `;
 
 
   const type =
@@ -1025,15 +1402,20 @@ function renderKategori() {
   categories.forEach(
     function (item) {
 
-      let nama = "";
-      let jenis = "";
+      let nama =
+        "";
+
+      let jenis =
+        "";
 
 
       if (
-        typeof item === "string"
+        typeof item ===
+        "string"
       ) {
 
-        nama = item;
+        nama =
+          item;
 
       } else {
 
@@ -1042,6 +1424,7 @@ function renderKategori() {
           item.kategori ||
           item.name ||
           "";
+
 
         jenis =
           String(
@@ -1054,27 +1437,30 @@ function renderKategori() {
       }
 
 
-      if (!nama) return;
+      if (!nama) {
 
+        return;
 
-      /*
-       * Jika kategori punya jenis,
-       * tampilkan hanya yang sesuai.
-       */
+      }
+
 
       if (
         jenis &&
         jenis !== type &&
         jenis !== "SEMUA"
       ) {
+
         return;
+
       }
 
 
       html +=
-        `<option value="${escapeAttr(nama)}">
+        `
+        <option value="${escapeAttr(nama)}">
           ${escapeHTML(nama)}
-        </option>`;
+        </option>
+        `;
 
     }
   );
@@ -1085,8 +1471,10 @@ function renderKategori() {
 
 
   if (oldValue) {
+
     select.value =
       oldValue;
+
   }
 
 }
@@ -1096,10 +1484,15 @@ function renderKategori() {
    TRANSACTION TYPE
    ========================================================= */
 
-function setTransactionType(type) {
+function setTransactionType(
+  type
+) {
 
   transactionType =
-    String(type || "PEMASUKAN")
+    String(
+      type ||
+      "PEMASUKAN"
+    )
       .toUpperCase();
 
 
@@ -1107,6 +1500,7 @@ function setTransactionType(type) {
     document.getElementById(
       "tabIncome"
     );
+
 
   const expense =
     document.getElementById(
@@ -1141,26 +1535,36 @@ function setTransactionType(type) {
 }
 
 
-function quickTransaction(type) {
+function quickTransaction(
+  type
+) {
 
   closeQuickAdd();
 
-  showPage("add");
+
+  showPage(
+    "add"
+  );
+
 
   setTransactionType(
     type
   );
+
 
   const field =
     document.getElementById(
       "trxKeterangan"
     );
 
+
   if (field) {
 
     setTimeout(
       function () {
+
         field.focus();
+
       },
       150
     );
@@ -1172,39 +1576,105 @@ function quickTransaction(type) {
 
 /* =========================================================
    SUBMIT TRANSACTION
+   FIX
    ========================================================= */
 
-async function submitTransaction(event) {
+async function submitTransaction(
+  event
+) {
 
   event.preventDefault();
 
 
+  console.log(
+    "SUBMIT TRANSACTION"
+  );
+
+
   const tanggal =
-    valueOf("trxTanggal");
+    valueOf(
+      "trxTanggal"
+    );
+
 
   const kategori =
-    valueOf("trxKategori");
+    valueOf(
+      "trxKategori"
+    );
+
 
   const keterangan =
-    valueOf("trxKeterangan");
+    valueOf(
+      "trxKeterangan"
+    );
+
 
   const nominal =
     numberValue(
-      valueOf("trxNominal")
+      valueOf(
+        "trxNominal"
+      )
     );
 
+
   const rekening =
-    valueOf("trxRekening") ||
+    valueOf(
+      "trxRekening"
+    ) ||
     "Kas";
 
 
-  if (!tanggal ||
-      !kategori ||
-      !keterangan ||
-      nominal <= 0) {
+  console.log(
+    "DATA TRANSAKSI:",
+    {
+      tanggal,
+      jenis:
+        transactionType,
+      kategori,
+      keterangan,
+      nominal,
+      rekening
+    }
+  );
+
+
+  if (!tanggal) {
 
     showToast(
-      "Lengkapi data transaksi"
+      "Tanggal belum diisi"
+    );
+
+    return;
+
+  }
+
+
+  if (!kategori) {
+
+    showToast(
+      "Pilih kategori"
+    );
+
+    return;
+
+  }
+
+
+  if (!keterangan) {
+
+    showToast(
+      "Keterangan belum diisi"
+    );
+
+    return;
+
+  }
+
+
+  if (nominal <= 0) {
+
+    showToast(
+      "Nominal harus lebih dari 0"
     );
 
     return;
@@ -1235,27 +1705,112 @@ async function submitTransaction(event) {
   };
 
 
-  await saveOrQueue(
-    "tambahTransaksi",
-    payload
-  );
+  const button =
+    event.submitter ||
+    event.target.querySelector(
+      'button[type="submit"]'
+    );
 
 
-  event.target.reset();
+  if (button) {
 
-  document.getElementById(
-    "trxTanggal"
-  ).value =
-    getLocalDate();
+    button.disabled =
+      true;
 
-  document.getElementById(
-    "trxRekening"
-  ).value =
-    "Kas";
 
-  setTransactionType(
-    transactionType
-  );
+    button.dataset.oldText =
+      button.textContent;
+
+
+    button.textContent =
+      "Menyimpan...";
+
+  }
+
+
+  try {
+
+    const result =
+      await saveOrQueue(
+        "tambahTransaksi",
+        payload
+      );
+
+
+    console.log(
+      "HASIL SIMPAN TRANSAKSI:",
+      result
+    );
+
+
+    event.target.reset();
+
+
+    const tanggalInput =
+      document.getElementById(
+        "trxTanggal"
+      );
+
+
+    if (tanggalInput) {
+
+      tanggalInput.value =
+        getLocalDate();
+
+    }
+
+
+    const rekeningInput =
+      document.getElementById(
+        "trxRekening"
+      );
+
+
+    if (rekeningInput) {
+
+      rekeningInput.value =
+        "Kas";
+
+    }
+
+
+    setTransactionType(
+      transactionType
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "submitTransaction ERROR:",
+      error
+    );
+
+
+    showToast(
+      "❌ " +
+      (
+        error.message ||
+        "Gagal menyimpan transaksi"
+      )
+    );
+
+
+  } finally {
+
+    if (button) {
+
+      button.disabled =
+        false;
+
+
+      button.textContent =
+        button.dataset.oldText ||
+        "Simpan";
+
+    }
+
+  }
 
 }
 
@@ -1271,7 +1826,12 @@ function renderBarang() {
       "barangList"
     );
 
-  if (!container) return;
+
+  if (!container) {
+
+    return;
+
+  }
 
 
   currentBarangList =
@@ -1282,14 +1842,18 @@ function renderBarang() {
       : [];
 
 
-  if (!currentBarangList.length) {
+  if (
+    !currentBarangList.length
+  ) {
 
     container.innerHTML =
-      `<div class="empty">
+      `
+      <div class="empty">
         Belum ada barang.
         <br><br>
         Tekan "+ Tambah Barang".
-      </div>`;
+      </div>
+      `;
 
     return;
 
@@ -1306,7 +1870,9 @@ function renderBarang() {
 }
 
 
-function barangHTML(item) {
+function barangHTML(
+  item
+) {
 
   const id =
     item.id ||
@@ -1314,6 +1880,7 @@ function barangHTML(item) {
     item.kode ||
     item.sku ||
     "";
+
 
   const nama =
     item.nama ||
@@ -1350,13 +1917,21 @@ function barangHTML(item) {
   return `
     <div
       class="form-card"
-      style="display:flex;align-items:center;justify-content:space-between;gap:12px;"
+      style="
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+      "
     >
 
       <div style="min-width:0;">
 
         <strong
-          style="font-size:15px;display:block;"
+          style="
+            font-size:15px;
+            display:block;
+          "
         >
           ${escapeHTML(nama)}
         </strong>
@@ -1365,7 +1940,10 @@ function barangHTML(item) {
           class="small"
           style="margin-top:5px;"
         >
-          Stok: <strong>${formatNumber(stok)}</strong>
+          Stok:
+          <strong>
+            ${formatNumber(stok)}
+          </strong>
         </div>
 
         <div
@@ -1373,21 +1951,27 @@ function barangHTML(item) {
           style="margin-top:3px;"
         >
           Modal:
-          <strong>${rupiah(modal)}</strong>
+          <strong>
+            ${rupiah(modal)}
+          </strong>
         </div>
 
       </div>
 
-      <div style="text-align:right;">
+      <div
+        style="text-align:right;"
+      >
 
-        <div
-          class="small"
-        >
+        <div class="small">
           Harga Jual
         </div>
 
         <strong
-          style="display:block;color:#2563eb;margin-top:4px;"
+          style="
+            display:block;
+            color:#2563eb;
+            margin-top:4px;
+          "
         >
           ${rupiah(jual)}
         </strong>
@@ -1400,7 +1984,9 @@ function barangHTML(item) {
 }
 
 
-function filterBarang(keyword) {
+function filterBarang(
+  keyword
+) {
 
   const term =
     String(
@@ -1423,6 +2009,7 @@ function filterBarang(keyword) {
           )
             .toLowerCase();
 
+
         return nama.includes(
           term
         );
@@ -1436,15 +2023,22 @@ function filterBarang(keyword) {
       "barangList"
     );
 
-  if (!container) return;
+
+  if (!container) {
+
+    return;
+
+  }
 
 
   if (!filtered.length) {
 
     container.innerHTML =
-      `<div class="empty">
+      `
+      <div class="empty">
         Barang tidak ditemukan.
-      </div>`;
+      </div>
+      `;
 
     return;
 
@@ -1453,7 +2047,9 @@ function filterBarang(keyword) {
 
   container.innerHTML =
     filtered
-      .map(barangHTML)
+      .map(
+        barangHTML
+      )
       .join("");
 
 }
@@ -1469,6 +2065,7 @@ function renderBarangSelects() {
     document.getElementById(
       "jualBarang"
     );
+
 
   const belanja =
     document.getElementById(
@@ -1489,14 +2086,20 @@ function renderBarangSelects() {
     const old =
       jual.value;
 
+
     jual.innerHTML =
-      `<option value="">
+      `
+      <option value="">
         Pilih barang
-      </option>`;
+      </option>
+      `;
 
 
     list.forEach(
-      function (item, index) {
+      function (
+        item,
+        index
+      ) {
 
         const id =
           item.id ||
@@ -1513,16 +2116,21 @@ function renderBarangSelects() {
 
 
         jual.innerHTML +=
-          `<option value="${escapeAttr(id)}">
+          `
+          <option value="${escapeAttr(id)}">
             ${escapeHTML(nama)}
-          </option>`;
+          </option>
+          `;
 
       }
     );
 
 
     if (old) {
-      jual.value = old;
+
+      jual.value =
+        old;
+
     }
 
   }
@@ -1533,14 +2141,20 @@ function renderBarangSelects() {
     const old =
       belanja.value;
 
+
     belanja.innerHTML =
-      `<option value="">
+      `
+      <option value="">
         Pilih barang
-      </option>`;
+      </option>
+      `;
 
 
     list.forEach(
-      function (item, index) {
+      function (
+        item,
+        index
+      ) {
 
         const id =
           item.id ||
@@ -1557,16 +2171,21 @@ function renderBarangSelects() {
 
 
         belanja.innerHTML +=
-          `<option value="${escapeAttr(id)}">
+          `
+          <option value="${escapeAttr(id)}">
             ${escapeHTML(nama)}
-          </option>`;
+          </option>
+          `;
 
       }
     );
 
 
     if (old) {
-      belanja.value = old;
+
+      belanja.value =
+        old;
+
     }
 
   }
@@ -1575,13 +2194,18 @@ function renderBarangSelects() {
 
 
 /* =========================================================
-   AUTO PRICE
+   FIND BARANG
    ========================================================= */
 
-function findBarang(id) {
+function findBarang(
+  id
+) {
 
   return appData.barang.find(
-    function (item, index) {
+    function (
+      item,
+      index
+    ) {
 
       const itemId =
         item.id ||
@@ -1589,8 +2213,11 @@ function findBarang(id) {
         item.kode ||
         index;
 
-      return String(itemId) ===
-        String(id);
+
+      return (
+        String(itemId) ===
+        String(id)
+      );
 
     }
   );
@@ -1598,15 +2225,27 @@ function findBarang(id) {
 }
 
 
+/* =========================================================
+   AUTO PRICE
+   ========================================================= */
+
 function autoHargaJual() {
 
   const id =
-    valueOf("jualBarang");
+    valueOf(
+      "jualBarang"
+    );
+
 
   const barang =
     findBarang(id);
 
-  if (!barang) return;
+
+  if (!barang) {
+
+    return;
+
+  }
 
 
   const harga =
@@ -1623,7 +2262,11 @@ function autoHargaJual() {
       "jualHarga"
     );
 
-  if (input && harga > 0) {
+
+  if (
+    input &&
+    harga > 0
+  ) {
 
     input.value =
       harga;
@@ -1639,12 +2282,20 @@ function autoHargaJual() {
 function autoHargaModal() {
 
   const id =
-    valueOf("belanjaBarang");
+    valueOf(
+      "belanjaBarang"
+    );
+
 
   const barang =
     findBarang(id);
 
-  if (!barang) return;
+
+  if (!barang) {
+
+    return;
+
+  }
 
 
   const harga =
@@ -1661,7 +2312,11 @@ function autoHargaModal() {
       "belanjaHarga"
     );
 
-  if (input && harga > 0) {
+
+  if (
+    input &&
+    harga > 0
+  ) {
 
     input.value =
       harga;
@@ -1682,12 +2337,17 @@ function updateJualTotal() {
 
   const qty =
     numberValue(
-      valueOf("jualQty")
+      valueOf(
+        "jualQty"
+      )
     );
+
 
   const harga =
     numberValue(
-      valueOf("jualHarga")
+      valueOf(
+        "jualHarga"
+      )
     );
 
 
@@ -1701,32 +2361,47 @@ function updateJualTotal() {
 }
 
 
-async function submitPenjualan(event) {
+async function submitPenjualan(
+  event
+) {
 
   event.preventDefault();
 
 
   const barang =
-    valueOf("jualBarang");
+    valueOf(
+      "jualBarang"
+    );
+
 
   const qty =
     numberValue(
-      valueOf("jualQty")
+      valueOf(
+        "jualQty"
+      )
     );
+
 
   const harga =
     numberValue(
-      valueOf("jualHarga")
+      valueOf(
+        "jualHarga"
+      )
     );
 
+
   const pelanggan =
-    valueOf("jualPelanggan") ||
+    valueOf(
+      "jualPelanggan"
+    ) ||
     "Umum";
 
 
-  if (!barang ||
-      qty <= 0 ||
-      harga <= 0) {
+  if (
+    !barang ||
+    qty <= 0 ||
+    harga <= 0
+  ) {
 
     showToast(
       "Lengkapi data penjualan"
@@ -1773,19 +2448,66 @@ async function submitPenjualan(event) {
   };
 
 
-  await saveOrQueue(
-    "tambahPenjualan",
-    payload
-  );
+  const button =
+    event.submitter ||
+    event.target.querySelector(
+      'button[type="submit"]'
+    );
 
 
-  event.target.reset();
+  if (button) {
 
-  setText(
-    "jualTotalPreview",
-    "Rp 0"
-  );
+    button.disabled =
+      true;
 
+    button.dataset.oldText =
+      button.textContent;
+
+    button.textContent =
+      "Menyimpan...";
+
+  }
+
+
+  try {
+
+    await saveOrQueue(
+      "tambahPenjualan",
+      payload
+    );
+
+
+    event.target.reset();
+
+
+    setText(
+      "jualTotalPreview",
+      "Rp 0"
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "submitPenjualan:",
+      error
+    );
+
+
+  } finally {
+
+    if (button) {
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        button.dataset.oldText ||
+        "Simpan";
+
+    }
+
+  }
 
 }
 
@@ -1798,12 +2520,17 @@ function updateBelanjaTotal() {
 
   const qty =
     numberValue(
-      valueOf("belanjaQty")
+      valueOf(
+        "belanjaQty"
+      )
     );
+
 
   const harga =
     numberValue(
-      valueOf("belanjaHarga")
+      valueOf(
+        "belanjaHarga"
+      )
     );
 
 
@@ -1817,32 +2544,47 @@ function updateBelanjaTotal() {
 }
 
 
-async function submitBelanja(event) {
+async function submitBelanja(
+  event
+) {
 
   event.preventDefault();
 
 
   const barang =
-    valueOf("belanjaBarang");
+    valueOf(
+      "belanjaBarang"
+    );
+
 
   const qty =
     numberValue(
-      valueOf("belanjaQty")
+      valueOf(
+        "belanjaQty"
+      )
     );
+
 
   const harga =
     numberValue(
-      valueOf("belanjaHarga")
+      valueOf(
+        "belanjaHarga"
+      )
     );
 
+
   const supplier =
-    valueOf("belanjaSupplier") ||
+    valueOf(
+      "belanjaSupplier"
+    ) ||
     "";
 
 
-  if (!barang ||
-      qty <= 0 ||
-      harga <= 0) {
+  if (
+    !barang ||
+    qty <= 0 ||
+    harga <= 0
+  ) {
 
     showToast(
       "Lengkapi data belanja"
@@ -1889,33 +2631,92 @@ async function submitBelanja(event) {
   };
 
 
-  await saveOrQueue(
-    "tambahBelanja",
-    payload
-  );
+  const button =
+    event.submitter ||
+    event.target.querySelector(
+      'button[type="submit"]'
+    );
 
 
-  event.target.reset();
+  if (button) {
 
-  setText(
-    "belanjaTotalPreview",
-    "Rp 0"
-  );
+    button.disabled =
+      true;
+
+    button.dataset.oldText =
+      button.textContent;
+
+    button.textContent =
+      "Menyimpan...";
+
+  }
+
+
+  try {
+
+    await saveOrQueue(
+      "tambahBelanja",
+      payload
+    );
+
+
+    event.target.reset();
+
+
+    setText(
+      "belanjaTotalPreview",
+      "Rp 0"
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "submitBelanja:",
+      error
+    );
+
+
+  } finally {
+
+    if (button) {
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        button.dataset.oldText ||
+        "Simpan";
+
+    }
+
+  }
 
 }
 
 
 /* =========================================================
    TAMBAH BARANG
+   FIX
    ========================================================= */
 
-async function submitBarang(event) {
+async function submitBarang(
+  event
+) {
 
   event.preventDefault();
 
 
+  console.log(
+    "SUBMIT BARANG"
+  );
+
+
   const nama =
-    valueOf("barangNama");
+    valueOf(
+      "barangNama"
+    );
+
 
   const hargaModal =
     numberValue(
@@ -1924,6 +2725,7 @@ async function submitBarang(event) {
       )
     );
 
+
   const hargaJual =
     numberValue(
       valueOf(
@@ -1931,19 +2733,45 @@ async function submitBarang(event) {
       )
     );
 
+
   const stok =
     numberValue(
-      valueOf("barangStok")
+      valueOf(
+        "barangStok"
+      )
     );
 
 
-  if (!nama ||
-      hargaModal < 0 ||
-      hargaJual < 0 ||
-      stok < 0) {
+  console.log(
+    "DATA BARANG:",
+    {
+      nama,
+      hargaModal,
+      hargaJual,
+      stok
+    }
+  );
+
+
+  if (!nama) {
 
     showToast(
-      "Data barang belum lengkap"
+      "Nama barang wajib diisi"
+    );
+
+    return;
+
+  }
+
+
+  if (
+    hargaModal < 0 ||
+    hargaJual < 0 ||
+    stok < 0
+  ) {
+
+    showToast(
+      "Harga/stok tidak valid"
     );
 
     return;
@@ -1974,18 +2802,89 @@ async function submitBarang(event) {
   };
 
 
-  await saveOrQueue(
-    "tambahBarang",
-    payload
-  );
+  const button =
+    event.submitter ||
+    event.target.querySelector(
+      'button[type="submit"]'
+    );
 
 
-  event.target.reset();
+  if (button) {
 
-  closeModal(
-    "barangModal"
-  );
+    button.disabled =
+      true;
 
+
+    button.dataset.oldText =
+      button.textContent;
+
+
+    button.textContent =
+      "Menyimpan...";
+
+  }
+
+
+  try {
+
+    const result =
+      await saveOrQueue(
+        "tambahBarang",
+        payload
+      );
+
+
+    console.log(
+      "HASIL SIMPAN BARANG:",
+      result
+    );
+
+
+    event.target.reset();
+
+
+    closeModal(
+      "barangModal"
+    );
+
+
+    renderBarang();
+
+    renderBarangSelects();
+
+
+  } catch (error) {
+
+    console.error(
+      "submitBarang ERROR:",
+      error
+    );
+
+
+    showToast(
+      "❌ " +
+      (
+        error.message ||
+        "Gagal menyimpan barang"
+      )
+    );
+
+
+  } finally {
+
+    if (button) {
+
+      button.disabled =
+        false;
+
+
+      button.textContent =
+        button.dataset.oldText ||
+        "Simpan";
+
+    }
+
+  }
 
 }
 
@@ -1994,21 +2893,32 @@ async function submitBarang(event) {
    HUTANG
    ========================================================= */
 
-async function submitHutang(event) {
+async function submitHutang(
+  event
+) {
 
   event.preventDefault();
 
 
   const nama =
-    valueOf("hutangNama");
+    valueOf(
+      "hutangNama"
+    );
+
 
   const nominal =
     numberValue(
-      valueOf("hutangNominal")
+      valueOf(
+        "hutangNominal"
+      )
     );
 
+
   const tempo =
-    valueOf("hutangTempo");
+    valueOf(
+      "hutangTempo"
+    );
+
 
   const keterangan =
     valueOf(
@@ -2016,8 +2926,10 @@ async function submitHutang(event) {
     );
 
 
-  if (!nama ||
-      nominal <= 0) {
+  if (
+    !nama ||
+    nominal <= 0
+  ) {
 
     showToast(
       "Lengkapi data hutang"
@@ -2051,17 +2963,65 @@ async function submitHutang(event) {
   };
 
 
-  await saveOrQueue(
-    "tambahHutang",
-    payload
-  );
+  const button =
+    event.submitter ||
+    event.target.querySelector(
+      'button[type="submit"]'
+    );
 
 
-  event.target.reset();
+  if (button) {
 
-  closeModal(
-    "hutangModal"
-  );
+    button.disabled =
+      true;
+
+    button.dataset.oldText =
+      button.textContent;
+
+    button.textContent =
+      "Menyimpan...";
+
+  }
+
+
+  try {
+
+    await saveOrQueue(
+      "tambahHutang",
+      payload
+    );
+
+
+    event.target.reset();
+
+
+    closeModal(
+      "hutangModal"
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "submitHutang:",
+      error
+    );
+
+
+  } finally {
+
+    if (button) {
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        button.dataset.oldText ||
+        "Simpan";
+
+    }
+
+  }
 
 }
 
@@ -2077,7 +3037,12 @@ function renderHutang() {
       "hutangList"
     );
 
-  if (!container) return;
+
+  if (!container) {
+
+    return;
+
+  }
 
 
   const list =
@@ -2091,9 +3056,11 @@ function renderHutang() {
   if (!list.length) {
 
     container.innerHTML =
-      `<div class="empty">
+      `
+      <div class="empty">
         Belum ada hutang.
-      </div>`;
+      </div>
+      `;
 
     return;
 
@@ -2110,7 +3077,9 @@ function renderHutang() {
 }
 
 
-function hutangHTML(item) {
+function hutangHTML(
+  item
+) {
 
   const nama =
     item.nama ||
@@ -2151,13 +3120,20 @@ function hutangHTML(item) {
   return `
     <div
       class="form-card"
-      style="display:flex;justify-content:space-between;gap:12px;"
+      style="
+        display:flex;
+        justify-content:space-between;
+        gap:12px;
+      "
     >
 
       <div>
 
         <strong
-          style="display:block;font-size:15px;"
+          style="
+            display:block;
+            font-size:15px;
+          "
         >
           ${escapeHTML(nama)}
         </strong>
@@ -2166,16 +3142,23 @@ function hutangHTML(item) {
           class="small"
           style="margin-top:5px;"
         >
-          ${tempoText
-            ? "Jatuh tempo: " +
-              escapeHTML(tempoText)
-            : "Belum ada jatuh tempo"}
+          ${
+            tempoText
+              ? "Jatuh tempo: " +
+                escapeHTML(
+                  tempoText
+                )
+              : "Belum ada jatuh tempo"
+          }
         </div>
 
       </div>
 
       <strong
-        style="color:#dc2626;white-space:nowrap;"
+        style="
+          color:#dc2626;
+          white-space:nowrap;
+        "
       >
         ${rupiah(nominal)}
       </strong>
@@ -2205,15 +3188,24 @@ function renderHistory() {
       "historyList"
     );
 
-  if (!container) return;
+
+  if (!container) {
+
+    return;
+
+  }
 
 
-  if (!currentHistoryList.length) {
+  if (
+    !currentHistoryList.length
+  ) {
 
     container.innerHTML =
-      `<div class="empty">
+      `
+      <div class="empty">
         Belum ada transaksi.
-      </div>`;
+      </div>
+      `;
 
     return;
 
@@ -2230,7 +3222,9 @@ function renderHistory() {
 }
 
 
-function transactionHTML(item) {
+function transactionHTML(
+  item
+) {
 
   const jenis =
     String(
@@ -2291,7 +3285,11 @@ function transactionHTML(item) {
   return `
     <div
       class="form-card"
-      style="display:flex;justify-content:space-between;gap:12px;"
+      style="
+        display:flex;
+        justify-content:space-between;
+        gap:12px;
+      "
     >
 
       <div
@@ -2299,7 +3297,10 @@ function transactionHTML(item) {
       >
 
         <strong
-          style="display:block;font-size:14px;"
+          style="
+            display:block;
+            font-size:14px;
+          "
         >
           ${escapeHTML(keterangan)}
         </strong>
@@ -2313,16 +3314,23 @@ function transactionHTML(item) {
               tanggal
             )
           )}
-          ${kategori
-            ? " • " +
-              escapeHTML(kategori)
-            : ""}
+          ${
+            kategori
+              ? " • " +
+                escapeHTML(
+                  kategori
+                )
+              : ""
+          }
         </div>
 
       </div>
 
       <strong
-        style="color:${color};white-space:nowrap;"
+        style="
+          color:${color};
+          white-space:nowrap;
+        "
       >
         ${sign}
         ${rupiah(nominal)}
@@ -2334,7 +3342,9 @@ function transactionHTML(item) {
 }
 
 
-function filterHistory(keyword) {
+function filterHistory(
+  keyword
+) {
 
   const term =
     String(
@@ -2375,15 +3385,22 @@ function filterHistory(keyword) {
       "historyList"
     );
 
-  if (!container) return;
+
+  if (!container) {
+
+    return;
+
+  }
 
 
   if (!filtered.length) {
 
     container.innerHTML =
-      `<div class="empty">
+      `
+      <div class="empty">
         Transaksi tidak ditemukan.
-      </div>`;
+      </div>
+      `;
 
     return;
 
@@ -2402,12 +3419,20 @@ function filterHistory(keyword) {
 
 /* =========================================================
    SAVE / OFFLINE QUEUE
+   FIX
    ========================================================= */
 
 async function saveOrQueue(
   action,
   payload
 ) {
+
+  console.log(
+    "SAVE REQUEST:",
+    action,
+    payload
+  );
+
 
   const queueItem = {
 
@@ -2426,22 +3451,66 @@ async function saveOrQueue(
   };
 
 
+  /*
+   * OFFLINE
+   */
+
   if (!navigator.onLine) {
 
-    await addQueue(
-      queueItem
-    );
+    try {
 
-    showToast(
-      "Disimpan offline"
-    );
+      await addQueue(
+        queueItem
+      );
 
-    updateSyncBadge();
 
-    return;
+      showToast(
+        "✓ Disimpan offline"
+      );
+
+
+      setSyncText(
+        "Offline — data akan disinkronkan saat online"
+      );
+
+
+      await updateSyncBadge();
+
+
+      return {
+
+        success:
+          true,
+
+        offline:
+          true
+
+      };
+
+
+    } catch (error) {
+
+      console.error(
+        "Gagal menyimpan offline:",
+        error
+      );
+
+
+      showToast(
+        "❌ Gagal menyimpan data"
+      );
+
+
+      throw error;
+
+    }
 
   }
 
+
+  /*
+   * ONLINE
+   */
 
   try {
 
@@ -2453,8 +3522,15 @@ async function saveOrQueue(
     const result =
       await gasRequest(
         action,
-        payload
+        payload,
+        "GET"
       );
+
+
+    console.log(
+      "RESPON GAS:",
+      result
+    );
 
 
     if (
@@ -2464,14 +3540,14 @@ async function saveOrQueue(
 
       throw new Error(
         result.error ||
-        "Gagal menyimpan"
+        "GAS menolak data"
       );
 
     }
 
 
     showToast(
-      "Berhasil disimpan"
+      "✓ Berhasil disimpan"
     );
 
 
@@ -2480,7 +3556,24 @@ async function saveOrQueue(
     );
 
 
-    await loadAppData();
+    /*
+     * Ambil data terbaru.
+     */
+    try {
+
+      await loadAppData();
+
+    } catch (refreshError) {
+
+      console.warn(
+        "Refresh setelah simpan gagal:",
+        refreshError
+      );
+
+    }
+
+
+    return result;
 
 
   } catch (error) {
@@ -2491,17 +3584,61 @@ async function saveOrQueue(
     );
 
 
-    await addQueue(
-      queueItem
-    );
+    try {
+
+      await addQueue(
+        queueItem
+      );
 
 
-    showToast(
-      "Server gagal — disimpan offline"
-    );
+      showToast(
+        "⚠ Server gagal — disimpan offline"
+      );
 
 
-    updateSyncBadge();
+      setSyncText(
+        "Menunggu sinkronisasi"
+      );
+
+
+      await updateSyncBadge();
+
+
+      return {
+
+        success:
+          true,
+
+        offline:
+          true,
+
+        queued:
+          true
+
+      };
+
+
+    } catch (queueError) {
+
+      console.error(
+        "QUEUE ERROR:",
+        queueError
+      );
+
+
+      showToast(
+        "❌ Data gagal disimpan"
+      );
+
+
+      setSyncText(
+        "Gagal menyimpan"
+      );
+
+
+      throw queueError;
+
+    }
 
   }
 
@@ -2512,22 +3649,22 @@ async function saveOrQueue(
    QUEUE
    ========================================================= */
 
-async function addQueue(item) {
+async function addQueue(
+  item
+) {
 
   if (!db) {
 
-    try {
-      await openDatabase();
-    } catch (error) {
-      console.error(error);
-      return;
-    }
+    await openDatabase();
 
   }
 
 
   return new Promise(
-    function (resolve, reject) {
+    function (
+      resolve,
+      reject
+    ) {
 
       const transaction =
         db.transaction(
@@ -2535,26 +3672,33 @@ async function addQueue(item) {
           "readwrite"
         );
 
+
       const store =
         transaction.objectStore(
           QUEUE_STORE
         );
 
 
-      store.add(item);
+      store.add(
+        item
+      );
 
 
       transaction.oncomplete =
         function () {
+
           resolve();
+
         };
 
 
       transaction.onerror =
         function () {
+
           reject(
             transaction.error
           );
+
         };
 
     }
@@ -2568,9 +3712,13 @@ async function getQueue() {
   if (!db) {
 
     try {
+
       await openDatabase();
+
     } catch (error) {
+
       return [];
+
     }
 
   }
@@ -2584,6 +3732,7 @@ async function getQueue() {
           QUEUE_STORE,
           "readonly"
         );
+
 
       const store =
         transaction.objectStore(
@@ -2599,7 +3748,8 @@ async function getQueue() {
         function () {
 
           resolve(
-            request.result || []
+            request.result ||
+            []
           );
 
         };
@@ -2618,7 +3768,16 @@ async function getQueue() {
 }
 
 
-async function deleteQueueItem(id) {
+async function deleteQueueItem(
+  id
+) {
+
+  if (!db) {
+
+    return;
+
+  }
+
 
   return new Promise(
     function (resolve) {
@@ -2629,6 +3788,7 @@ async function deleteQueueItem(id) {
           "readwrite"
         );
 
+
       transaction
         .objectStore(
           QUEUE_STORE
@@ -2638,13 +3798,17 @@ async function deleteQueueItem(id) {
 
       transaction.oncomplete =
         function () {
+
           resolve();
+
         };
 
 
       transaction.onerror =
         function () {
+
           resolve();
+
         };
 
     }
@@ -2659,7 +3823,11 @@ async function deleteQueueItem(id) {
 
 async function syncOffline() {
 
-  if (syncRunning) return;
+  if (syncRunning) {
+
+    return;
+
+  }
 
 
   if (!navigator.onLine) {
@@ -2668,14 +3836,17 @@ async function syncOffline() {
       "Offline — belum dapat sinkron"
     );
 
-    updateSyncBadge();
+
+    await updateSyncBadge();
+
 
     return;
 
   }
 
 
-  syncRunning = true;
+  syncRunning =
+    true;
 
 
   try {
@@ -2690,7 +3861,9 @@ async function syncOffline() {
         "Semua data sudah sinkron"
       );
 
-      updateSyncBadge();
+
+      await updateSyncBadge();
+
 
       return;
 
@@ -2704,7 +3877,8 @@ async function syncOffline() {
     );
 
 
-    let successCount = 0;
+    let successCount =
+      0;
 
 
     for (
@@ -2713,10 +3887,25 @@ async function syncOffline() {
 
       try {
 
-        await gasRequest(
-          item.action,
-          item.payload
-        );
+        const result =
+          await gasRequest(
+            item.action,
+            item.payload,
+            "GET"
+          );
+
+
+        if (
+          result &&
+          result.success === false
+        ) {
+
+          throw new Error(
+            result.error ||
+            "Gagal sinkron"
+          );
+
+        }
 
 
         await deleteQueueItem(
@@ -2735,6 +3924,7 @@ async function syncOffline() {
           error
         );
 
+
         break;
 
       }
@@ -2742,15 +3932,18 @@ async function syncOffline() {
     }
 
 
-    updateSyncBadge();
+    await updateSyncBadge();
 
 
-    if (successCount > 0) {
+    if (
+      successCount > 0
+    ) {
 
       showToast(
         successCount +
         " data berhasil disinkronkan"
       );
+
 
       await loadAppData();
 
@@ -2764,15 +3957,19 @@ async function syncOffline() {
       error
     );
 
+
     setSyncText(
       "Sinkronisasi gagal"
     );
 
+
   } finally {
 
-    syncRunning = false;
+    syncRunning =
+      false;
 
-    updateSyncBadge();
+
+    await updateSyncBadge();
 
   }
 
@@ -2790,7 +3987,12 @@ async function updateSyncBadge() {
       "syncBadge"
     );
 
-  if (!badge) return;
+
+  if (!badge) {
+
+    return;
+
+  }
 
 
   const queue =
@@ -2817,7 +4019,9 @@ async function updateSyncBadge() {
    NAVIGATION
    ========================================================= */
 
-function showPage(page) {
+function showPage(
+  page
+) {
 
   const pages =
     document.querySelectorAll(
@@ -2838,7 +4042,8 @@ function showPage(page) {
 
   const target =
     document.getElementById(
-      "page-" + page
+      "page-" +
+      page
     );
 
 
@@ -2855,6 +4060,7 @@ function showPage(page) {
       page
     );
 
+
     return;
 
   }
@@ -2866,6 +4072,7 @@ function showPage(page) {
 
 
   closeQuickAdd();
+
   closeMoreMenu();
 
 
@@ -2875,31 +4082,51 @@ function showPage(page) {
   });
 
 
-  /*
-   * Refresh data ketika membuka
-   * halaman tertentu.
-   */
+  if (
+    page ===
+    "dashboard"
+  ) {
 
-  if (page === "dashboard") {
     renderDashboard();
+
   }
 
-  if (page === "barang") {
+
+  if (
+    page ===
+    "barang"
+  ) {
+
     renderBarang();
+
   }
 
-  if (page === "history") {
+
+  if (
+    page ===
+    "history"
+  ) {
+
     renderHistory();
+
   }
 
-  if (page === "hutang") {
+
+  if (
+    page ===
+    "hutang"
+  ) {
+
     renderHutang();
+
   }
 
 }
 
 
-function updateBottomNav(page) {
+function updateBottomNav(
+  page
+) {
 
   const nav =
     document.querySelectorAll(
@@ -2918,43 +4145,49 @@ function updateBottomNav(page) {
   );
 
 
-  /*
-   * Bottom nav urutan:
-   * dashboard
-   * add
-   * quick
-   * barang
-   * lainnya
-   */
-
-  if (page === "dashboard") {
+  if (
+    page ===
+    "dashboard"
+  ) {
 
     if (nav[0]) {
+
       nav[0].classList.add(
         "active"
       );
+
     }
 
   }
 
 
-  if (page === "add") {
+  if (
+    page ===
+    "add"
+  ) {
 
     if (nav[1]) {
+
       nav[1].classList.add(
         "active"
       );
+
     }
 
   }
 
 
-  if (page === "barang") {
+  if (
+    page ===
+    "barang"
+  ) {
 
     if (nav[3]) {
+
       nav[3].classList.add(
         "active"
       );
+
     }
 
   }
@@ -2971,9 +4204,11 @@ function updateBottomNav(page) {
   ) {
 
     if (nav[4]) {
+
       nav[4].classList.add(
         "active"
       );
+
     }
 
   }
@@ -2992,7 +4227,12 @@ function openQuickAdd() {
       "quickAddMenu"
     );
 
-  if (!menu) return;
+
+  if (!menu) {
+
+    return;
+
+  }
 
 
   menu.classList.toggle(
@@ -3009,7 +4249,12 @@ function closeQuickAdd() {
       "quickAddMenu"
     );
 
-  if (!menu) return;
+
+  if (!menu) {
+
+    return;
+
+  }
 
 
   menu.classList.remove(
@@ -3030,7 +4275,12 @@ function showMoreMenu() {
       "moreMenu"
     );
 
-  if (!menu) return;
+
+  if (!menu) {
+
+    return;
+
+  }
 
 
   menu.classList.remove(
@@ -3047,7 +4297,12 @@ function closeMoreMenu() {
       "moreMenu"
     );
 
-  if (!menu) return;
+
+  if (!menu) {
+
+    return;
+
+  }
 
 
   menu.classList.add(
@@ -3057,9 +4312,12 @@ function closeMoreMenu() {
 }
 
 
-function openFromMenu(page) {
+function openFromMenu(
+  page
+) {
 
   closeMoreMenu();
+
 
   showPage(
     page
@@ -3072,14 +4330,21 @@ function openFromMenu(page) {
    MODAL
    ========================================================= */
 
-function openModal(id) {
+function openModal(
+  id
+) {
 
   const modal =
     document.getElementById(
       id
     );
 
-  if (!modal) return;
+
+  if (!modal) {
+
+    return;
+
+  }
 
 
   modal.classList.remove(
@@ -3093,25 +4358,27 @@ function openModal(id) {
 }
 
 
-function closeModal(id) {
+function closeModal(
+  id
+) {
 
   const modal =
     document.getElementById(
       id
     );
 
-  if (!modal) return;
+
+  if (!modal) {
+
+    return;
+
+  }
 
 
   modal.classList.add(
     "hidden"
   );
 
-
-  /*
-   * Hanya buka scroll kembali
-   * jika tidak ada modal lain.
-   */
 
   const otherModal =
     document.querySelector(
@@ -3167,6 +4434,7 @@ function updateOnlineStatus() {
       "onlineDot"
     );
 
+
   const text =
     document.getElementById(
       "onlineText"
@@ -3203,12 +4471,15 @@ function updateOnlineStatus() {
    SYNC TEXT
    ========================================================= */
 
-function setSyncText(text) {
+function setSyncText(
+  text
+) {
 
   const element =
     document.getElementById(
       "syncText"
     );
+
 
   if (element) {
 
@@ -3231,7 +4502,12 @@ function hideLoading() {
       "loading"
     );
 
-  if (!loading) return;
+
+  if (!loading) {
+
+    return;
+
+  }
 
 
   loading.classList.add(
@@ -3251,6 +4527,7 @@ async function loadReport() {
     valueOf(
       "reportStart"
     );
+
 
   const end =
     valueOf(
@@ -3289,9 +4566,11 @@ async function loadReport() {
   if (container) {
 
     container.innerHTML =
-      `<div class="empty">
+      `
+      <div class="empty">
         Mengambil laporan...
-      </div>`;
+      </div>
+      `;
 
   }
 
@@ -3302,13 +4581,23 @@ async function loadReport() {
       await gasRequest(
         "laporan",
         {
-          mulai: start,
-          tanggalMulai: start,
-          dari: start,
+          mulai:
+            start,
 
-          selesai: end,
-          tanggalSelesai: end,
-          sampai: end
+          tanggalMulai:
+            start,
+
+          dari:
+            start,
+
+          selesai:
+            end,
+
+          tanggalSelesai:
+            end,
+
+          sampai:
+            end
         }
       );
 
@@ -3336,13 +4625,15 @@ async function loadReport() {
     if (container) {
 
       container.innerHTML =
-        `<div class="empty">
+        `
+        <div class="empty">
           Gagal mengambil laporan.
           <br><br>
           ${escapeHTML(
             error.message
           )}
-        </div>`;
+        </div>
+        `;
 
     }
 
@@ -3362,7 +4653,12 @@ function renderReport(
       "reportResult"
     );
 
-  if (!container) return;
+
+  if (!container) {
+
+    return;
+
+  }
 
 
   const pemasukan =
@@ -3401,14 +4697,20 @@ function renderReport(
     numberValue(
       data.laba ||
       data.keuntungan ||
-      (penjualan - belanja)
+      (
+        penjualan -
+        belanja
+      )
     );
 
 
   const saldo =
     numberValue(
       data.saldo ||
-      (pemasukan - pengeluaran)
+      (
+        pemasukan -
+        pengeluaran
+      )
     );
 
 
@@ -3419,6 +4721,7 @@ function renderReport(
     >
       Laporan Keuangan
     </h3>
+
 
     <div
       class="summary-grid"
@@ -3431,6 +4734,7 @@ function renderReport(
         </div>
 
         <div>
+
           <div class="small">
             Pemasukan
           </div>
@@ -3438,6 +4742,7 @@ function renderReport(
           <strong>
             ${rupiah(pemasukan)}
           </strong>
+
         </div>
 
       </div>
@@ -3450,6 +4755,7 @@ function renderReport(
         </div>
 
         <div>
+
           <div class="small">
             Pengeluaran
           </div>
@@ -3457,6 +4763,7 @@ function renderReport(
           <strong>
             ${rupiah(pengeluaran)}
           </strong>
+
         </div>
 
       </div>
@@ -3469,6 +4776,7 @@ function renderReport(
         </div>
 
         <div>
+
           <div class="small">
             Penjualan
           </div>
@@ -3476,6 +4784,7 @@ function renderReport(
           <strong>
             ${rupiah(penjualan)}
           </strong>
+
         </div>
 
       </div>
@@ -3488,6 +4797,7 @@ function renderReport(
         </div>
 
         <div>
+
           <div class="small">
             Belanja
           </div>
@@ -3495,6 +4805,7 @@ function renderReport(
           <strong>
             ${rupiah(belanja)}
           </strong>
+
         </div>
 
       </div>
@@ -3517,11 +4828,15 @@ function renderReport(
 
       <strong>
         ${escapeHTML(
-          formatDateDisplay(start)
+          formatDateDisplay(
+            start
+          )
         )}
         —
         ${escapeHTML(
-          formatDateDisplay(end)
+          formatDateDisplay(
+            end
+          )
         )}
       </strong>
 
@@ -3564,7 +4879,10 @@ function renderReport(
       </div>
 
       <strong
-        style="font-size:20px;color:#16a34a;"
+        style="
+          font-size:20px;
+          color:#16a34a;
+        "
       >
         ${rupiah(laba)}
       </strong>
@@ -3580,14 +4898,27 @@ function renderReport(
    UTILITIES
    ========================================================= */
 
-function valueOf(id) {
+function valueOf(
+  id
+) {
 
   const element =
-    document.getElementById(id);
+    document.getElementById(
+      id
+    );
+
 
   if (!element) {
+
+    console.warn(
+      "Element tidak ditemukan:",
+      id
+    );
+
     return "";
+
   }
+
 
   return String(
     element.value || ""
@@ -3602,7 +4933,10 @@ function setText(
 ) {
 
   const element =
-    document.getElementById(id);
+    document.getElementById(
+      id
+    );
+
 
   if (element) {
 
@@ -3614,7 +4948,9 @@ function setText(
 }
 
 
-function numberValue(value) {
+function numberValue(
+  value
+) {
 
   if (
     value === null ||
@@ -3628,27 +4964,30 @@ function numberValue(value) {
 
 
   if (
-    typeof value === "number"
+    typeof value ===
+    "number"
   ) {
 
-    return Number.isFinite(value)
+    return Number.isFinite(
+      value
+    )
       ? value
       : 0;
 
   }
 
 
-  /*
-   * Hilangkan Rp, titik, spasi.
-   * Komma diperlakukan sebagai desimal
-   * hanya jika formatnya memang decimal.
-   */
-
   let str =
     String(value)
       .trim()
-      .replace(/Rp/gi, "")
-      .replace(/\s/g, "");
+      .replace(
+        /Rp/gi,
+        ""
+      )
+      .replace(
+        /\s/g,
+        ""
+      );
 
 
   /*
@@ -3662,14 +5001,23 @@ function numberValue(value) {
   ) {
 
     str =
-      str.replace(/\./g, "");
+      str.replace(
+        /\./g,
+        ""
+      );
 
   } else {
 
     str =
       str
-        .replace(/\./g, "")
-        .replace(",", ".");
+        .replace(
+          /\./g,
+          ""
+        )
+        .replace(
+          ",",
+          "."
+        );
 
   }
 
@@ -3678,59 +5026,76 @@ function numberValue(value) {
     Number(str);
 
 
-  return Number.isFinite(number)
+  return Number.isFinite(
+    number
+  )
     ? number
     : 0;
 
 }
 
 
-function rupiah(value) {
+function rupiah(
+  value
+) {
 
   const number =
-    numberValue(value);
+    numberValue(
+      value
+    );
 
 
   return new Intl.NumberFormat(
     "id-ID",
     {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      style:
+        "currency",
+
+      currency:
+        "IDR",
+
+      minimumFractionDigits:
+        0,
+
+      maximumFractionDigits:
+        0
     }
-  ).format(number);
-
-}
-
-
-function formatNumber(value) {
-
-  return new Intl.NumberFormat(
-    "id-ID"
   ).format(
-    numberValue(value)
+    number
   );
 
 }
 
 
-function formatDateDisplay(value) {
+function formatNumber(
+  value
+) {
+
+  return new Intl.NumberFormat(
+    "id-ID"
+  ).format(
+    numberValue(
+      value
+    )
+  );
+
+}
+
+
+function formatDateDisplay(
+  value
+) {
 
   if (!value) {
+
     return "";
+
   }
 
 
-  let date;
-
-
-  /*
-   * YYYY-MM-DD
-   */
-
   if (
-    typeof value === "string" &&
+    typeof value ===
+    "string" &&
     /^\d{4}-\d{2}-\d{2}$/.test(
       value
     )
@@ -3738,6 +5103,7 @@ function formatDateDisplay(value) {
 
     const parts =
       value.split("-");
+
 
     return (
       parts[2] +
@@ -3750,8 +5116,10 @@ function formatDateDisplay(value) {
   }
 
 
-  date =
-    new Date(value);
+  const date =
+    new Date(
+      value
+    );
 
 
   if (
@@ -3760,7 +5128,9 @@ function formatDateDisplay(value) {
     )
   ) {
 
-    return String(value);
+    return String(
+      value
+    );
 
   }
 
@@ -3768,32 +5138,60 @@ function formatDateDisplay(value) {
   return new Intl.DateTimeFormat(
     "id-ID",
     {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric"
+      day:
+        "2-digit",
+
+      month:
+        "2-digit",
+
+      year:
+        "numeric"
     }
-  ).format(date);
+  ).format(
+    date
+  );
 
 }
 
 
-function escapeHTML(value) {
+function escapeHTML(
+  value
+) {
 
   return String(
     value ?? ""
   )
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 
 }
 
 
-function escapeAttr(value) {
+function escapeAttr(
+  value
+) {
 
-  return escapeHTML(value);
+  return escapeHTML(
+    value
+  );
 
 }
 
@@ -3802,17 +5200,30 @@ function escapeAttr(value) {
    TOAST
    ========================================================= */
 
-let toastTimer = null;
-
-
-function showToast(message) {
+function showToast(
+  message
+) {
 
   const toast =
     document.getElementById(
       "toast"
     );
 
-  if (!toast) return;
+
+  if (!toast) {
+
+    /*
+     * Tetap tampil di console jika
+     * elemen toast tidak ada.
+     */
+    console.log(
+      "TOAST:",
+      message
+    );
+
+    return;
+
+  }
 
 
   toast.textContent =
@@ -3867,62 +5278,80 @@ setInterval(
 
 /* =========================================================
    EXPOSE FUNCTIONS
-   Untuk onclick="" di HTML
+   UNTUK onclick="" DI HTML
    ========================================================= */
 
 window.showPage =
   showPage;
 
+
 window.setTransactionType =
   setTransactionType;
+
 
 window.quickTransaction =
   quickTransaction;
 
+
 window.openQuickAdd =
   openQuickAdd;
+
 
 window.closeQuickAdd =
   closeQuickAdd;
 
+
 window.showMoreMenu =
   showMoreMenu;
+
 
 window.closeMoreMenu =
   closeMoreMenu;
 
+
 window.openFromMenu =
   openFromMenu;
+
 
 window.openModal =
   openModal;
 
+
 window.closeModal =
   closeModal;
+
 
 window.refreshApp =
   refreshApp;
 
+
 window.syncOffline =
   syncOffline;
+
 
 window.filterBarang =
   filterBarang;
 
+
 window.filterHistory =
   filterHistory;
+
 
 window.loadReport =
   loadReport;
 
+
 window.updateJualTotal =
   updateJualTotal;
+
 
 window.updateBelanjaTotal =
   updateBelanjaTotal;
 
+
 window.autoHargaJual =
   autoHargaJual;
+
 
 window.autoHargaModal =
   autoHargaModal;
