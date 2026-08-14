@@ -16,7 +16,7 @@
    KONFIGURASI
    ========================================================= */
 
-const API_URL = "ISI_URL_WEB_APP_GAS_ANDA_DI_SINI";
+const API_URL = "https://script.google.com/macros/s/AKfycbxqJ86xAmjCOp_xZ9RHanPKSJ_FlFdkA6f2_8e9LtFuAl570xWAse8AUhKU_Tp6oKSp/exec";
 
 /*
 Contoh:
