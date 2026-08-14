@@ -100,6 +100,36 @@ catch(error) {
 }
 
 </script>
+try {
 
+  localStorage.setItem(
+    "catatku_test",
+    "OK"
+  );
+
+  const hasilLS =
+    localStorage.getItem(
+      "catatku_test"
+    );
+
+  document.body.innerHTML +=
+    "<hr>" +
+    (
+      hasilLS === "OK"
+        ? "✅ localStorage BERHASIL"
+        : "❌ localStorage GAGAL"
+    );
+
+}
+catch(error) {
+
+  document.body.innerHTML +=
+    "<hr>" +
+    "❌ localStorage GAGAL<br>" +
+    error.name +
+    "<br>" +
+    error.message;
+
+}
 </body>
 </html>
