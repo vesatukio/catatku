@@ -3,35 +3,45 @@
 <head>
   <meta charset="UTF-8">
 
-  <meta name="viewport"
-        content="width=device-width,
-                 initial-scale=1.0,
-                 maximum-scale=1.0,
-                 user-scalable=no,
-                 viewport-fit=cover">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  >
 
   <meta name="theme-color" content="#2563eb">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style"
-        content="black-translucent">
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
 
-  <meta name="description"
-        content="CatatKu - Keuangan Pribadi dan Toko">
+  <meta
+    name="description"
+    content="CatatKu - Keuangan Pribadi dan Toko"
+  >
 
   <link rel="manifest" href="./manifest.json">
 
   <title>CatatKu — Keuangan Pribadi & Toko</title>
 
-  <!-- FONT -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-  <!-- CSS -->
+  <!-- CSS utama -->
   <link rel="stylesheet" href="./style.css">
+
+  <!-- Font hanya tambahan, gagal load tidak menghambat aplikasi -->
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+  >
 
   <style>
     * {
@@ -39,23 +49,29 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html,
-    body {
+    html {
       width: 100%;
       min-height: 100%;
-      margin: 0;
-      padding: 0;
       overflow-x: hidden;
     }
 
     body {
-      font-family: "Plus Jakarta Sans", sans-serif;
+      width: 100%;
+      min-height: 100vh;
+      margin: 0;
+      padding:
+        env(safe-area-inset-top)
+        env(safe-area-inset-right)
+        env(safe-area-inset-bottom)
+        env(safe-area-inset-left);
+
+      overflow-x: hidden;
       background: #f8fafc;
-      color: #1e293b;
-      padding-top: env(safe-area-inset-top);
-      padding-left: env(safe-area-inset-left);
-      padding-right: env(safe-area-inset-right);
-      padding-bottom: env(safe-area-inset-bottom);
+      color: #1f2937;
+      font-family:
+        'Plus Jakarta Sans',
+        Arial,
+        sans-serif;
     }
 
     button,
@@ -65,1620 +81,2496 @@
       font-family: inherit;
     }
 
-    button {
+    /* ==========================================
+       LOADING
+       ========================================== */
+
+    #loading {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      background: #f8fafc;
+      transition:
+        opacity .25s ease,
+        visibility .25s ease;
+    }
+
+    #loading.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loading-logo {
+      width: 64px;
+      height: 64px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      margin-bottom: 18px;
+
+      border-radius: 18px;
+      background: #2563eb;
+      color: white;
+
+      font-size: 30px;
+      font-weight: 800;
+
+      box-shadow:
+        0 10px 30px rgba(37, 99, 235, .22);
+    }
+
+    .loading-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .loading-sub {
+      margin-top: 4px;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+
+      margin-bottom: 18px;
+
+      border: 3px solid #dbeafe;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ==========================================
+       HEADER
+       ========================================== */
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      min-height: 64px;
+      padding: 10px 16px;
+
+      background: rgba(255,255,255,.96);
+      border-bottom: 1px solid #e5e7eb;
+
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .app-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .app-subtitle {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .online-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #16a34a;
+    }
+
+    .online-dot.offline {
+      background: #dc2626;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+
+      border: 0;
+      border-radius: 12px;
+
+      background: #eff6ff;
+      color: #2563eb;
+
+      font-size: 23px;
       cursor: pointer;
     }
 
-    .hidden {
-      display: none !important;
+    /* ==========================================
+       SYNC BAR
+       ========================================== */
+
+    .sync-bar {
+      position: sticky;
+      top: 64px;
+      z-index: 90;
+
+      min-height: 42px;
+      padding: 7px 14px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      background: #eff6ff;
+      border-bottom: 1px solid #dbeafe;
+
+      font-size: 12px;
+    }
+
+    .sync-left,
+    .sync-right {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .sync-icon {
+      font-size: 16px;
+    }
+
+    .sync-badge {
+      min-width: 22px;
+      padding: 2px 7px;
+
+      border-radius: 20px;
+
+      background: #dc2626;
+      color: white;
+
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .sync-badge.hidden {
+      display: none;
+    }
+
+    .sync-button {
+      border: 0;
+      background: transparent;
+      color: #2563eb;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ==========================================
+       MAIN
+       ========================================== */
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+
+      margin: 0 auto;
+
+      padding:
+        16px
+        16px
+        calc(100px + env(safe-area-inset-bottom));
+    }
+
+    .page {
+      display: none;
+      width: 100%;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .page-title {
+      margin: 8px 0 18px;
+    }
+
+    .page-title h1 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.25;
+    }
+
+    .page-title p {
+      margin: 5px 0 0;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      margin: 24px 0 12px;
+    }
+
+    .section-title-row h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .text-btn {
+      border: 0;
+      background: transparent;
+      color: #2563eb;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ==========================================
+       DASHBOARD
+       ========================================== */
+
+    .welcome-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      min-height: 150px;
+      padding: 22px;
+
+      border-radius: 22px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #2563eb,
+          #1d4ed8
+        );
+
+      color: white;
+
+      box-shadow:
+        0 12px 30px rgba(37,99,235,.20);
+    }
+
+    .white-muted {
+      color: rgba(255,255,255,.78);
+    }
+
+    .saldo {
+      margin-top: 6px;
+
+      font-size: clamp(28px, 7vw, 38px);
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .balance-label {
+      margin-top: 7px;
+      font-size: 12px;
+      color: rgba(255,255,255,.8);
+    }
+
+    .wallet-icon {
+      font-size: 48px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .summary-card {
+      min-height: 105px;
+
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      padding: 15px;
+
+      border: 1px solid #e5e7eb;
+      border-radius: 17px;
+
+      background: white;
+
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .summary-icon {
+      width: 40px;
+      height: 40px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 12px;
+
+      font-size: 20px;
+      background: #f1f5f9;
+    }
+
+    .summary-info {
+      min-width: 0;
+    }
+
+    .small {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .summary-value {
+      margin-top: 3px;
+
+      font-size: 15px;
+      font-weight: 800;
+
+      word-break: break-word;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .quick-card {
+      min-height: 90px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      gap: 6px;
+
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+
+      background: white;
+
+      font-size: 12px;
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+    .quick-icon {
+      font-size: 25px;
+    }
+
+    /* ==========================================
+       FORM
+       ========================================== */
+
+    .form-card {
+      padding: 17px;
+
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+
+      background: white;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+
+      margin-bottom: 7px;
+
+      font-size: 13px;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea,
+    .search-box input {
+      width: 100%;
+      min-height: 48px;
+
+      padding: 11px 13px;
+
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+
+      background: white;
+      color: #111827;
+
+      font-size: 16px;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .search-box input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+    }
+
+    .primary-btn {
+      min-height: 46px;
+
+      padding: 10px 17px;
+
+      border: 0;
+      border-radius: 12px;
+
+      background: #2563eb;
+      color: white;
+
+      font-size: 14px;
+      font-weight: 800;
+
+      cursor: pointer;
+    }
+
+    .big-btn {
+      width: 100%;
+      min-height: 52px;
+      font-size: 15px;
+    }
+
+    .page-action {
+      margin-bottom: 15px;
+    }
+
+    /* ==========================================
+       TYPE TABS
+       ========================================== */
+
+    .type-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+
+      margin-bottom: 12px;
+    }
+
+    .type-tab {
+      min-height: 48px;
+
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+
+      background: white;
+      color: #475569;
+
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .type-tab.active {
+      border-color: #2563eb;
+      background: #eff6ff;
+      color: #2563eb;
+    }
+
+    /* ==========================================
+       SEARCH
+       ========================================== */
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      margin-bottom: 14px;
+      padding: 0 12px;
+
+      border: 1px solid #d1d5db;
+      border-radius: 13px;
+
+      background: white;
+    }
+
+    .search-box input {
+      border: 0;
+      box-shadow: none;
+    }
+
+    /* ==========================================
+       TOTAL
+       ========================================== */
+
+    .total-preview {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      margin: 10px 0 17px;
+      padding: 15px;
+
+      border-radius: 13px;
+      background: #f8fafc;
+    }
+
+    .total-preview span {
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .total-preview strong {
+      color: #2563eb;
+      font-size: 18px;
+    }
+
+    /* ==========================================
+       LIST
+       ========================================== */
+
+    .transaction-list,
+    .product-list,
+    .debt-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .empty {
+      padding: 35px 15px;
+
+      border: 1px dashed #cbd5e1;
+      border-radius: 15px;
+
+      color: #64748b;
+      background: white;
+
+      text-align: center;
+      font-size: 13px;
+    }
+
+    /* ==========================================
+       REPORT
+       ========================================== */
+
+    .report-card {
+      margin-top: 15px;
+      padding: 17px;
+
+      border: 1px solid #e5e7eb;
+      border-radius: 17px;
+
+      background: white;
+    }
+
+    /* ==========================================
+       BOTTOM NAV
+       ========================================== */
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      z-index: 500;
+
+      height: calc(70px + env(safe-area-inset-bottom));
+
+      padding:
+        5px
+        8px
+        calc(5px + env(safe-area-inset-bottom));
+
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+
+      background: rgba(255,255,255,.97);
+      border-top: 1px solid #e5e7eb;
+
+      backdrop-filter: blur(15px);
+    }
+
+    .nav-item {
+      border: 0;
+      background: transparent;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      gap: 3px;
+
+      color: #64748b;
+
+      font-size: 10px;
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: #2563eb;
+    }
+
+    .nav-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .nav-plus {
+      position: absolute;
+      left: 50%;
+      top: -23px;
+
+      transform: translateX(-50%);
+
+      width: 58px;
+      height: 58px;
+
+      border: 5px solid #f8fafc;
+      border-radius: 50%;
+
+      background: #2563eb;
+      color: white;
+
+      font-size: 30px;
+      font-weight: 500;
+
+      box-shadow:
+        0 7px 20px rgba(37,99,235,.30);
+
+      cursor: pointer;
+    }
+
+    /* ==========================================
+       QUICK ADD
+       ========================================== */
+
+    .quick-add {
+      position: fixed;
+      left: 50%;
+      bottom: 82px;
+
+      z-index: 450;
+
+      width: min(330px, calc(100% - 30px));
+
+      transform: translateX(-50%) scale(.95);
+      opacity: 0;
+      visibility: hidden;
+
+      display: grid;
+      gap: 8px;
+
+      padding: 12px;
+
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+
+      background: white;
+
+      box-shadow:
+        0 15px 40px rgba(15,23,42,.18);
+
+      transition: .2s ease;
+    }
+
+    .quick-add.show {
+      transform: translateX(-50%) scale(1);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .quick-add button {
+      min-height: 50px;
+
+      border: 0;
+      border-radius: 12px;
+
+      background: #f8fafc;
+
+      text-align: left;
+      padding: 0 15px;
+
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ==========================================
+       DRAWER
+       ========================================== */
+
+    .drawer {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+    }
+
+    .drawer.hidden {
+      display: none;
+    }
+
+    .drawer-overlay {
+      position: absolute;
+      inset: 0;
+
+      background: rgba(15,23,42,.45);
+    }
+
+    .drawer-panel {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+
+      width: min(390px, 92%);
+
+      padding:
+        calc(20px + env(safe-area-inset-top))
+        17px
+        calc(100px + env(safe-area-inset-bottom));
+
+      overflow-y: auto;
+
+      background: white;
+      box-shadow: -10px 0 30px rgba(0,0,0,.12);
+    }
+
+    .drawer-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      margin-bottom: 20px;
+    }
+
+    .drawer-title {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .drawer-sub {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .drawer-item {
+      width: 100%;
+
+      display: flex;
+      align-items: center;
+      gap: 13px;
+
+      padding: 14px 8px;
+
+      border: 0;
+      border-bottom: 1px solid #f1f5f9;
+
+      background: white;
+
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .drawer-item > span {
+      font-size: 25px;
+    }
+
+    .drawer-item strong,
+    .drawer-item small {
+      display: block;
+    }
+
+    .drawer-item small {
+      margin-top: 2px;
+      color: #64748b;
+      font-size: 11px;
+    }
+
+    .close-btn {
+      width: 40px;
+      height: 40px;
+
+      border: 0;
+      border-radius: 12px;
+
+      background: #f1f5f9;
+
+      font-size: 25px;
+      cursor: pointer;
+    }
+
+    /* ==========================================
+       MODAL
+       ========================================== */
+
+    .modal {
+      position: fixed;
+      inset: 0;
+
+      z-index: 1100;
+
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+
+      background: rgba(15,23,42,.45);
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-box {
+      width: min(620px, 100%);
+      max-height: 92vh;
+
+      overflow-y: auto;
+
+      padding: 18px;
+
+      border-radius: 22px 22px 0 0;
+
+      background: white;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+
+      margin-bottom: 18px;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .modal-head p {
+      margin: 4px 0 0;
+
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    /* ==========================================
+       TOAST
+       ========================================== */
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 90px;
+
+      z-index: 2000;
+
+      max-width: calc(100% - 30px);
+
+      padding: 12px 16px;
+
+      border-radius: 12px;
+
+      transform: translateX(-50%) translateY(20px);
+
+      background: #111827;
+      color: white;
+
+      font-size: 13px;
+      font-weight: 600;
+
+      opacity: 0;
+      pointer-events: none;
+
+      transition: .25s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ==========================================
+       DESKTOP
+       ========================================== */
+
+    @media (min-width: 768px) {
+
+      .container {
+        padding:
+          25px
+          25px
+          50px;
+      }
+
+      .bottom-nav {
+        position: fixed;
+        left: 50%;
+        right: auto;
+        bottom: 20px;
+
+        width: min(620px, calc(100% - 30px));
+
+        transform: translateX(-50%);
+
+        height: 66px;
+        padding: 5px 15px;
+
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+
+        box-shadow: 0 10px 35px rgba(15,23,42,.12);
+      }
+
+      .quick-add {
+        bottom: 105px;
+      }
+
+      .modal {
+        align-items: center;
+      }
+
+      .modal-box {
+        border-radius: 20px;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .quick-grid {
+        grid-template-columns: repeat(6, 1fr);
+      }
     }
   </style>
 </head>
 
 <body>
 
-<!-- =====================================================
-     LOADING
-===================================================== -->
+  <!-- ==========================================
+       LOADING
+       ========================================== -->
 
-<div id="loading" class="loading">
+  <div id="loading">
+    <div class="loading-logo">C</div>
 
-  <div class="spinner"></div>
+    <div class="spinner"></div>
 
-  <div class="loading-title">
-    Menyiapkan CatatKu...
-  </div>
-
-  <div class="loading-sub">
-    Keuangan Pribadi & Toko
-  </div>
-
-</div>
-
-
-<!-- =====================================================
-     HEADER
-===================================================== -->
-
-<header class="topbar">
-
-  <div class="brand">
-
-    <div class="app-title">
+    <div class="loading-title">
       CatatKu
     </div>
 
-    <div class="app-subtitle">
+    <div class="loading-sub">
       Keuangan Pribadi & Toko
     </div>
-
   </div>
 
 
-  <div class="header-actions">
+  <!-- ==========================================
+       TOPBAR
+       ========================================== -->
 
-    <div class="connection-status">
+  <header class="topbar">
 
-      <span id="onlineDot"
-            class="online-dot online">
+    <div class="brand">
+      <div class="app-title">
+        CatatKu
+      </div>
+
+      <div class="app-subtitle">
+        Keuangan Pribadi & Toko
+      </div>
+    </div>
+
+    <div class="header-actions">
+
+      <div class="connection-status">
+        <span
+          id="onlineDot"
+          class="online-dot"
+        ></span>
+
+        <span id="onlineText">
+          Online
+        </span>
+      </div>
+
+      <button
+        class="icon-btn"
+        type="button"
+        onclick="refreshApp()"
+        aria-label="Refresh"
+      >
+        ↻
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- ==========================================
+       SYNC BAR
+       ========================================== -->
+
+  <div class="sync-bar">
+
+    <div class="sync-left">
+      <span class="sync-icon">
+        ☁
       </span>
 
-      <span id="onlineText">
-        Online
+      <span id="syncText">
+        Menyiapkan data...
+      </span>
+    </div>
+
+    <div class="sync-right">
+
+      <span
+        id="syncBadge"
+        class="sync-badge hidden"
+      >
+        0
       </span>
 
-    </div>
-
-
-    <button
-      class="icon-btn"
-      type="button"
-      onclick="refreshApp()"
-      aria-label="Refresh">
-
-      ↻
-
-    </button>
-
-  </div>
-
-</header>
-
-
-<!-- =====================================================
-     SYNC BAR
-===================================================== -->
-
-<div class="sync-bar">
-
-  <div class="sync-left">
-
-    <span class="sync-icon">
-      ☁
-    </span>
-
-    <span id="syncText">
-      Data tersimpan otomatis
-    </span>
-
-  </div>
-
-
-  <div class="sync-right">
-
-    <span id="syncBadge"
-          class="sync-badge hidden">
-      0
-    </span>
-
-    <button
-      type="button"
-      class="sync-button"
-      onclick="syncOffline()">
-
-      Sinkronkan
-
-    </button>
-
-  </div>
-
-</div>
-
-
-<!-- =====================================================
-     MAIN
-===================================================== -->
-
-<main class="container">
-
-
-<!-- =====================================================
-     DASHBOARD
-===================================================== -->
-
-<section id="page-dashboard"
-         class="page active">
-
-  <div class="welcome-card">
-
-    <div>
-
-      <div class="small white-muted">
-        Saldo Saat Ini
-      </div>
-
-      <div id="saldo"
-           class="saldo">
-        Rp 0
-      </div>
-
-      <div class="balance-label">
-        Keuangan Anda
-      </div>
+      <button
+        type="button"
+        class="sync-button"
+        onclick="syncOffline()"
+      >
+        Sinkronkan
+      </button>
 
     </div>
 
-    <div class="wallet-icon">
-      💰
-    </div>
-
   </div>
 
 
-  <div class="section-title-row">
-    <h2>Ringkasan</h2>
-  </div>
+  <!-- ==========================================
+       MAIN
+       ========================================== -->
+
+  <main class="container">
 
 
-  <div class="summary-grid">
+    <!-- DASHBOARD -->
 
+    <section
+      id="page-dashboard"
+      class="page active"
+    >
 
-    <!-- PEMASUKAN -->
+      <div class="welcome-card">
 
-    <button
-      class="summary-card income"
-      type="button"
-      onclick="showPage('add'); setTransactionType('PEMASUKAN')">
+        <div>
 
-      <div class="summary-icon">
-        ↗
+          <div class="small white-muted">
+            Saldo Saat Ini
+          </div>
+
+          <div
+            id="saldo"
+            class="saldo"
+          >
+            Rp 0
+          </div>
+
+          <div class="balance-label">
+            Keuangan Anda
+          </div>
+
+        </div>
+
+        <div class="wallet-icon">
+          💰
+        </div>
+
       </div>
 
-      <div class="summary-info">
 
-        <div class="small">
+      <div class="section-title-row">
+        <h2>Ringkasan</h2>
+      </div>
+
+
+      <div class="summary-grid">
+
+        <button
+          class="summary-card income"
+          onclick="showPage('add');setTransactionType('PEMASUKAN')"
+        >
+
+          <div class="summary-icon">
+            ↗
+          </div>
+
+          <div class="summary-info">
+
+            <div class="small">
+              Pemasukan
+            </div>
+
+            <div
+              id="totalPemasukan"
+              class="summary-value"
+            >
+              Rp 0
+            </div>
+
+          </div>
+
+        </button>
+
+
+        <button
+          class="summary-card expense"
+          onclick="showPage('add');setTransactionType('PENGELUARAN')"
+        >
+
+          <div class="summary-icon">
+            ↘
+          </div>
+
+          <div class="summary-info">
+
+            <div class="small">
+              Pengeluaran
+            </div>
+
+            <div
+              id="totalPengeluaran"
+              class="summary-value"
+            >
+              Rp 0
+            </div>
+
+          </div>
+
+        </button>
+
+
+        <button
+          class="summary-card sales"
+          onclick="showPage('penjualan')"
+        >
+
+          <div class="summary-icon">
+            🛒
+          </div>
+
+          <div class="summary-info">
+
+            <div class="small">
+              Penjualan
+            </div>
+
+            <div
+              id="totalPenjualan"
+              class="summary-value"
+            >
+              Rp 0
+            </div>
+
+          </div>
+
+        </button>
+
+
+        <button
+          class="summary-card debt"
+          onclick="showPage('hutang')"
+        >
+
+          <div class="summary-icon">
+            💳
+          </div>
+
+          <div class="summary-info">
+
+            <div class="small">
+              Hutang
+            </div>
+
+            <div
+              id="totalHutang"
+              class="summary-value"
+            >
+              Rp 0
+            </div>
+
+          </div>
+
+        </button>
+
+      </div>
+
+
+      <div class="section-title-row">
+        <h2>Akses Cepat</h2>
+      </div>
+
+
+      <div class="quick-grid">
+
+        <button
+          class="quick-card"
+          onclick="quickTransaction('PEMASUKAN')"
+        >
+          <span class="quick-icon">💰</span>
+          <span>Pemasukan</span>
+        </button>
+
+        <button
+          class="quick-card"
+          onclick="quickTransaction('PENGELUARAN')"
+        >
+          <span class="quick-icon">💸</span>
+          <span>Pengeluaran</span>
+        </button>
+
+        <button
+          class="quick-card"
+          onclick="showPage('penjualan')"
+        >
+          <span class="quick-icon">🛒</span>
+          <span>Penjualan</span>
+        </button>
+
+        <button
+          class="quick-card"
+          onclick="showPage('belanja')"
+        >
+          <span class="quick-icon">📦</span>
+          <span>Belanja Stok</span>
+        </button>
+
+        <button
+          class="quick-card"
+          onclick="openModal('hutangModal')"
+        >
+          <span class="quick-icon">💳</span>
+          <span>Hutang</span>
+        </button>
+
+        <button
+          class="quick-card"
+          onclick="showPage('report')"
+        >
+          <span class="quick-icon">📊</span>
+          <span>Laporan</span>
+        </button>
+
+      </div>
+
+
+      <div class="section-title-row">
+
+        <h2>
+          Transaksi Terbaru
+        </h2>
+
+        <button
+          class="text-btn"
+          onclick="showPage('history')"
+        >
+          Lihat Semua
+        </button>
+
+      </div>
+
+
+      <div
+        id="recentTransactions"
+        class="transaction-list"
+      >
+
+        <div class="empty">
+          Belum ada transaksi
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         ADD TRANSACTION
+         ========================================== -->
+
+    <section
+      id="page-add"
+      class="page"
+    >
+
+      <div class="page-title">
+
+        <h1>
+          Tambah Transaksi
+        </h1>
+
+        <p>
+          Catat pemasukan atau pengeluaran
+        </p>
+
+      </div>
+
+
+      <div class="type-tabs">
+
+        <button
+          id="tabIncome"
+          class="type-tab active"
+          type="button"
+          onclick="setTransactionType('PEMASUKAN')"
+        >
+          <span>+</span>
           Pemasukan
-        </div>
+        </button>
 
-        <div id="totalPemasukan"
-             class="summary-value">
-          Rp 0
-        </div>
-
-      </div>
-
-    </button>
-
-
-    <!-- PENGELUARAN -->
-
-    <button
-      class="summary-card expense"
-      type="button"
-      onclick="showPage('add'); setTransactionType('PENGELUARAN')">
-
-      <div class="summary-icon">
-        ↘
-      </div>
-
-      <div class="summary-info">
-
-        <div class="small">
+        <button
+          id="tabExpense"
+          class="type-tab"
+          type="button"
+          onclick="setTransactionType('PENGELUARAN')"
+        >
+          <span>−</span>
           Pengeluaran
+        </button>
+
+      </div>
+
+
+      <form
+        id="transactionForm"
+        class="form-card"
+      >
+
+        <div class="form-group">
+
+          <label for="trxTanggal">
+            Tanggal
+          </label>
+
+          <input
+            id="trxTanggal"
+            type="date"
+            required
+          >
+
         </div>
 
-        <div id="totalPengeluaran"
-             class="summary-value">
-          Rp 0
+
+        <div class="form-group">
+
+          <label for="trxKategori">
+            Kategori
+          </label>
+
+          <select
+            id="trxKategori"
+            required
+          >
+
+            <option value="">
+              Pilih kategori
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="trxKeterangan">
+            Keterangan
+          </label>
+
+          <input
+            id="trxKeterangan"
+            type="text"
+            placeholder="Contoh: Jual LED 12W"
+            required
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="trxNominal">
+            Nominal (Rp)
+          </label>
+
+          <input
+            id="trxNominal"
+            type="number"
+            inputmode="numeric"
+            min="0"
+            placeholder="0"
+            required
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="trxRekening">
+            Rekening / Kas
+          </label>
+
+          <input
+            id="trxRekening"
+            type="text"
+            value="Kas"
+          >
+
+        </div>
+
+
+        <button
+          class="primary-btn big-btn"
+          type="submit"
+        >
+          Simpan Transaksi
+        </button>
+
+      </form>
+
+    </section>
+
+
+    <!-- ==========================================
+         BARANG
+         ========================================== -->
+
+    <section
+      id="page-barang"
+      class="page"
+    >
+
+      <div class="page-title">
+
+        <h1>
+          Barang
+        </h1>
+
+        <p>
+          Stok dan harga toko
+        </p>
+
+      </div>
+
+
+      <div class="page-action">
+
+        <button
+          class="primary-btn"
+          onclick="openModal('barangModal')"
+        >
+          + Tambah Barang
+        </button>
+
+      </div>
+
+
+      <div class="search-box">
+
+        <span>🔎</span>
+
+        <input
+          id="barangSearch"
+          type="search"
+          placeholder="Cari nama barang..."
+          oninput="filterBarang(this.value)"
+        >
+
+      </div>
+
+
+      <div
+        id="barangList"
+        class="product-list"
+      >
+
+        <div class="empty">
+          Memuat barang...
         </div>
 
       </div>
 
-    </button>
+    </section>
 
 
-    <!-- PENJUALAN -->
+    <!-- ==========================================
+         PENJUALAN
+         ========================================== -->
 
-    <button
-      class="summary-card sales"
-      type="button"
-      onclick="showPage('penjualan')">
+    <section
+      id="page-penjualan"
+      class="page"
+    >
 
-      <div class="summary-icon">
-        🛒
-      </div>
+      <div class="page-title">
 
-      <div class="summary-info">
-
-        <div class="small">
+        <h1>
           Penjualan
+        </h1>
+
+        <p>
+          Catat penjualan toko
+        </p>
+
+      </div>
+
+
+      <form
+        id="penjualanForm"
+        class="form-card"
+      >
+
+        <div class="form-group">
+
+          <label for="jualBarang">
+            Barang
+          </label>
+
+          <select
+            id="jualBarang"
+            required
+          >
+
+            <option value="">
+              Pilih barang
+            </option>
+
+          </select>
+
         </div>
 
-        <div id="totalPenjualan"
-             class="summary-value">
-          Rp 0
+
+        <div class="form-group">
+
+          <label for="jualQty">
+            Jumlah
+          </label>
+
+          <input
+            id="jualQty"
+            type="number"
+            inputmode="numeric"
+            min="1"
+            value="1"
+            required
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="jualHarga">
+            Harga Jual Satuan (Rp)
+          </label>
+
+          <input
+            id="jualHarga"
+            type="number"
+            inputmode="numeric"
+            min="0"
+            required
+          >
+
+        </div>
+
+
+        <div class="total-preview">
+
+          <span>
+            Total Penjualan
+          </span>
+
+          <strong id="jualTotalPreview">
+            Rp 0
+          </strong>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="jualPelanggan">
+            Pelanggan
+          </label>
+
+          <input
+            id="jualPelanggan"
+            type="text"
+            placeholder="Opsional (Umum)"
+          >
+
+        </div>
+
+
+        <button
+          class="primary-btn big-btn"
+          type="submit"
+        >
+          🛒 Simpan Penjualan
+        </button>
+
+      </form>
+
+    </section>
+
+
+    <!-- ==========================================
+         BELANJA
+         ========================================== -->
+
+    <section
+      id="page-belanja"
+      class="page"
+    >
+
+      <div class="page-title">
+
+        <h1>
+          Belanja Stok
+        </h1>
+
+        <p>
+          Pembelian barang toko
+        </p>
+
+      </div>
+
+
+      <form
+        id="belanjaForm"
+        class="form-card"
+      >
+
+        <div class="form-group">
+
+          <label for="belanjaBarang">
+            Barang
+          </label>
+
+          <select
+            id="belanjaBarang"
+            required
+          >
+
+            <option value="">
+              Pilih barang
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="belanjaQty">
+            Jumlah
+          </label>
+
+          <input
+            id="belanjaQty"
+            type="number"
+            inputmode="numeric"
+            min="1"
+            value="1"
+            required
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="belanjaHarga">
+            Harga Modal Satuan (Rp)
+          </label>
+
+          <input
+            id="belanjaHarga"
+            type="number"
+            inputmode="numeric"
+            min="0"
+            required
+          >
+
+        </div>
+
+
+        <div class="total-preview">
+
+          <span>
+            Total Belanja
+          </span>
+
+          <strong id="belanjaTotalPreview">
+            Rp 0
+          </strong>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="belanjaSupplier">
+            Supplier
+          </label>
+
+          <input
+            id="belanjaSupplier"
+            type="text"
+            placeholder="Nama supplier (Opsional)"
+          >
+
+        </div>
+
+
+        <button
+          class="primary-btn big-btn"
+          type="submit"
+        >
+          📦 Simpan Belanja
+        </button>
+
+      </form>
+
+    </section>
+
+
+    <!-- ==========================================
+         HUTANG
+         ========================================== -->
+
+    <section
+      id="page-hutang"
+      class="page"
+    >
+
+      <div class="page-title">
+
+        <h1>
+          Hutang & Cicilan
+        </h1>
+
+        <p>
+          Kelola hutang dan jatuh tempo
+        </p>
+
+      </div>
+
+
+      <div class="page-action">
+
+        <button
+          class="primary-btn"
+          onclick="openModal('hutangModal')"
+        >
+          + Tambah Hutang
+        </button>
+
+      </div>
+
+
+      <div
+        id="hutangList"
+        class="debt-list"
+      >
+
+        <div class="empty">
+          Belum ada hutang.
         </div>
 
       </div>
 
-    </button>
+    </section>
 
 
-    <!-- HUTANG -->
+    <!-- ==========================================
+         HISTORY
+         ========================================== -->
 
-    <button
-      class="summary-card debt"
-      type="button"
-      onclick="showPage('hutang')">
+    <section
+      id="page-history"
+      class="page"
+    >
 
-      <div class="summary-icon">
-        💳
-      </div>
+      <div class="page-title">
 
-      <div class="summary-info">
+        <h1>
+          Riwayat
+        </h1>
 
-        <div class="small">
-          Hutang
-        </div>
-
-        <div id="totalHutang"
-             class="summary-value">
-          Rp 0
-        </div>
+        <p>
+          Semua transaksi
+        </p>
 
       </div>
 
-    </button>
 
-  </div>
+      <div class="search-box">
 
+        <span>🔎</span>
 
-  <!-- AKSES CEPAT -->
+        <input
+          id="historySearch"
+          type="search"
+          placeholder="Cari transaksi..."
+          oninput="filterHistory(this.value)"
+        >
 
-  <div class="section-title-row">
-
-    <h2>
-      Akses Cepat
-    </h2>
-
-  </div>
-
-
-  <div class="quick-grid">
+      </div>
 
 
-    <button
-      class="quick-card"
-      type="button"
-      onclick="quickTransaction('PEMASUKAN')">
+      <div
+        id="historyList"
+        class="transaction-list"
+      >
 
-      <span class="quick-icon">
-        💰
-      </span>
+        <div class="empty">
+          Belum ada transaksi.
+        </div>
 
-      <span>
-        Pemasukan
-      </span>
+      </div>
 
-    </button>
+    </section>
 
 
-    <button
-      class="quick-card"
-      type="button"
-      onclick="quickTransaction('PENGELUARAN')">
+    <!-- ==========================================
+         REPORT
+         ========================================== -->
 
-      <span class="quick-icon">
-        💸
-      </span>
+    <section
+      id="page-report"
+      class="page"
+    >
 
-      <span>
-        Pengeluaran
-      </span>
+      <div class="page-title">
 
-    </button>
+        <h1>
+          Laporan
+        </h1>
 
+        <p>
+          Ringkasan keuangan
+        </p>
 
-    <button
-      class="quick-card"
-      type="button"
-      onclick="showPage('penjualan')">
-
-      <span class="quick-icon">
-        🛒
-      </span>
-
-      <span>
-        Penjualan
-      </span>
-
-    </button>
+      </div>
 
 
-    <button
-      class="quick-card"
-      type="button"
-      onclick="showPage('belanja')">
+      <div class="report-filter form-card">
 
-      <span class="quick-icon">
-        📦
-      </span>
+        <div class="form-group">
 
-      <span>
-        Belanja Stok
-      </span>
+          <label for="reportStart">
+            Mulai Tanggal
+          </label>
 
-    </button>
+          <input
+            id="reportStart"
+            type="date"
+          >
 
-
-    <button
-      class="quick-card"
-      type="button"
-      onclick="openModal('hutangModal')">
-
-      <span class="quick-icon">
-        💳
-      </span>
-
-      <span>
-        Hutang
-      </span>
-
-    </button>
+        </div>
 
 
-    <button
-      class="quick-card"
-      type="button"
-      onclick="showPage('report')">
+        <div class="form-group">
 
-      <span class="quick-icon">
-        📊
-      </span>
+          <label for="reportEnd">
+            Sampai Tanggal
+          </label>
 
-      <span>
-        Laporan
-      </span>
+          <input
+            id="reportEnd"
+            type="date"
+          >
 
-    </button>
-
-  </div>
+        </div>
 
 
-  <!-- TRANSAKSI TERBARU -->
+        <button
+          class="primary-btn big-btn"
+          onclick="loadReport()"
+        >
+          📊 Tampilkan Laporan
+        </button>
 
-  <div class="section-title-row">
+      </div>
 
-    <h2>
-      Transaksi Terbaru
-    </h2>
+
+      <div
+        id="reportResult"
+        class="report-card"
+      >
+        Pilih periode laporan di atas.
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ==========================================
+       BOTTOM NAV
+       ========================================== -->
+
+  <nav class="bottom-nav">
 
     <button
-      class="text-btn"
-      type="button"
-      onclick="showPage('history')">
-
-      Lihat Semua
-
-    </button>
-
-  </div>
-
-
-  <div id="recentTransactions"
-       class="transaction-list">
-
-    <div class="empty">
-      Belum ada transaksi
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     TAMBAH TRANSAKSI
-===================================================== -->
-
-<section id="page-add"
-         class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Tambah Transaksi
-    </h1>
-
-    <p>
-      Catat pemasukan atau pengeluaran
-    </p>
-
-  </div>
-
-
-  <div class="type-tabs">
-
-    <button
-      id="tabIncome"
-      class="type-tab active"
-      type="button"
-      onclick="setTransactionType('PEMASUKAN')">
-
-      <span>+</span>
-      Pemasukan
-
+      class="nav-item active"
+      onclick="showPage('dashboard')"
+    >
+      <span class="nav-icon">⌂</span>
+      <span>Beranda</span>
     </button>
 
 
     <button
-      id="tabExpense"
-      class="type-tab"
-      type="button"
-      onclick="setTransactionType('PENGELUARAN')">
-
-      <span>−</span>
-      Pengeluaran
-
+      class="nav-item"
+      onclick="showPage('add')"
+    >
+      <span class="nav-icon">↗</span>
+      <span>Transaksi</span>
     </button>
-
-  </div>
-
-
-  <form id="transactionForm"
-        class="form-card">
-
-
-    <div class="form-group">
-
-      <label for="trxTanggal">
-        Tanggal
-      </label>
-
-      <input
-        id="trxTanggal"
-        type="date"
-        required>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="trxKategori">
-        Kategori
-      </label>
-
-      <select
-        id="trxKategori"
-        required>
-
-        <option value="">
-          Pilih kategori
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="trxKeterangan">
-        Keterangan
-      </label>
-
-      <input
-        id="trxKeterangan"
-        type="text"
-        placeholder="Contoh: Jual LED 12W"
-        required>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="trxNominal">
-        Nominal (Rp)
-      </label>
-
-      <input
-        id="trxNominal"
-        type="number"
-        inputmode="numeric"
-        min="0"
-        placeholder="0"
-        required>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="trxRekening">
-        Rekening / Kas
-      </label>
-
-      <input
-        id="trxRekening"
-        type="text"
-        value="Kas">
-
-    </div>
 
 
     <button
-      class="primary-btn big-btn"
-      type="submit">
-
-      Simpan Transaksi
-
+      class="nav-item"
+      onclick="openQuickAdd()"
+      aria-label="Tambah"
+    >
+      <span class="nav-icon">＋</span>
+      <span>Tambah</span>
     </button>
-
-  </form>
-
-</section>
-
-
-<!-- =====================================================
-     BARANG
-===================================================== -->
-
-<section id="page-barang"
-         class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Barang
-    </h1>
-
-    <p>
-      Stok dan harga toko
-    </p>
-
-  </div>
-
-
-  <div class="page-action">
-
-    <button
-      class="primary-btn"
-      type="button"
-      onclick="openModal('barangModal')">
-
-      + Tambah Barang
-
-    </button>
-
-  </div>
-
-
-  <div class="search-box">
-
-    <span>
-      🔎
-    </span>
-
-    <input
-      id="barangSearch"
-      type="search"
-      placeholder="Cari nama barang..."
-      oninput="filterBarang(this.value)">
-
-  </div>
-
-
-  <div id="barangList"
-       class="product-list">
-
-    <div class="empty">
-      Belum ada barang.
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     PENJUALAN
-===================================================== -->
-
-<section id="page-penjualan"
-         class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Penjualan
-    </h1>
-
-    <p>
-      Catat penjualan toko
-    </p>
-
-  </div>
-
-
-  <form id="penjualanForm"
-        class="form-card">
-
-
-    <div class="form-group">
-
-      <label for="jualBarang">
-        Barang
-      </label>
-
-      <select
-        id="jualBarang"
-        required>
-
-        <option value="">
-          Pilih barang
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="jualQty">
-        Jumlah
-      </label>
-
-      <input
-        id="jualQty"
-        type="number"
-        inputmode="numeric"
-        min="1"
-        value="1"
-        required>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="jualHarga">
-        Harga Jual Satuan (Rp)
-      </label>
-
-      <input
-        id="jualHarga"
-        type="number"
-        inputmode="numeric"
-        min="0"
-        required>
-
-    </div>
-
-
-    <div class="total-preview">
-
-      <span>
-        Total Penjualan
-      </span>
-
-      <strong id="jualTotalPreview">
-        Rp 0
-      </strong>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="jualPelanggan">
-        Pelanggan
-      </label>
-
-      <input
-        id="jualPelanggan"
-        type="text"
-        placeholder="Opsional (Umum)">
-
-    </div>
 
 
     <button
-      class="primary-btn big-btn"
-      type="submit">
-
-      🛒 Simpan Penjualan
-
+      class="nav-item"
+      onclick="showPage('barang')"
+    >
+      <span class="nav-icon">▣</span>
+      <span>Barang</span>
     </button>
-
-  </form>
-
-</section>
-
-
-<!-- =====================================================
-     BELANJA STOK
-===================================================== -->
-
-<section id="page-belanja"
-         class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Belanja Stok
-    </h1>
-
-    <p>
-      Pembelian barang toko
-    </p>
-
-  </div>
-
-
-  <form id="belanjaForm"
-        class="form-card">
-
-
-    <div class="form-group">
-
-      <label for="belanjaBarang">
-        Barang
-      </label>
-
-      <select
-        id="belanjaBarang"
-        required>
-
-        <option value="">
-          Pilih barang
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="belanjaQty">
-        Jumlah
-      </label>
-
-      <input
-        id="belanjaQty"
-        type="number"
-        inputmode="numeric"
-        min="1"
-        value="1"
-        required>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="belanjaHarga">
-        Harga Modal Satuan (Rp)
-      </label>
-
-      <input
-        id="belanjaHarga"
-        type="number"
-        inputmode="numeric"
-        min="0"
-        required>
-
-    </div>
-
-
-    <div class="total-preview">
-
-      <span>
-        Total Belanja
-      </span>
-
-      <strong id="belanjaTotalPreview">
-        Rp 0
-      </strong>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="belanjaSupplier">
-        Supplier
-      </label>
-
-      <input
-        id="belanjaSupplier"
-        type="text"
-        placeholder="Nama supplier (Opsional)">
-
-    </div>
 
 
     <button
-      class="primary-btn big-btn"
-      type="submit">
-
-      📦 Simpan Belanja
-
+      class="nav-item"
+      onclick="showMoreMenu()"
+    >
+      <span class="nav-icon">☰</span>
+      <span>Lainnya</span>
     </button>
 
-  </form>
+  </nav>
 
-</section>
 
-
-<!-- =====================================================
-     HUTANG
-===================================================== -->
-
-<section id="page-hutang"
-         class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Hutang & Cicilan
-    </h1>
-
-    <p>
-      Kelola hutang dan jatuh tempo
-    </p>
-
-  </div>
-
-
-  <div class="page-action">
-
-    <button
-      class="primary-btn"
-      type="button"
-      onclick="openModal('hutangModal')">
-
-      + Tambah Hutang
-
-    </button>
-
-  </div>
-
-
-  <div id="hutangList"
-       class="debt-list">
-
-    <div class="empty">
-      Belum ada hutang.
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     RIWAYAT
-===================================================== -->
-
-<section id="page-history"
-         class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Riwayat
-    </h1>
-
-    <p>
-      Semua transaksi
-    </p>
-
-  </div>
-
-
-  <div class="search-box">
-
-    <span>
-      🔎
-    </span>
-
-    <input
-      id="historySearch"
-      type="search"
-      placeholder="Cari transaksi..."
-      oninput="filterHistory(this.value)">
-
-  </div>
-
-
-  <div id="historyList"
-       class="transaction-list">
-
-    <div class="empty">
-      Belum ada transaksi.
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     LAPORAN
-===================================================== -->
-
-<section id="page-report"
-         class="page">
-
-  <div class="page-title">
-
-    <h1>
-      Laporan
-    </h1>
-
-    <p>
-      Ringkasan keuangan
-    </p>
-
-  </div>
-
-
-  <div class="report-filter form-card">
-
-
-    <div class="form-group">
-
-      <label for="reportStart">
-        Mulai Tanggal
-      </label>
-
-      <input
-        id="reportStart"
-        type="date">
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label for="reportEnd">
-        Sampai Tanggal
-      </label>
-
-      <input
-        id="reportEnd"
-        type="date">
-
-    </div>
-
-
-    <button
-      class="primary-btn big-btn"
-      type="button"
-      onclick="loadReport()">
-
-      📊 Tampilkan Laporan
-
-    </button>
-
-  </div>
-
-
-  <div id="reportResult"
-       class="report-card">
-
-    Pilih periode laporan di atas.
-
-  </div>
-
-</section>
-
-</main>
-
-
-<!-- =====================================================
-     BOTTOM NAVIGATION
-===================================================== -->
-
-<nav class="bottom-nav">
-
-
-  <button
-    class="nav-item active"
-    type="button"
-    onclick="showPage('dashboard')">
-
-    <span class="nav-icon">
-      ⌂
-    </span>
-
-    <span>
-      Beranda
-    </span>
-
-  </button>
-
-
-  <button
-    class="nav-item"
-    type="button"
-    onclick="showPage('add')">
-
-    <span class="nav-icon">
-      ↗
-    </span>
-
-    <span>
-      Transaksi
-    </span>
-
-  </button>
-
-
-  <button
-    class="nav-plus"
-    type="button"
-    onclick="openQuickAdd()"
-    aria-label="Tambah">
-
-    <span>
-      +
-    </span>
-
-  </button>
-
-
-  <button
-    class="nav-item"
-    type="button"
-    onclick="showPage('barang')">
-
-    <span class="nav-icon">
-      ▣
-    </span>
-
-    <span>
-      Barang
-    </span>
-
-  </button>
-
-
-  <button
-    class="nav-item"
-    type="button"
-    onclick="showMoreMenu()">
-
-    <span class="nav-icon">
-      ☰
-    </span>
-
-    <span>
-      Lainnya
-    </span>
-
-  </button>
-
-</nav>
-
-
-<!-- =====================================================
-     QUICK ADD
-===================================================== -->
-
-<div id="quickAddMenu"
-     class="quick-add">
-
-
-  <button
-    class="quick-income"
-    type="button"
-    onclick="quickTransaction('PEMASUKAN')">
-
-    <span>💰</span>
-    Pemasukan
-
-  </button>
-
-
-  <button
-    class="quick-expense"
-    type="button"
-    onclick="quickTransaction('PENGELUARAN')">
-
-    <span>💸</span>
-    Pengeluaran
-
-  </button>
-
-
-  <button
-    class="quick-sale"
-    type="button"
-    onclick="showPage('penjualan'); closeQuickAdd()">
-
-    <span>🛒</span>
-    Penjualan
-
-  </button>
-
-
-  <button
-    class="quick-buy"
-    type="button"
-    onclick="showPage('belanja'); closeQuickAdd()">
-
-    <span>📦</span>
-    Belanja
-
-  </button>
-
-
-  <button
-    class="quick-debt"
-    type="button"
-    onclick="openModal('hutangModal'); closeQuickAdd()">
-
-    <span>💳</span>
-    Hutang
-
-  </button>
-
-</div>
-
-
-<!-- =====================================================
-     MORE MENU
-===================================================== -->
-
-<div id="moreMenu"
-     class="drawer hidden">
+  <!-- QUICK ADD -->
 
   <div
-    class="drawer-overlay"
-    onclick="closeMoreMenu()">
+    id="quickAddMenu"
+    class="quick-add"
+  >
+
+    <button
+      onclick="quickTransaction('PEMASUKAN')"
+    >
+      💰 &nbsp; Pemasukan
+    </button>
+
+    <button
+      onclick="quickTransaction('PENGELUARAN')"
+    >
+      💸 &nbsp; Pengeluaran
+    </button>
+
+    <button
+      onclick="showPage('penjualan');closeQuickAdd()"
+    >
+      🛒 &nbsp; Penjualan
+    </button>
+
+    <button
+      onclick="showPage('belanja');closeQuickAdd()"
+    >
+      📦 &nbsp; Belanja
+    </button>
+
+    <button
+      onclick="openModal('hutangModal');closeQuickAdd()"
+    >
+      💳 &nbsp; Hutang
+    </button>
+
   </div>
 
 
-  <div class="drawer-panel">
+  <!-- MORE MENU -->
+
+  <div
+    id="moreMenu"
+    class="drawer hidden"
+  >
+
+    <div
+      class="drawer-overlay"
+      onclick="closeMoreMenu()"
+    ></div>
 
 
-    <div class="drawer-head">
+    <div class="drawer-panel">
 
-      <div>
+      <div class="drawer-head">
 
-        <div class="drawer-title">
-          Menu CatatKu
+        <div>
+
+          <div class="drawer-title">
+            Menu CatatKu
+          </div>
+
+          <div class="drawer-sub">
+            Semua fitur aplikasi
+          </div>
+
         </div>
 
-        <div class="drawer-sub">
-          Semua fitur aplikasi
+        <button
+          class="close-btn"
+          onclick="closeMoreMenu()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <button
+        class="drawer-item"
+        onclick="openFromMenu('belanja')"
+      >
+        <span>🛍️</span>
+
+        <div>
+          <strong>Belanja Stok</strong>
+          <small>Pembelian barang toko</small>
         </div>
 
-      </div>
+      </button>
 
 
       <button
-        class="close-btn"
-        type="button"
-        onclick="closeMoreMenu()">
+        class="drawer-item"
+        onclick="openFromMenu('hutang')"
+      >
+        <span>💳</span>
 
-        ×
+        <div>
+          <strong>Hutang & Cicilan</strong>
+          <small>Hutang dan jatuh tempo</small>
+        </div>
+
+      </button>
+
+
+      <button
+        class="drawer-item"
+        onclick="openFromMenu('history')"
+      >
+        <span>📋</span>
+
+        <div>
+          <strong>Riwayat</strong>
+          <small>Semua transaksi</small>
+        </div>
+
+      </button>
+
+
+      <button
+        class="drawer-item"
+        onclick="openFromMenu('report')"
+      >
+        <span>📊</span>
+
+        <div>
+          <strong>Laporan</strong>
+          <small>Ringkasan keuangan</small>
+        </div>
+
+      </button>
+
+
+      <button
+        class="drawer-item"
+        onclick="syncOffline();closeMoreMenu()"
+      >
+        <span>🔄</span>
+
+        <div>
+          <strong>Sinkronkan Data</strong>
+          <small>Simpan & refresh data</small>
+        </div>
 
       </button>
 
     </div>
 
-
-    <button
-      class="drawer-item"
-      type="button"
-      onclick="openFromMenu('belanja')">
-
-      <span>🛍️</span>
-
-      <div>
-
-        <strong>
-          Belanja Stok
-        </strong>
-
-        <small>
-          Pembelian barang toko
-        </small>
-
-      </div>
-
-    </button>
-
-
-    <button
-      class="drawer-item"
-      type="button"
-      onclick="openFromMenu('hutang')">
-
-      <span>💳</span>
-
-      <div>
-
-        <strong>
-          Hutang & Cicilan
-        </strong>
-
-        <small>
-          Hutang dan jatuh tempo
-        </small>
-
-      </div>
-
-    </button>
-
-
-    <button
-      class="drawer-item"
-      type="button"
-      onclick="openFromMenu('history')">
-
-      <span>📋</span>
-
-      <div>
-
-        <strong>
-          Riwayat
-        </strong>
-
-        <small>
-          Semua transaksi
-        </small>
-
-      </div>
-
-    </button>
-
-
-    <button
-      class="drawer-item"
-      type="button"
-      onclick="openFromMenu('report')">
-
-      <span>📊</span>
-
-      <div>
-
-        <strong>
-          Laporan
-        </strong>
-
-        <small>
-          Ringkasan keuangan
-        </small>
-
-      </div>
-
-    </button>
-
-
-    <button
-      class="drawer-item"
-      type="button"
-      onclick="syncOffline(); closeMoreMenu()">
-
-      <span>🔄</span>
-
-      <div>
-
-        <strong>
-          Sinkronkan Data
-        </strong>
-
-        <small>
-          Simpan & refresh data
-        </small>
-
-      </div>
-
-    </button>
-
   </div>
 
-</div>
 
+  <!-- ==========================================
+       MODAL BARANG
+       ========================================== -->
 
-<!-- =====================================================
-     MODAL BARANG
-===================================================== -->
+  <div
+    id="barangModal"
+    class="modal hidden"
+  >
 
-<div id="barangModal"
-     class="modal hidden">
+    <div class="modal-box">
 
-  <div class="modal-box">
+      <div class="modal-head">
 
+        <div>
 
-    <div class="modal-head">
+          <h2>
+            Tambah Barang
+          </h2>
 
-      <div>
+          <p>
+            Masukkan data barang toko
+          </p>
 
-        <h2>
-          Tambah Barang
-        </h2>
+        </div>
 
-        <p>
-          Masukkan data barang toko
-        </p>
+        <button
+          class="close-btn"
+          onclick="closeModal('barangModal')"
+        >
+          ×
+        </button>
 
       </div>
 
 
-      <button
-        class="close-btn"
-        type="button"
-        onclick="closeModal('barangModal')">
+      <form id="barangForm">
 
-        ×
+        <div class="form-group">
 
-      </button>
+          <label for="barangNama">
+            Nama Barang
+          </label>
+
+          <input
+            id="barangNama"
+            required
+            placeholder="Contoh: LED 12W"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="barangModalPrice">
+            Harga Modal (Rp)
+          </label>
+
+          <input
+            id="barangModalPrice"
+            type="number"
+            inputmode="numeric"
+            min="0"
+            required
+            placeholder="0"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="barangJualPrice">
+            Harga Jual (Rp)
+          </label>
+
+          <input
+            id="barangJualPrice"
+            type="number"
+            inputmode="numeric"
+            min="0"
+            required
+            placeholder="0"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="barangStok">
+            Stok Awal
+          </label>
+
+          <input
+            id="barangStok"
+            type="number"
+            inputmode="numeric"
+            min="0"
+            value="0"
+          >
+
+        </div>
+
+
+        <button
+          class="primary-btn big-btn"
+          type="submit"
+        >
+          Simpan Barang
+        </button>
+
+      </form>
 
     </div>
 
-
-    <form id="barangForm">
-
-
-      <div class="form-group">
-
-        <label for="barangNama">
-          Nama Barang
-        </label>
-
-        <input
-          id="barangNama"
-          required
-          placeholder="Contoh: LED 12W">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="barangModalPrice">
-          Harga Modal (Rp)
-        </label>
-
-        <input
-          id="barangModalPrice"
-          type="number"
-          inputmode="numeric"
-          min="0"
-          required
-          placeholder="0">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="barangJualPrice">
-          Harga Jual (Rp)
-        </label>
-
-        <input
-          id="barangJualPrice"
-          type="number"
-          inputmode="numeric"
-          min="0"
-          required
-          placeholder="0">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="barangStok">
-          Stok Awal
-        </label>
-
-        <input
-          id="barangStok"
-          type="number"
-          inputmode="numeric"
-          min="0"
-          value="0">
-
-      </div>
-
-
-      <button
-        class="primary-btn big-btn"
-        type="submit">
-
-        Simpan Barang
-
-      </button>
-
-    </form>
-
   </div>
 
-</div>
 
+  <!-- ==========================================
+       MODAL HUTANG
+       ========================================== -->
 
-<!-- =====================================================
-     MODAL HUTANG
-===================================================== -->
+  <div
+    id="hutangModal"
+    class="modal hidden"
+  >
 
-<div id="hutangModal"
-     class="modal hidden">
+    <div class="modal-box">
 
-  <div class="modal-box">
+      <div class="modal-head">
 
+        <div>
 
-    <div class="modal-head">
+          <h2>
+            Tambah Hutang
+          </h2>
 
-      <div>
+          <p>
+            Catat hutang baru
+          </p>
 
-        <h2>
-          Tambah Hutang
-        </h2>
+        </div>
 
-        <p>
-          Catat hutang baru
-        </p>
+        <button
+          class="close-btn"
+          onclick="closeModal('hutangModal')"
+        >
+          ×
+        </button>
 
       </div>
 
 
-      <button
-        class="close-btn"
-        type="button"
-        onclick="closeModal('hutangModal')">
+      <form id="hutangForm">
 
-        ×
+        <div class="form-group">
 
-      </button>
+          <label for="hutangNama">
+            Nama / Pihak
+          </label>
+
+          <input
+            id="hutangNama"
+            required
+            placeholder="Contoh: Supplier A"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="hutangNominal">
+            Nominal (Rp)
+          </label>
+
+          <input
+            id="hutangNominal"
+            type="number"
+            inputmode="numeric"
+            min="0"
+            required
+            placeholder="0"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="hutangTempo">
+            Jatuh Tempo
+          </label>
+
+          <input
+            id="hutangTempo"
+            type="date"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="hutangKeterangan">
+            Keterangan
+          </label>
+
+          <input
+            id="hutangKeterangan"
+            placeholder="Opsional"
+          >
+
+        </div>
+
+
+        <button
+          class="primary-btn big-btn"
+          type="submit"
+        >
+          Simpan Hutang
+        </button>
+
+      </form>
 
     </div>
 
-
-    <form id="hutangForm">
-
-
-      <div class="form-group">
-
-        <label for="hutangNama">
-          Nama / Pihak
-        </label>
-
-        <input
-          id="hutangNama"
-          required
-          placeholder="Contoh: Supplier A">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="hutangNominal">
-          Nominal (Rp)
-        </label>
-
-        <input
-          id="hutangNominal"
-          type="number"
-          inputmode="numeric"
-          min="0"
-          required
-          placeholder="0">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="hutangTempo">
-          Jatuh Tempo
-        </label>
-
-        <input
-          id="hutangTempo"
-          type="date">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="hutangKeterangan">
-          Keterangan
-        </label>
-
-        <input
-          id="hutangKeterangan"
-          placeholder="Opsional">
-
-      </div>
-
-
-      <button
-        class="primary-btn big-btn"
-        type="submit">
-
-        Simpan Hutang
-
-      </button>
-
-    </form>
-
   </div>
 
-</div>
+
+  <!-- TOAST -->
+
+  <div
+    id="toast"
+    class="toast"
+  ></div>
 
 
-<!-- =====================================================
-     TOAST
-===================================================== -->
+  <!-- APP JS -->
 
-<div id="toast"
-     class="toast">
-</div>
+  <script src="./app.js" defer></script>
 
 
-<!-- =====================================================
-     APP JS
-===================================================== -->
+  <!-- ==========================================
+       SERVICE WORKER
+       ========================================== -->
 
-<script src="./app.js"></script>
+  <script>
+    /*
+     * Service Worker didaftarkan setelah halaman tampil.
+     * Jadi jika sw.js bermasalah, aplikasi tetap bisa dibuka.
+     */
+
+    window.addEventListener("load", function () {
+
+      setTimeout(function () {
+
+        if (!("serviceWorker" in navigator)) {
+          console.log("Service Worker tidak didukung.");
+          return;
+        }
+
+        navigator.serviceWorker
+          .register("./sw.js", {
+            scope: "./"
+          })
+          .then(function (registration) {
+
+            console.log(
+              "CatatKu SW aktif:",
+              registration.scope
+            );
+
+          })
+          .catch(function (error) {
+
+            console.warn(
+              "Service Worker gagal:",
+              error
+            );
+
+          });
+
+      }, 1000);
+
+    });
+  </script>
 
 
-<!-- =====================================================
-     SERVICE WORKER
-===================================================== -->
+  <!--
+    Pengaman loading.
 
-<script>
+    Kalau app.js gagal mengambil data GAS,
+    layar loading tetap akan ditutup.
+  -->
 
-if ("serviceWorker" in navigator) {
+  <script>
+    window.addEventListener("load", function () {
 
-  window.addEventListener("load", function () {
+      setTimeout(function () {
 
-    navigator.serviceWorker
-      .register("./sw.js")
-      .then(function (registration) {
+        var loading =
+          document.getElementById("loading");
 
-        console.log(
-          "CatatKu Service Worker aktif:",
-          registration.scope
-        );
+        if (loading) {
+          loading.classList.add("hidden");
+        }
 
-      })
-      .catch(function (error) {
+      }, 2500);
 
-        console.error(
-          "CatatKu Service Worker gagal:",
-          error
-        );
-
-      });
-
-  });
-
-}
-
-</script>
+    });
+  </script>
 
 </body>
 </html>
