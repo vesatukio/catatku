@@ -2825,3 +2825,39 @@ window.CatatKu = {
     }
 
 };
+function showToast(message) {
+
+  const toast =
+    document.getElementById(
+      "catatkuToast"
+    );
+
+
+  if (!toast) {
+
+    return;
+
+  }
+
+
+  toast.textContent =
+    message;
+
+
+  toast.classList.add(
+    "show"
+  );
+
+
+  setTimeout(
+    function() {
+
+      toast.classList.remove(
+        "show"
+      );
+
+    },
+    2500
+  );
+
+}
