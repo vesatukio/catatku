@@ -340,109 +340,140 @@ window.addEventListener(
 
 function openDB() {
 
-  return new Promise(
-    function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
 
-      if (db) {
+    if (db) {
+      resolve(db);
+      return;
+    }
 
-        resolve(db);
+    if (!window.indexedDB) {
 
-        return;
+      console.error("IndexedDB tidak tersedia");
 
-      }
+      setDatabaseStatus(
+        "IndexedDB tidak tersedia"
+      );
 
-      if (!window.indexedDB) {
+      reject(
+        new Error(
+          "IndexedDB tidak tersedia"
+        )
+      );
 
-        reject(
-          new Error(
-            "Browser tidak mendukung IndexedDB"
-          )
-        );
+      return;
+    }
 
-        return;
+    const request = indexedDB.open(
+      DB_NAME,
+      DB_VERSION
+    );
 
-      }
+    request.onupgradeneeded = function(event) {
 
-      const request =
-        indexedDB.open(
-          DB_NAME,
-          DB_VERSION
-        );
+      const database = event.target.result;
 
+      console.log(
+        "IndexedDB upgrade:",
+        event.oldVersion,
+        "->",
+        event.newVersion
+      );
 
-      request.onupgradeneeded =
-        function(event) {
+      Object.values(STORE).forEach(
+        function(storeName) {
 
-          const database =
-            event.target.result;
+          if (
+            !database.objectStoreNames.contains(
+              storeName
+            )
+          ) {
 
-          Object
-            .values(STORE)
-            .forEach(
-              function(name) {
+            console.log(
+              "Membuat store:",
+              storeName
+            );
 
-                if (
-                  !database.objectStoreNames
-                    .contains(name)
-                ) {
-
-                  database.createObjectStore(
-                    name,
-                    {
-                      keyPath: "id"
-                    }
-                  );
-
-                }
-
+            database.createObjectStore(
+              storeName,
+              {
+                keyPath: "id"
               }
             );
 
-        };
+          }
 
+        }
+      );
 
-      request.onsuccess =
-        function(event) {
+    };
 
-          db =
-            event.target.result;
+    request.onsuccess = function(event) {
 
-          db.onversionchange =
-            function() {
+      db = event.target.result;
 
-              db.close();
+      db.onversionchange = function() {
 
-              db = null;
+        db.close();
 
-            };
+        db = null;
 
-          setDatabaseStatus(
-            "Database lokal siap"
-          );
+      };
 
-          resolve(db);
+      setDatabaseStatus(
+        "Database lokal siap"
+      );
 
-        };
+      console.log(
+        "DATABASE OK",
+        DB_NAME,
+        "version",
+        DB_VERSION
+      );
 
+      resolve(db);
 
-      request.onerror =
-        function() {
+    };
 
-          setDatabaseStatus(
-            "Database lokal error"
-          );
+    request.onerror = function(event) {
 
-          reject(
-            request.error ||
-            new Error(
-              "IndexedDB error"
-            )
-          );
+      db = null;
 
-        };
+      console.error(
+        "DATABASE ERROR:",
+        event.target.error
+      );
 
-    }
-  );
+      setDatabaseStatus(
+        "Database lokal error: " +
+        (
+          event.target.error?.name ||
+          "UnknownError"
+        )
+      );
+
+      reject(
+        event.target.error ||
+        new Error(
+          "Database gagal dibuka"
+        )
+      );
+
+    };
+
+    request.onblocked = function() {
+
+      console.error(
+        "DATABASE BLOCKED"
+      );
+
+      setDatabaseStatus(
+        "Database sedang diblokir"
+      );
+
+    };
+
+  });
 
 }
 
