@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Test IndexedDB</title>
+</head>
+
+<body>
+
+<h2>TEST INDEXEDDB</h2>
+
+<div id="hasil">
+  Sedang mengetes...
+</div>
+
+<script>
+
+"use strict";
+
+const hasil =
+  document.getElementById("hasil");
+
+try {
+
+  if (!window.indexedDB) {
+
+    hasil.innerHTML =
+      "❌ IndexedDB tidak tersedia";
+
+  }
+  else {
+
+    const nama =
+      "TestDB_" +
+      Date.now();
+
+    const request =
+      indexedDB.open(
+        nama,
+        1
+      );
+
+    request.onupgradeneeded =
+      function(event) {
+
+        const db =
+          event.target.result;
+
+        db.createObjectStore(
+          "test",
+          {
+            keyPath: "id"
+          }
+        );
+
+      };
+
+    request.onsuccess =
+      function(event) {
+
+        const db =
+          event.target.result;
+
+        hasil.innerHTML =
+          "✅ INDEXEDDB BERHASIL<br><br>" +
+          "Browser HP mengizinkan database.";
+
+        db.close();
+
+      };
+
+    request.onerror =
+      function(event) {
+
+        const error =
+          event.target.error;
+
+        hasil.innerHTML =
+          "❌ INDEXEDDB GAGAL<br><br>" +
+          "Nama: " +
+          (error?.name || "Unknown") +
+          "<br><br>" +
+          "Pesan: " +
+          (error?.message || "Tidak ada pesan");
+
+      };
+
+  }
+
+}
+catch(error) {
+
+  hasil.innerHTML =
+    "❌ ERROR<br><br>" +
+    error.name +
+    "<br><br>" +
+    error.message;
+
+}
+
+</script>
+
+</body>
+</html>
