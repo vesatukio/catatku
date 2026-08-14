@@ -16,7 +16,7 @@
    ========================================================= */
 
 const GAS_URL =
-  "GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT";
+  "https://script.google.com/macros/s/AKfycbzYYBPcHEKLcVHjOz0O1nTAkUrX6YbH3PgHWAWscVNX9-sBKwWRSgkqwd7ET02w_brc/exec";
 
 
 const DB_NAME =
