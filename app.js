@@ -3877,21 +3877,24 @@ window.testIndexedDB = function () {
     request.onerror =
       function (event) {
 
+        const error =
+          event.target.error;
+
         console.error(
           "INDEXEDDB TEST GAGAL",
-          event.target.error
+          error
         );
 
         alert(
           "TES INDEXEDDB GAGAL\n\n" +
           "Nama: " +
           (
-            event.target.error?.name ||
+            error?.name ||
             "Unknown"
           ) +
           "\n\nPesan: " +
           (
-            event.target.error?.message ||
+            error?.message ||
             "Tidak ada pesan"
           )
         );
@@ -3916,6 +3919,12 @@ window.testIndexedDB = function () {
   }
 
 };
+
+
+/* =========================================================
+   JALANKAN TEST OTOMATIS
+   ========================================================= */
+
 setTimeout(function () {
 
   testIndexedDB();
