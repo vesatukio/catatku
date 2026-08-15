@@ -1,32 +1,27 @@
 /* =========================================================
    CATATKU
-   APP.JS FINAL - CHROME HP
+   app.js
    =========================================================
 
-   MODE
-   - OFFLINE FIRST
-   - INDEXEDDB
-   - GOOGLE APPS SCRIPT
-   - AUTO SYNC
-   - MANUAL REFRESH
-   - BARANG
-   - STOK
-   - PENJUALAN
-   - OMZET
-   - UNTUNG
-   - TRANSAKSI MASUK / KELUAR
-   - QUEUE OFFLINE
+   DATABASE UTAMA
+   Google Sheets melalui Google Apps Script
 
    DATABASE LOKAL
-   - Menggunakan database baru untuk menghindari
-     database CatatKuDB lama yang rusak di Chrome HP.
+   IndexedDB
 
-   SERVER
-   - Google Apps Script
-   - Google Sheets
-
-   KHUSUS
-   - 1 HP
+   FITUR
+   - Uang masuk
+   - Uang keluar
+   - Barang
+   - Stok
+   - Penjualan
+   - Omzet
+   - Untung
+   - Offline save
+   - Auto sync
+   - Manual sync
+   - Dashboard
+   - Auto repair IndexedDB
    ========================================================= */
 
 "use strict";
@@ -37,126 +32,203 @@
    ========================================================= */
 
 const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbzYYBPcHEKLcVHjOz0O1nTAkUrX6YbH3PgHWAWscVNX9-sBKwWRSgkqwd7ET02w_brc/exec";
+  "https://script.google.com/macros/s/AKfycbwBeouN8uOCNNrWiV5exaTyf_QcycY-eLMtgqg8VdDfmYofavL7OPFTyOifoQELADSr/exec";
+
+const DB_NAME =
+  "CATATKU_DB";
+
+const DB_VERSION =
+  3;
 
 
-/*
- * PENTING
- *
- * Jangan gunakan lagi "CatatKuDB".
- *
- * Database lama di Chrome HP bermasalah.
- * Kita gunakan nama baru.
- */
 /* =========================================================
-   INDEXEDDB
-   CATATKU - CHROME HP SAFE
+   OBJECT STORE
    ========================================================= */
 
-const DB_NAME = "CatatKuDB_HP";
-const DB_VERSION = 3;
+const STORES = {
 
-const STORE = {
-  transaksi: "transaksi",
-  barang: "barang",
-  penjualan: "penjualan",
-  queue: "queue"
+  transaksi:
+    "transaksi",
+
+  barang:
+    "barang",
+
+  penjualan:
+    "penjualan",
+
+  queue:
+    "sync_queue"
+
 };
 
+
+/* =========================================================
+   DATABASE GLOBAL
+   ========================================================= */
+
 let db = null;
-let dbOpening = null;
+
+let dbPromise = null;
 
 
 /* =========================================================
-   CEK OBJECT STORE
+   STATUS APLIKASI
    ========================================================= */
 
-function hasAllStores(database) {
+const APP_STATE = {
+
+  online:
+    navigator.onLine,
+
+  syncing:
+    false,
+
+  initialized:
+    false
+
+};
+
+
+/* =========================================================
+   UTILITAS
+   ========================================================= */
+
+function uid(prefix = "ID") {
+
+  const waktu =
+    Date.now()
+      .toString(36);
+
+  const acak =
+    Math.random()
+      .toString(36)
+      .substring(2, 9);
 
   return (
-    database.objectStoreNames.contains(STORE.transaksi) &&
-    database.objectStoreNames.contains(STORE.barang) &&
-    database.objectStoreNames.contains(STORE.penjualan) &&
-    database.objectStoreNames.contains(STORE.queue)
+    prefix +
+    "-" +
+    waktu +
+    "-" +
+    acak
+  ).toUpperCase();
+
+}
+
+
+function number(value) {
+
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+
+    return 0;
+
+  }
+
+  const n =
+    Number(
+      String(value)
+        .replace(/[^\d.-]/g, "")
+    );
+
+  return Number.isFinite(n)
+    ? n
+    : 0;
+
+}
+
+
+function rupiah(value) {
+
+  return new Intl.NumberFormat(
+    "id-ID",
+    {
+      style:
+        "currency",
+
+      currency:
+        "IDR",
+
+      maximumFractionDigits:
+        0
+    }
+  ).format(
+    number(value)
   );
 
 }
 
 
-/* =========================================================
-   BUAT OBJECT STORE
-   ========================================================= */
+function today() {
 
-function createStores(database) {
+  const d =
+    new Date();
 
-  if (
-    !database.objectStoreNames.contains(
-      STORE.transaksi
+  const tahun =
+    d.getFullYear();
+
+  const bulan =
+    String(
+      d.getMonth() + 1
+    ).padStart(2, "0");
+
+  const tanggal =
+    String(
+      d.getDate()
+    ).padStart(2, "0");
+
+  return (
+    tahun +
+    "-" +
+    bulan +
+    "-" +
+    tanggal
+  );
+
+}
+
+
+function nowISO() {
+
+  return new Date()
+    .toISOString();
+
+}
+
+
+function escapeHTML(value) {
+
+  return String(
+    value ?? ""
+  )
+    .replaceAll(
+      "&",
+      "&amp;"
     )
-  ) {
-
-    database.createObjectStore(
-      STORE.transaksi,
-      {
-        keyPath: "id"
-      }
-    );
-
-  }
-
-
-  if (
-    !database.objectStoreNames.contains(
-      STORE.barang
+    .replaceAll(
+      "<",
+      "&lt;"
     )
-  ) {
-
-    database.createObjectStore(
-      STORE.barang,
-      {
-        keyPath: "id"
-      }
-    );
-
-  }
-
-
-  if (
-    !database.objectStoreNames.contains(
-      STORE.penjualan
+    .replaceAll(
+      ">",
+      "&gt;"
     )
-  ) {
-
-    database.createObjectStore(
-      STORE.penjualan,
-      {
-        keyPath: "id"
-      }
-    );
-
-  }
-
-
-  if (
-    !database.objectStoreNames.contains(
-      STORE.queue
+    .replaceAll(
+      '"',
+      "&quot;"
     )
-  ) {
-
-    database.createObjectStore(
-      STORE.queue,
-      {
-        keyPath: "id"
-      }
+    .replaceAll(
+      "'",
+      "&#039;"
     );
-
-  }
 
 }
 
 
 /* =========================================================
-   OPEN DATABASE
+   INDEXED DB
    ========================================================= */
 
 function openDB() {
@@ -165,87 +237,51 @@ function openDB() {
      Jika database sudah terbuka
      ------------------------------------------------------- */
 
-  if (db) {
-
-    try {
-
-      if (
-        hasAllStores(db)
-      ) {
-
-        return Promise.resolve(
-          db
-        );
-
-      }
-
-    }
-    catch (error) {
-
-      console.warn(
-        "Koneksi DB lama tidak valid:",
-        error
-      );
-
-      try {
-
-        db.close();
-
-      }
-      catch (e) {}
-
-      db = null;
-
-    }
-
-  }
-
-
-  /* -------------------------------------------------------
-     Jangan buka database berkali-kali
-     ------------------------------------------------------- */
-
-  if (dbOpening) {
-
-    return dbOpening;
-
-  }
-
-
-  /* -------------------------------------------------------
-     Cek IndexedDB
-     ------------------------------------------------------- */
-
   if (
-    !window.indexedDB
+    db &&
+    db.objectStoreNames
   ) {
 
-    const error =
-      new Error(
-        "Chrome tidak menyediakan IndexedDB"
-      );
-
-    setDatabaseStatus(
-      "IndexedDB tidak tersedia"
-    );
-
-    return Promise.reject(
-      error
+    return Promise.resolve(
+      db
     );
 
   }
 
 
   /* -------------------------------------------------------
-     Mulai membuka database
+     Jika sedang proses membuka database
      ------------------------------------------------------- */
 
-  dbOpening =
+  if (dbPromise) {
+
+    return dbPromise;
+
+  }
+
+
+  dbPromise =
     new Promise(
       function(resolve, reject) {
 
-        let request;
+        if (
+          !window.indexedDB
+        ) {
 
+          dbPromise = null;
+
+          reject(
+            new Error(
+              "Browser tidak mendukung IndexedDB"
+            )
+          );
+
+          return;
+
+        }
+
+
+        let request;
 
         try {
 
@@ -256,254 +292,230 @@ function openDB() {
             );
 
         }
+
         catch (error) {
 
-          dbOpening = null;
+          dbPromise = null;
 
-          setDatabaseStatus(
-            "Gagal membuka database"
-          );
-
-          reject(
-            error
-          );
+          reject(error);
 
           return;
 
         }
 
 
-        /* =================================================
+        /* -------------------------------------------------
            UPGRADE DATABASE
-           ================================================= */
+           ------------------------------------------------- */
 
         request.onupgradeneeded =
           function(event) {
 
-            try {
-
-              const database =
-                event.target.result;
-
-              console.log(
-                "IndexedDB upgrade:",
-                event.oldVersion,
-                "→",
-                event.newVersion
-              );
+            const database =
+              event.target.result;
 
 
-              createStores(
-                database
+            /* ---------------------------------------------
+               TRANSAKSI
+               --------------------------------------------- */
+
+            if (
+              !database.objectStoreNames.contains(
+                STORES.transaksi
+              )
+            ) {
+
+              const store =
+                database.createObjectStore(
+                  STORES.transaksi,
+                  {
+                    keyPath:
+                      "id"
+                  }
+                );
+
+
+              store.createIndex(
+                "tanggal",
+                "tanggal",
+                {
+                  unique:
+                    false
+                }
               );
 
             }
-            catch (error) {
 
-              console.error(
-                "IndexedDB UPGRADE ERROR:",
-                error
+
+            /* ---------------------------------------------
+               BARANG
+               --------------------------------------------- */
+
+            if (
+              !database.objectStoreNames.contains(
+                STORES.barang
+              )
+            ) {
+
+              const store =
+                database.createObjectStore(
+                  STORES.barang,
+                  {
+                    keyPath:
+                      "id"
+                  }
+                );
+
+
+              store.createIndex(
+                "nama",
+                "nama",
+                {
+                  unique:
+                    false
+                }
               );
 
-              throw error;
+            }
+
+
+            /* ---------------------------------------------
+               PENJUALAN
+               --------------------------------------------- */
+
+            if (
+              !database.objectStoreNames.contains(
+                STORES.penjualan
+              )
+            ) {
+
+              const store =
+                database.createObjectStore(
+                  STORES.penjualan,
+                  {
+                    keyPath:
+                      "id"
+                  }
+                );
+
+
+              store.createIndex(
+                "tanggal",
+                "tanggal",
+                {
+                  unique:
+                    false
+                }
+              );
+
+            }
+
+
+            /* ---------------------------------------------
+               SYNC QUEUE
+               --------------------------------------------- */
+
+            if (
+              !database.objectStoreNames.contains(
+                STORES.queue
+              )
+            ) {
+
+              const store =
+                database.createObjectStore(
+                  STORES.queue,
+                  {
+                    keyPath:
+                      "id"
+                  }
+                );
+
+
+              store.createIndex(
+                "createdAt",
+                "createdAt",
+                {
+                  unique:
+                    false
+                }
+              );
 
             }
 
           };
 
 
-        /* =================================================
-           BERHASIL
-           ================================================= */
+        /* -------------------------------------------------
+           DATABASE BERHASIL DIBUKA
+           ------------------------------------------------- */
 
         request.onsuccess =
           function(event) {
 
-            try {
-
-              const database =
-                event.target.result;
+            db =
+              event.target.result;
 
 
-              /* -----------------------------------------
-                 Pastikan semua store tersedia
-                 ----------------------------------------- */
+            db.onversionchange =
+              function() {
 
-              if (
-                !hasAllStores(
-                  database
-                )
-              ) {
-
-                console.error(
-                  "Object store belum lengkap"
-                );
-
-                try {
-
-                  database.close();
-
-                }
-                catch (e) {}
+                db.close();
 
                 db = null;
-                dbOpening = null;
 
-                reject(
-                  new Error(
-                    "Struktur database tidak lengkap"
-                  )
+                dbPromise = null;
+
+              };
+
+
+            db.onerror =
+              function(event) {
+
+                console.warn(
+                  "IndexedDB error:",
+                  event
                 );
 
-                return;
-
-              }
+              };
 
 
-              db =
-                database;
-
-
-              /* -----------------------------------------
-                 Jika ada upgrade dari tab lain
-                 ----------------------------------------- */
-
-              database.onversionchange =
-                function() {
-
-                  console.log(
-                    "Database version berubah"
-                  );
-
-                  try {
-
-                    database.close();
-
-                  }
-                  catch (error) {
-
-                    console.warn(
-                      error
-                    );
-
-                  }
-
-                  if (
-                    db === database
-                  ) {
-
-                    db = null;
-
-                  }
-
-                };
-
-
-              /* -----------------------------------------
-                 Jika koneksi ditutup
-                 ----------------------------------------- */
-
-              database.onclose =
-                function() {
-
-                  console.warn(
-                    "IndexedDB connection closed"
-                  );
-
-                  if (
-                    db === database
-                  ) {
-
-                    db = null;
-
-                  }
-
-                };
-
-
-              /* -----------------------------------------
-                 Database siap
-                 ----------------------------------------- */
-
-              setDatabaseStatus(
-                "Database lokal siap"
-              );
-
-
-              dbOpening =
-                null;
-
-
-              resolve(
-                database
-              );
-
-            }
-            catch (error) {
-
-              db = null;
-              dbOpening = null;
-
-              reject(
-                error
-              );
-
-            }
+            resolve(
+              db
+            );
 
           };
 
 
-        /* =================================================
+        /* -------------------------------------------------
            ERROR
-           ================================================= */
+           ------------------------------------------------- */
 
         request.onerror =
-          function(event) {
-
-            const error =
-              event.target.error ||
-              new Error(
-                "IndexedDB gagal dibuka"
-              );
-
-
-            console.error(
-              "CATATKU IndexedDB ERROR:",
-              error.name,
-              error.message
-            );
-
+          function() {
 
             db = null;
-            dbOpening = null;
 
-
-            setDatabaseStatus(
-              "Database lokal gagal"
-            );
-
+            dbPromise = null;
 
             reject(
-              error
+              request.error ||
+              new Error(
+                "Gagal membuka IndexedDB"
+              )
             );
 
           };
 
 
-        /* =================================================
+        /* -------------------------------------------------
            BLOCKED
-           ================================================= */
+           ------------------------------------------------- */
 
         request.onblocked =
           function() {
 
             console.warn(
-              "IndexedDB OPEN BLOCKED"
-            );
-
-
-            setDatabaseStatus(
-              "Database sedang digunakan"
+              "IndexedDB sedang diblokir. Tutup tab CatatKu lain."
             );
 
           };
@@ -512,64 +524,33 @@ function openDB() {
     );
 
 
-  return dbOpening;
+  return dbPromise;
 
 }
 
 
 /* =========================================================
-   PASTIKAN DATABASE SIAP
+   CEK STORE
    ========================================================= */
 
 async function ensureDB() {
 
-  try {
-
-    const database =
-      await openDB();
+  const database =
+    await openDB();
 
 
-    if (
-      !database
-    ) {
+  if (
+    !database
+  ) {
 
-      throw new Error(
-        "Database tidak tersedia"
-      );
-
-    }
-
-
-    if (
-      !hasAllStores(
-        database
-      )
-    ) {
-
-      throw new Error(
-        "Object store database tidak lengkap"
-      );
-
-    }
-
-
-    return database;
-
-  }
-  catch (error) {
-
-    console.error(
-      "ensureDB:",
-      error
+    throw new Error(
+      "Database lokal belum siap"
     );
 
-
-    db = null;
-
-
-    throw error;
-
   }
+
+
+  return database;
 
 }
 
@@ -580,22 +561,68 @@ async function ensureDB() {
 
 async function dbPut(
   storeName,
-  value
+  data
 ) {
+
+  if (
+    !data ||
+    typeof data !== "object"
+  ) {
+
+    throw new Error(
+      "Data IndexedDB tidak valid"
+    );
+
+  }
+
 
   const database =
     await ensureDB();
 
 
   if (
-    !Object.values(STORE)
-      .includes(storeName)
+    !database.objectStoreNames.contains(
+      storeName
+    )
   ) {
 
     throw new Error(
-      "Store tidak dikenal: " +
+      "Object store tidak ditemukan: " +
       storeName
     );
+
+  }
+
+
+  const item = {
+    ...data
+  };
+
+
+  /* -------------------------------------------------------
+     Pastikan ID ada
+     ------------------------------------------------------- */
+
+  if (
+    item.id === undefined ||
+    item.id === null ||
+    String(item.id).trim() === ""
+  ) {
+
+    item.id =
+      uid(
+        storeName
+          .replace(
+            /[^a-zA-Z0-9]/g,
+            ""
+          )
+          .substring(
+            0,
+            8
+          )
+          .toUpperCase() ||
+        "LOCAL"
+      );
 
   }
 
@@ -603,86 +630,164 @@ async function dbPut(
   return new Promise(
     function(resolve, reject) {
 
-      let tx;
-
+      let transaction;
 
       try {
 
-        tx =
+        transaction =
           database.transaction(
             storeName,
             "readwrite"
           );
 
-
-        const store =
-          tx.objectStore(
-            storeName
-          );
-
-
-        store.put(
-          value
-        );
-
-
-        tx.oncomplete =
-          function() {
-
-            resolve(
-              value
-            );
-
-          };
-
-
-        tx.onerror =
-          function() {
-
-            reject(
-              tx.error ||
-              new Error(
-                "Gagal menyimpan data"
-              )
-            );
-
-          };
-
-
-        tx.onabort =
-          function() {
-
-            reject(
-              tx.error ||
-              new Error(
-                "Transaksi database dibatalkan"
-              )
-            );
-
-          };
-
       }
+
       catch (error) {
 
-        console.error(
-          "dbPut:",
-          error
-        );
+        reject(error);
 
-
-        /* ---------------------------------------------
-           Jika koneksi DB sudah mati
-           coba buka ulang
-           --------------------------------------------- */
-
-        db = null;
-
-
-        reject(
-          error
-        );
+        return;
 
       }
+
+
+      const store =
+        transaction.objectStore(
+          storeName
+        );
+
+
+      const request =
+        store.put(
+          item
+        );
+
+
+      request.onsuccess =
+        function() {
+
+          resolve(
+            item
+          );
+
+        };
+
+
+      request.onerror =
+        function() {
+
+          reject(
+            request.error ||
+            new Error(
+              "Gagal menyimpan data ke IndexedDB"
+            )
+          );
+
+        };
+
+
+      transaction.onerror =
+        function() {
+
+          reject(
+            transaction.error ||
+            new Error(
+              "Transaksi IndexedDB gagal"
+            )
+          );
+
+        };
+
+
+      transaction.onabort =
+        function() {
+
+          reject(
+            transaction.error ||
+            new Error(
+              "Transaksi IndexedDB dibatalkan"
+            )
+          );
+
+        };
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   DB GET
+   ========================================================= */
+
+async function dbGet(
+  storeName,
+  id
+) {
+
+  const database =
+    await ensureDB();
+
+
+  return new Promise(
+    function(resolve, reject) {
+
+      let transaction;
+
+      try {
+
+        transaction =
+          database.transaction(
+            storeName,
+            "readonly"
+          );
+
+      }
+
+      catch (error) {
+
+        reject(error);
+
+        return;
+
+      }
+
+
+      const store =
+        transaction.objectStore(
+          storeName
+        );
+
+
+      const request =
+        store.get(
+          id
+        );
+
+
+      request.onsuccess =
+        function() {
+
+          resolve(
+            request.result ||
+            null
+          );
+
+        };
+
+
+      request.onerror =
+        function() {
+
+          reject(
+            request.error ||
+            new Error(
+              "Gagal mengambil data IndexedDB"
+            )
+          );
+
+        };
 
     }
   );
@@ -702,137 +807,79 @@ async function dbGetAll(
     await ensureDB();
 
 
-  return new Promise(
-    function(resolve, reject) {
+  if (
+    !database.objectStoreNames.contains(
+      storeName
+    )
+  ) {
 
-      try {
-
-        const tx =
-          database.transaction(
-            storeName,
-            "readonly"
-          );
-
-
-        const request =
-          tx
-            .objectStore(
-              storeName
-            )
-            .getAll();
-
-
-        request.onsuccess =
-          function() {
-
-            resolve(
-              request.result || []
-            );
-
-          };
-
-
-        request.onerror =
-          function() {
-
-            reject(
-              request.error ||
-              new Error(
-                "Gagal membaca database"
-              )
-            );
-
-          };
-
-      }
-      catch (error) {
-
-        db = null;
-
-        reject(
-          error
-        );
-
-      }
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   DB GET
-   ========================================================= */
-
-async function dbGet(
-  storeName,
-  id
-) {
-
-  if (!id) {
-
-    return undefined;
+    throw new Error(
+      "Object store tidak ditemukan: " +
+      storeName
+    );
 
   }
 
 
-  const database =
-    await ensureDB();
-
-
   return new Promise(
     function(resolve, reject) {
 
+      let transaction;
+
       try {
 
-        const tx =
+        transaction =
           database.transaction(
             storeName,
             "readonly"
           );
 
-
-        const request =
-          tx
-            .objectStore(
-              storeName
-            )
-            .get(id);
-
-
-        request.onsuccess =
-          function() {
-
-            resolve(
-              request.result
-            );
-
-          };
-
-
-        request.onerror =
-          function() {
-
-            reject(
-              request.error ||
-              new Error(
-                "Gagal membaca data"
-              )
-            );
-
-          };
-
       }
+
       catch (error) {
 
-        db = null;
+        reject(error);
 
-        reject(
-          error
-        );
+        return;
 
       }
+
+
+      const store =
+        transaction.objectStore(
+          storeName
+        );
+
+
+      const request =
+        store.getAll();
+
+
+      request.onsuccess =
+        function() {
+
+          resolve(
+            Array.isArray(
+              request.result
+            )
+              ? request.result
+              : []
+          );
+
+        };
+
+
+      request.onerror =
+        function() {
+
+          reject(
+            request.error ||
+            new Error(
+              "Gagal mengambil semua data IndexedDB"
+            )
+          );
+
+        };
 
     }
   );
@@ -849,12 +896,81 @@ async function dbDelete(
   id
 ) {
 
-  if (!id) {
+  const database =
+    await ensureDB();
 
-    return false;
 
-  }
+  return new Promise(
+    function(resolve, reject) {
 
+      let transaction;
+
+      try {
+
+        transaction =
+          database.transaction(
+            storeName,
+            "readwrite"
+          );
+
+      }
+
+      catch (error) {
+
+        reject(error);
+
+        return;
+
+      }
+
+
+      const store =
+        transaction.objectStore(
+          storeName
+        );
+
+
+      const request =
+        store.delete(
+          id
+        );
+
+
+      request.onsuccess =
+        function() {
+
+          resolve(
+            true
+          );
+
+        };
+
+
+      request.onerror =
+        function() {
+
+          reject(
+            request.error ||
+            new Error(
+              "Gagal menghapus data IndexedDB"
+            )
+          );
+
+        };
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   DB CLEAR
+   ========================================================= */
+
+async function dbClear(
+  storeName
+) {
 
   const database =
     await ensureDB();
@@ -865,21 +981,24 @@ async function dbDelete(
 
       try {
 
-        const tx =
+        const transaction =
           database.transaction(
             storeName,
             "readwrite"
           );
 
 
-        tx.objectStore(
-          storeName
-        ).delete(
-          id
-        );
+        const store =
+          transaction.objectStore(
+            storeName
+          );
 
 
-        tx.oncomplete =
+        const request =
+          store.clear();
+
+
+        request.onsuccess =
           function() {
 
             resolve(
@@ -889,39 +1008,20 @@ async function dbDelete(
           };
 
 
-        tx.onerror =
+        request.onerror =
           function() {
 
             reject(
-              tx.error ||
-              new Error(
-                "Gagal menghapus data"
-              )
-            );
-
-          };
-
-
-        tx.onabort =
-          function() {
-
-            reject(
-              tx.error ||
-              new Error(
-                "Penghapusan dibatalkan"
-              )
+              request.error
             );
 
           };
 
       }
+
       catch (error) {
 
-        db = null;
-
-        reject(
-          error
-        );
+        reject(error);
 
       }
 
@@ -930,14 +1030,26 @@ async function dbDelete(
 
 }
 
+
 /* =========================================================
-   QUEUE
+   SYNC QUEUE
    ========================================================= */
 
-async function addToQueue(
+async function queueAdd(
   type,
   data
 ) {
+
+  if (
+    !type
+  ) {
+
+    throw new Error(
+      "Tipe queue kosong"
+    );
+
+  }
+
 
   const item = {
 
@@ -948,21 +1060,32 @@ async function addToQueue(
       type,
 
     data:
-      data,
+      {
+        ...data
+      },
 
     createdAt:
-      new Date().toISOString()
+      nowISO(),
+
+    attempts:
+      0,
+
+    lastError:
+      "",
+
+    lastAttempt:
+      ""
 
   };
 
 
   await dbPut(
-    STORE.queue,
+    STORES.queue,
     item
   );
 
 
-  await updateSyncCount();
+  await updateSyncStatus();
 
 
   return item;
@@ -974,126 +1097,24 @@ async function addToQueue(
    JUMLAH QUEUE
    ========================================================= */
 
-async function updateSyncCount() {
+async function getQueueCount() {
 
-  try {
-
-    const queue =
-      await dbGetAll(
-        STORE.queue
-      );
-
-
-    if (!queue.length) {
-
-      setSyncStatus(
-        navigator.onLine
-          ? "Tersinkron"
-          : "Offline"
-      );
-
-    }
-    else {
-
-      setSyncStatus(
-        queue.length +
-        " data menunggu sync"
-      );
-
-    }
-
-  }
-  catch(error) {
-
-    console.error(
-      "updateSyncCount:",
-      error
+  const items =
+    await dbGetAll(
+      STORES.queue
     );
 
-  }
+
+  return items.length;
 
 }
 
 
 /* =========================================================
-   GAS GET
+   KIRIM POST KE GAS
    ========================================================= */
 
-async function gasGet(
-  action
-) {
-
-  if (
-    !GAS_URL
-  ) {
-
-    throw new Error(
-      "GAS_URL belum diisi"
-    );
-
-  }
-
-
-  const url =
-    GAS_URL +
-    "?action=" +
-    encodeURIComponent(
-      action
-    ) +
-    "&t=" +
-    Date.now();
-
-
-  const response =
-    await fetch(
-      url,
-      {
-        method:
-          "GET",
-
-        cache:
-          "no-store"
-      }
-    );
-
-
-  if (!response.ok) {
-
-    throw new Error(
-      "HTTP " +
-      response.status
-    );
-
-  }
-
-
-  const result =
-    await response.json();
-
-
-  if (
-    result &&
-    result.success === false
-  ) {
-
-    throw new Error(
-      result.error ||
-      "GAS error"
-    );
-
-  }
-
-
-  return result;
-
-}
-
-
-/* =========================================================
-   GAS POST
-   ========================================================= */
-
-async function gasPost(
+async function postGAS(
   action,
   data
 ) {
@@ -1113,32 +1134,35 @@ async function gasPost(
     await fetch(
       GAS_URL,
       {
-
         method:
           "POST",
 
-        headers: {
-
-          "Content-Type":
-            "text/plain;charset=utf-8"
-
-        },
+        headers:
+          {
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
 
         body:
-          JSON.stringify({
+          JSON.stringify(
+            {
+              action:
+                action,
 
-            action:
-              action,
+              data:
+                data
+            }
+          ),
 
-            ...(data || {})
-
-          })
-
+        cache:
+          "no-store"
       }
     );
 
 
-  if (!response.ok) {
+  if (
+    !response.ok
+  ) {
 
     throw new Error(
       "HTTP " +
@@ -1148,8 +1172,34 @@ async function gasPost(
   }
 
 
-  const result =
-    await response.json();
+  const text =
+    await response.text();
+
+
+  let result;
+
+
+  try {
+
+    result =
+      JSON.parse(
+        text
+      );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Response GAS bukan JSON:",
+      text
+    );
+
+    throw new Error(
+      "Response Google Apps Script tidak valid"
+    );
+
+  }
 
 
   if (
@@ -1159,13 +1209,437 @@ async function gasPost(
 
     throw new Error(
       result.error ||
-      "GAS error"
+      "Google Apps Script gagal"
     );
 
   }
 
 
-  return result;
+  return (
+    result || {
+      success:
+        true
+    }
+  );
+
+}
+
+
+/* =========================================================
+   GET GAS
+   ========================================================= */
+
+async function getGAS(
+  action
+) {
+
+  const url =
+    GAS_URL +
+    "?action=" +
+    encodeURIComponent(
+      action
+    );
+
+
+  const response =
+    await fetch(
+      url,
+      {
+        method:
+          "GET",
+
+        cache:
+          "no-store"
+      }
+    );
+
+
+  if (
+    !response.ok
+  ) {
+
+    throw new Error(
+      "HTTP " +
+      response.status
+    );
+
+  }
+
+
+  const text =
+    await response.text();
+
+
+  let result;
+
+
+  try {
+
+    result =
+      JSON.parse(
+        text
+      );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Response GAS bukan JSON:",
+      text
+    );
+
+    throw new Error(
+      "Response Google Apps Script tidak valid"
+    );
+
+  }
+
+
+  if (
+    result &&
+    result.success === false
+  ) {
+
+    throw new Error(
+      result.error ||
+      "Google Apps Script gagal"
+    );
+
+  }
+
+
+  return (
+    result || {
+      success:
+        true
+    }
+  );
+
+}
+
+
+/* =========================================================
+   TEST GOOGLE APPS SCRIPT
+   ========================================================= */
+
+async function testGAS() {
+
+  try {
+
+    const result =
+      await getGAS(
+        "ping"
+      );
+
+
+    console.log(
+      "GAS PING:",
+      result
+    );
+
+
+    setDatabaseStatus(
+      "online",
+      "Google Sheets terhubung"
+    );
+
+
+    return true;
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "GAS PING ERROR:",
+      error
+    );
+
+
+    setDatabaseStatus(
+      "offline",
+      "Google Sheets tidak terhubung"
+    );
+
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================================================
+   STATUS DATABASE
+   ========================================================= */
+
+function setDatabaseStatus(
+  type,
+  text
+) {
+
+  const elements = [
+
+    document.getElementById(
+      "dbStatus"
+    ),
+
+    document.getElementById(
+      "databaseStatus"
+    )
+
+  ];
+
+
+  elements.forEach(
+    function(el) {
+
+      if (!el) {
+        return;
+      }
+
+
+      el.textContent =
+        text;
+
+
+      el.dataset.status =
+        type;
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   STATUS ONLINE
+   ========================================================= */
+
+function updateOnlineStatus() {
+
+  APP_STATE.online =
+    navigator.onLine;
+
+
+  const elements = [
+
+    document.getElementById(
+      "connectionStatus"
+    ),
+
+    document.getElementById(
+      "onlineStatus"
+    ),
+
+    document.getElementById(
+      "networkStatus"
+    )
+
+  ];
+
+
+  elements.forEach(
+    function(el) {
+
+      if (!el) {
+        return;
+      }
+
+
+      if (
+        APP_STATE.online
+      ) {
+
+        el.textContent =
+          "ONLINE";
+
+        el.dataset.status =
+          "online";
+
+      }
+
+      else {
+
+        el.textContent =
+          "OFFLINE";
+
+        el.dataset.status =
+          "offline";
+
+      }
+
+    }
+  );
+
+
+  if (
+    APP_STATE.online
+  ) {
+
+    setDatabaseStatus(
+      "checking",
+      "Mengecek Google Sheets..."
+    );
+
+
+    testGAS()
+      .then(
+        function(ok) {
+
+          if (
+            ok
+          ) {
+
+            syncQueue();
+
+          }
+
+        }
+      )
+      .catch(
+        function(error) {
+
+          console.warn(
+            "Auto sync:",
+            error
+          );
+
+        }
+      );
+
+  }
+
+  else {
+
+    setDatabaseStatus(
+      "offline",
+      "Offline — data disimpan di perangkat"
+    );
+
+  }
+
+
+  updateSyncStatus();
+
+}
+
+
+/* =========================================================
+   EVENT ONLINE / OFFLINE
+   ========================================================= */
+
+window.addEventListener(
+  "online",
+  function() {
+
+    APP_STATE.online =
+      true;
+
+    updateOnlineStatus();
+
+  }
+);
+
+
+window.addEventListener(
+  "offline",
+  function() {
+
+    APP_STATE.online =
+      false;
+
+    updateOnlineStatus();
+
+  }
+);
+
+
+/* =========================================================
+   STATUS SYNC
+   ========================================================= */
+
+async function updateSyncStatus() {
+
+  try {
+
+    const count =
+      await getQueueCount();
+
+
+    const elements = [
+
+      document.getElementById(
+        "syncStatus"
+      ),
+
+      document.getElementById(
+        "syncBadge"
+      )
+
+    ];
+
+
+    elements.forEach(
+      function(el) {
+
+        if (!el) {
+          return;
+        }
+
+
+        if (
+          APP_STATE.syncing
+        ) {
+
+          el.textContent =
+            "⟳ Sinkronisasi...";
+
+          el.dataset.status =
+            "syncing";
+
+          return;
+
+        }
+
+
+        if (
+          count === 0
+        ) {
+
+          el.textContent =
+            "✓ Tersinkron";
+
+          el.dataset.status =
+            "synced";
+
+        }
+
+        else {
+
+          el.textContent =
+            count +
+            " menunggu sync";
+
+          el.dataset.status =
+            "pending";
+
+        }
+
+      }
+    );
+
+  }
+
+  catch (error) {
+
+    console.warn(
+      "Update sync status:",
+      error
+    );
+
+  }
 
 }
 
@@ -1175,10 +1649,10 @@ async function gasPost(
    ========================================================= */
 
 async function saveTransaksi(
-  data
+  data = {}
 ) {
 
-  const item = {
+  const transaksi = {
 
     id:
       data.id ||
@@ -1189,8 +1663,10 @@ async function saveTransaksi(
       today(),
 
     jenis:
-      data.jenis ||
-      "masuk",
+      String(
+        data.jenis ||
+        ""
+      ).toLowerCase(),
 
     kategori:
       data.kategori ||
@@ -1201,8 +1677,8 @@ async function saveTransaksi(
       "",
 
     jumlah:
-      Number(
-        data.jumlah || 0
+      number(
+        data.jumlah
       ),
 
     sumber:
@@ -1211,27 +1687,73 @@ async function saveTransaksi(
 
     createdAt:
       data.createdAt ||
-      new Date().toISOString(),
-
-    _local:
-      true
+      nowISO()
 
   };
 
 
+  if (
+    transaksi.jenis !== "masuk" &&
+    transaksi.jenis !== "keluar"
+  ) {
+
+    throw new Error(
+      "Jenis harus masuk atau keluar"
+    );
+
+  }
+
+
+  if (
+    transaksi.jumlah <= 0
+  ) {
+
+    throw new Error(
+      "Jumlah harus lebih dari 0"
+    );
+
+  }
+
+
+  /* -------------------------------------------------------
+     SIMPAN LOKAL
+     ------------------------------------------------------- */
+
   await dbPut(
-    STORE.transaksi,
-    item
+    STORES.transaksi,
+    transaksi
   );
 
 
-  await addToQueue(
+  /* -------------------------------------------------------
+     MASUK QUEUE
+     ------------------------------------------------------- */
+
+  await queueAdd(
     "transaksi",
-    item
+    transaksi
   );
 
 
-  return item;
+  /* -------------------------------------------------------
+     COBA SYNC
+     ------------------------------------------------------- */
+
+  if (
+    navigator.onLine
+  ) {
+
+    await syncQueue();
+
+  }
+
+
+  showToast(
+    "Transaksi tersimpan"
+  );
+
+
+  return transaksi;
 
 }
 
@@ -1239,12 +1761,51 @@ async function saveTransaksi(
 /* =========================================================
    SIMPAN BARANG
    ========================================================= */
+async function generateLocalKodeBarang() {
 
+  const semuaBarang =
+    await dbGetAll(
+      STORES.barang
+    );
+
+  let nomorTerbesar = 0;
+
+  semuaBarang.forEach(function(item) {
+
+    const kode =
+      String(item.kode || "")
+        .trim()
+        .toUpperCase();
+
+    const match =
+      kode.match(/^BRG-(\d+)$/);
+
+    if (match) {
+
+      const nomor =
+        Number(match[1]);
+
+      if (nomor > nomorTerbesar) {
+        nomorTerbesar = nomor;
+      }
+
+    }
+
+  });
+
+  return (
+    "BRG-" +
+    String(
+      nomorTerbesar + 1
+    ).padStart(4, "0")
+  );
+
+}
 async function saveBarang(
-  data
+  data = {}
 ) {
 
-  const item = {
+  const barang = {
 
     id:
       data.id ||
@@ -1252,70 +1813,105 @@ async function saveBarang(
 
     kode:
       data.kode ||
-      "",
+      await generateLocalKodeBarang(),
 
     nama:
-      data.nama ||
-      "",
+      String(
+        data.nama ||
+        ""
+      ).trim(),
 
     stok:
-      Number(
-        data.stok || 0
+      number(
+        data.stok
       ),
 
     hargaModal:
-      Number(
-        data.hargaModal || 0
+      number(
+        data.hargaModal
       ),
 
     hargaJual:
-      Number(
-        data.hargaJual || 0
+      number(
+        data.hargaJual
       ),
 
     terjual:
-      Number(
-        data.terjual || 0
+      number(
+        data.terjual
       ),
 
     omzet:
-      Number(
-        data.omzet || 0
+      number(
+        data.omzet
       ),
 
     untung:
-      Number(
-        data.untung || 0
+      number(
+        data.untung
       ),
 
     stokMin:
-      Number(
-        data.stokMin || 0
+      number(
+        data.stokMin
       ),
 
     updatedAt:
-      data.updatedAt ||
-      new Date().toISOString(),
-
-    _local:
-      true
+      nowISO()
 
   };
 
 
+  if (
+    !barang.nama
+  ) {
+
+    throw new Error(
+      "Nama barang wajib diisi"
+    );
+
+  }
+
+
+  /* -------------------------------------------------------
+     SIMPAN LOKAL DULU
+     ------------------------------------------------------- */
+
   await dbPut(
-    STORE.barang,
-    item
+    STORES.barang,
+    barang
   );
 
 
-  await addToQueue(
+  /* -------------------------------------------------------
+     QUEUE
+     ------------------------------------------------------- */
+
+  await queueAdd(
     "barang",
-    item
+    barang
   );
 
 
-  return item;
+  /* -------------------------------------------------------
+     SYNC JIKA ONLINE
+     ------------------------------------------------------- */
+
+  if (
+    navigator.onLine
+  ) {
+
+    await syncQueue();
+
+  }
+
+
+  showToast(
+    "Barang tersimpan"
+  );
+
+
+  return barang;
 
 }
 
@@ -1325,17 +1921,19 @@ async function saveBarang(
    ========================================================= */
 
 async function savePenjualan(
-  data
+  data = {}
 ) {
 
   const barang =
     await dbGet(
-      STORE.barang,
+      STORES.barang,
       data.barangId
     );
 
 
-  if (!barang) {
+  if (
+    !barang
+  ) {
 
     throw new Error(
       "Barang tidak ditemukan"
@@ -1345,13 +1943,12 @@ async function savePenjualan(
 
 
   const qty =
-    Number(
-      data.qty || 0
+    number(
+      data.qty
     );
 
 
   if (
-    !Number.isFinite(qty) ||
     qty <= 0
   ) {
 
@@ -1362,51 +1959,37 @@ async function savePenjualan(
   }
 
 
-  const stok =
-    Number(
-      barang.stok || 0
-    );
-
-
   if (
-    qty > stok
+    qty >
+    number(
+      barang.stok
+    )
   ) {
 
     throw new Error(
-      "Stok tidak cukup. Tersedia " +
-      stok
+      "Stok tidak cukup. Stok tersedia: " +
+      number(
+        barang.stok
+      )
     );
 
   }
 
 
   const hargaModal =
-    Number(
-      barang.hargaModal || 0
+    number(
+      data.hargaModal !== undefined
+        ? data.hargaModal
+        : barang.hargaModal
     );
 
 
   const hargaJual =
-    data.hargaJual !== undefined &&
-    data.hargaJual !== ""
-      ? Number(
-          data.hargaJual
-        )
-      : Number(
-          barang.hargaJual || 0
-        );
-
-
-  if (
-    !Number.isFinite(hargaJual) ||
-    hargaJual < 0
-  ) {
-
-    throw new Error(
-      "Harga jual tidak valid"
+    number(
+      data.hargaJual !== undefined
+        ? data.hargaJual
+        : barang.hargaJual
     );
-
-  }
 
 
   const omzet =
@@ -1424,7 +2007,7 @@ async function savePenjualan(
     modal;
 
 
-  const item = {
+  const penjualan = {
 
     id:
       data.id ||
@@ -1439,10 +2022,6 @@ async function savePenjualan(
 
     namaBarang:
       barang.nama,
-
-    kodeBarang:
-      barang.kode ||
-      "",
 
     qty:
       qty,
@@ -1463,239 +2042,342 @@ async function savePenjualan(
       untung,
 
     createdAt:
-      data.createdAt ||
-      new Date().toISOString(),
-
-    _local:
-      true
+      nowISO()
 
   };
 
 
-  /*
-   * UPDATE STOK
-   */
+  /* -------------------------------------------------------
+     UPDATE BARANG
+     ------------------------------------------------------- */
 
-  barang.stok =
-    stok -
-    qty;
+  const barangBaru = {
+
+    ...barang,
+
+    stok:
+      number(
+        barang.stok
+      ) -
+      qty,
+
+    terjual:
+      number(
+        barang.terjual
+      ) +
+      qty,
+
+    omzet:
+      number(
+        barang.omzet
+      ) +
+      omzet,
+
+    untung:
+      number(
+        barang.untung
+      ) +
+      untung,
+
+    updatedAt:
+      nowISO()
+
+  };
 
 
-  barang.terjual =
-    Number(
-      barang.terjual || 0
-    ) +
-    qty;
-
-
-  barang.omzet =
-    Number(
-      barang.omzet || 0
-    ) +
-    omzet;
-
-
-  barang.untung =
-    Number(
-      barang.untung || 0
-    ) +
-    untung;
-
-
-  barang.updatedAt =
-    new Date().toISOString();
-
+  /* -------------------------------------------------------
+     SIMPAN LOKAL
+     ------------------------------------------------------- */
 
   await dbPut(
-    STORE.barang,
-    barang
+    STORES.penjualan,
+    penjualan
   );
 
 
   await dbPut(
-    STORE.penjualan,
-    item
+    STORES.barang,
+    barangBaru
   );
 
 
-  await addToQueue(
+  /* -------------------------------------------------------
+     QUEUE
+     ------------------------------------------------------- */
+
+  await queueAdd(
     "penjualan",
-    item
+    penjualan
   );
 
 
-  return item;
+  /* -------------------------------------------------------
+     SYNC
+     ------------------------------------------------------- */
+
+  if (
+    navigator.onLine
+  ) {
+
+    await syncQueue();
+
+  }
+
+
+  showToast(
+    "Penjualan tersimpan"
+  );
+
+
+  return penjualan;
 
 }
 
 
 /* =========================================================
-   LOAD DATA SERVER
+   SYNC SATU ITEM
    ========================================================= */
 
-async function loadRemoteData() {
+async function syncQueueItem(
+  item
+) {
 
-  if (!navigator.onLine) {
-    return false;
+  let result;
+
+
+  switch (
+    item.type
+  ) {
+
+    case "transaksi":
+
+      result =
+        await postGAS(
+          "tambahTransaksi",
+          item.data
+        );
+
+      break;
+
+
+    case "barang":
+
+      result =
+        await postGAS(
+          "tambahBarang",
+          item.data
+        );
+
+      break;
+
+
+    case "penjualan":
+
+      result =
+        await postGAS(
+          "tambahPenjualan",
+          item.data
+        );
+
+      break;
+
+
+    default:
+
+      throw new Error(
+        "Tipe queue tidak dikenal: " +
+        item.type
+      );
+
   }
+
+
+  if (
+    !result ||
+    result.success !== true
+  ) {
+
+    throw new Error(
+      result?.error ||
+      "GAS tidak mengembalikan status sukses"
+    );
+
+  }
+
+
+  return result;
+
+}
+
+
+/* =========================================================
+   SYNC QUEUE
+   ========================================================= */
+
+async function syncQueue() {
+
+  if (
+    APP_STATE.syncing
+  ) {
+
+    return;
+
+  }
+
+
+  if (
+    !navigator.onLine
+  ) {
+
+    return;
+
+  }
+
+
+  APP_STATE.syncing =
+    true;
+
+
+  await updateSyncStatus();
 
 
   try {
 
-    setSyncStatus(
-      "Mengambil data server..."
-    );
-
-
-    const result =
-      await gasGet(
-        "appData"
+    const queue =
+      await dbGetAll(
+        STORES.queue
       );
 
 
     if (
-      !result ||
-      !result.data
+      queue.length === 0
     ) {
 
-      throw new Error(
-        "Data GAS kosong"
-      );
+      return;
 
     }
 
 
-    const data =
-      result.data;
+    /* -----------------------------------------------------
+       Urutkan dari yang paling lama
+       ----------------------------------------------------- */
 
+    queue.sort(
+      function(a, b) {
 
-    /*
-     * TRANSAKSI
-     */
-
-    if (
-      Array.isArray(
-        data.transaksi
-      )
-    ) {
-
-      for (
-        const item
-        of data.transaksi
-      ) {
-
-        if (
-          item &&
-          item.id
-        ) {
-
-          await dbPut(
-            STORE.transaksi,
-            {
-              ...item,
-              _local: false
-            }
-          );
-
-        }
+        return String(
+          a.createdAt ||
+          ""
+        ).localeCompare(
+          String(
+            b.createdAt ||
+            ""
+          )
+        );
 
       }
-
-    }
-
-
-    /*
-     * BARANG
-     */
-
-    if (
-      Array.isArray(
-        data.barang
-      )
-    ) {
-
-      for (
-        const item
-        of data.barang
-      ) {
-
-        if (
-          item &&
-          item.id
-        ) {
-
-          await dbPut(
-            STORE.barang,
-            {
-              ...item,
-              _local: false
-            }
-          );
-
-        }
-
-      }
-
-    }
-
-
-    /*
-     * PENJUALAN
-     */
-
-    if (
-      Array.isArray(
-        data.penjualan
-      )
-    ) {
-
-      for (
-        const item
-        of data.penjualan
-      ) {
-
-        if (
-          item &&
-          item.id
-        ) {
-
-          await dbPut(
-            STORE.penjualan,
-            {
-              ...item,
-              _local: false
-            }
-          );
-
-        }
-
-      }
-
-    }
-
-
-    setDatabaseStatus(
-      "Database tersambung"
     );
 
 
-    return true;
+    for (
+      const item of queue
+    ) {
+
+      if (
+        !navigator.onLine
+      ) {
+
+        break;
+
+      }
+
+
+      try {
+
+        await syncQueueItem(
+          item
+        );
+
+
+        /* -----------------------------------------------
+           BERHASIL
+           ----------------------------------------------- */
+
+        await dbDelete(
+          STORES.queue,
+          item.id
+        );
+
+
+        console.log(
+          "Sync berhasil:",
+          item.type,
+          item.id
+        );
+
+      }
+
+      catch (error) {
+
+        console.warn(
+          "Sync gagal:",
+          item,
+          error
+        );
+
+
+        item.attempts =
+          number(
+            item.attempts
+          ) + 1;
+
+
+        item.lastError =
+          error?.message ||
+          String(
+            error
+          );
+
+
+        item.lastAttempt =
+          nowISO();
+
+
+        await dbPut(
+          STORES.queue,
+          item
+        );
+
+
+        /*
+         * Hentikan sementara.
+         * Queue tetap aman di IndexedDB.
+         */
+
+        break;
+
+      }
+
+    }
 
   }
-  catch(error) {
+
+  catch (error) {
 
     console.error(
-      "loadRemoteData:",
+      "SYNC ERROR:",
       error
     );
 
+  }
 
-    setDatabaseStatus(
-      "Database lokal"
-    );
+  finally {
+
+    APP_STATE.syncing =
+      false;
 
 
-    return false;
+    await updateSyncStatus();
 
   }
 
@@ -1703,122 +2385,345 @@ async function loadRemoteData() {
 
 
 /* =========================================================
-   DASHBOARD
+   DOWNLOAD DATA DARI GOOGLE SHEETS
+   ========================================================= */
+
+async function downloadData() {
+
+  if (
+    !navigator.onLine
+  ) {
+
+    throw new Error(
+      "Tidak ada internet"
+    );
+
+  }
+
+
+  const result =
+    await getGAS(
+      "appData"
+    );
+
+
+  if (
+    !result ||
+    !result.data
+  ) {
+
+    throw new Error(
+      "Data aplikasi kosong dari GAS"
+    );
+
+  }
+
+
+  const data =
+    result.data;
+
+
+  /* -------------------------------------------------------
+     TRANSAKSI
+     ------------------------------------------------------- */
+
+  if (
+    Array.isArray(
+      data.transaksi
+    )
+  ) {
+
+    for (
+      const item
+      of data.transaksi
+    ) {
+
+      if (
+        item &&
+        item.id
+      ) {
+
+        await dbPut(
+          STORES.transaksi,
+          item
+        );
+
+      }
+
+    }
+
+  }
+
+
+  /* -------------------------------------------------------
+     BARANG
+     ------------------------------------------------------- */
+
+  if (
+    Array.isArray(
+      data.barang
+    )
+  ) {
+
+    for (
+      const item
+      of data.barang
+    ) {
+
+      if (
+        item &&
+        item.id
+      ) {
+
+        await dbPut(
+          STORES.barang,
+          item
+        );
+
+      }
+
+    }
+
+  }
+
+
+  /* -------------------------------------------------------
+     PENJUALAN
+     ------------------------------------------------------- */
+
+  if (
+    Array.isArray(
+      data.penjualan
+    )
+  ) {
+
+    for (
+      const item
+      of data.penjualan
+    ) {
+
+      if (
+        item &&
+        item.id
+      ) {
+
+        await dbPut(
+          STORES.penjualan,
+          item
+        );
+
+      }
+
+    }
+
+  }
+
+
+  console.log(
+    "Data Google Sheets berhasil diambil"
+  );
+
+
+  await updateSyncStatus();
+
+
+  return data;
+
+}
+
+
+/* =========================================================
+   DASHBOARD LOKAL
+   ========================================================= */
+
+async function getLocalDashboard() {
+
+  const transaksi =
+    await dbGetAll(
+      STORES.transaksi
+    );
+
+
+  const barang =
+    await dbGetAll(
+      STORES.barang
+    );
+
+
+  const penjualan =
+    await dbGetAll(
+      STORES.penjualan
+    );
+
+
+  let uangMasuk =
+    0;
+
+  let uangKeluar =
+    0;
+
+  let omzet =
+    0;
+
+  let modal =
+    0;
+
+  let untung =
+    0;
+
+  let jumlahStok =
+    0;
+
+  let nilaiStok =
+    0;
+
+
+  /* -------------------------------------------------------
+     TRANSAKSI
+     ------------------------------------------------------- */
+
+  transaksi.forEach(
+    function(item) {
+
+      const jumlah =
+        number(
+          item.jumlah
+        );
+
+
+      if (
+        item.jenis ===
+        "masuk"
+      ) {
+
+        uangMasuk +=
+          jumlah;
+
+      }
+
+
+      if (
+        item.jenis ===
+        "keluar"
+      ) {
+
+        uangKeluar +=
+          jumlah;
+
+      }
+
+    }
+  );
+
+
+  /* -------------------------------------------------------
+     PENJUALAN
+     ------------------------------------------------------- */
+
+  penjualan.forEach(
+    function(item) {
+
+      omzet +=
+        number(
+          item.omzet
+        );
+
+      modal +=
+        number(
+          item.modal
+        );
+
+      untung +=
+        number(
+          item.untung
+        );
+
+    }
+  );
+
+
+  /* -------------------------------------------------------
+     STOK
+     ------------------------------------------------------- */
+
+  barang.forEach(
+    function(item) {
+
+      const stok =
+        number(
+          item.stok
+        );
+
+
+      const hargaModal =
+        number(
+          item.hargaModal
+        );
+
+
+      jumlahStok +=
+        stok;
+
+
+      nilaiStok +=
+        stok *
+        hargaModal;
+
+    }
+  );
+
+
+  return {
+
+    uangMasuk:
+      uangMasuk,
+
+    uangKeluar:
+      uangKeluar,
+
+    saldo:
+      uangMasuk -
+      uangKeluar,
+
+    omzet:
+      omzet,
+
+    modal:
+      modal,
+
+    untung:
+      untung,
+
+    jumlahBarang:
+      barang.length,
+
+    jumlahStok:
+      jumlahStok,
+
+    nilaiStok:
+      nilaiStok
+
+  };
+
+}
+
+
+/* =========================================================
+   LOAD DASHBOARD
    ========================================================= */
 
 async function loadDashboard() {
 
   try {
 
-    const transaksi =
-      await dbGetAll(
-        STORE.transaksi
-      );
-
-
-    const barang =
-      await dbGetAll(
-        STORE.barang
-      );
-
-
-    const penjualan =
-      await dbGetAll(
-        STORE.penjualan
-      );
-
-
-    let uangMasuk = 0;
-
-    let uangKeluar = 0;
-
-    let omzet = 0;
-
-    let untung = 0;
-
-    let jumlahStok = 0;
-
-    let nilaiStok = 0;
-
-
-    transaksi.forEach(
-      function(item) {
-
-        const jumlah =
-          Number(
-            item.jumlah || 0
-          );
-
-
-        if (
-          String(
-            item.jenis
-          ).toLowerCase() ===
-          "masuk"
-        ) {
-
-          uangMasuk +=
-            jumlah;
-
-        }
-        else {
-
-          uangKeluar +=
-            jumlah;
-
-        }
-
-      }
-    );
-
-
-    penjualan.forEach(
-      function(item) {
-
-        omzet +=
-          Number(
-            item.omzet || 0
-          );
-
-        untung +=
-          Number(
-            item.untung || 0
-          );
-
-      }
-    );
-
-
-    barang.forEach(
-      function(item) {
-
-        const stok =
-          Number(
-            item.stok || 0
-          );
-
-        const modal =
-          Number(
-            item.hargaModal || 0
-          );
-
-
-        jumlahStok +=
-          stok;
-
-        nilaiStok +=
-          stok *
-          modal;
-
-      }
-    );
+    const data =
+      await getLocalDashboard();
 
 
     setText(
       "saldo",
       rupiah(
-        uangMasuk -
-        uangKeluar
+        data.saldo
       )
     );
 
@@ -1826,7 +2731,7 @@ async function loadDashboard() {
     setText(
       "pemasukan",
       rupiah(
-        uangMasuk
+        data.uangMasuk
       )
     );
 
@@ -1834,23 +2739,7 @@ async function loadDashboard() {
     setText(
       "pengeluaran",
       rupiah(
-        uangKeluar
-      )
-    );
-
-
-    setText(
-      "omzet",
-      rupiah(
-        omzet
-      )
-    );
-
-
-    setText(
-      "untung",
-      rupiah(
-        untung
+        data.uangKeluar
       )
     );
 
@@ -1858,34 +2747,74 @@ async function loadDashboard() {
     setText(
       "nilaiStok",
       rupiah(
-        nilaiStok
+        data.nilaiStok
       )
     );
 
 
     setText(
+      "totalHutang",
+      "Rp0"
+    );
+
+
+    setText(
       "jumlahBarang",
-      barang.length
+      data.jumlahBarang
+    );
+
+
+    setText(
+      "omzet",
+      rupiah(
+        data.omzet
+      )
+    );
+
+
+    setText(
+      "untung",
+      rupiah(
+        data.untung
+      )
     );
 
 
     setText(
       "jumlahStok",
-      jumlahStok
+      data.jumlahStok
     );
 
 
-    renderPenjualanTerbaru(
-      penjualan
+    setText(
+      "uangMasuk",
+      rupiah(
+        data.uangMasuk
+      )
     );
+
+
+    setText(
+      "uangKeluar",
+      rupiah(
+        data.uangKeluar
+      )
+    );
+
+
+    return data;
 
   }
-  catch(error) {
+
+  catch (error) {
 
     console.error(
-      "loadDashboard:",
+      "Dashboard:",
       error
     );
+
+
+    return null;
 
   }
 
@@ -1893,7 +2822,7 @@ async function loadDashboard() {
 
 
 /* =========================================================
-   SET TEXT
+   HELPER SET TEXT
    ========================================================= */
 
 function setText(
@@ -1907,7 +2836,9 @@ function setText(
     );
 
 
-  if (el) {
+  if (
+    el
+  ) {
 
     el.textContent =
       value;
@@ -1918,430 +2849,14 @@ function setText(
 
 
 /* =========================================================
-   PENJUALAN TERBARU
-   ========================================================= */
-
-function renderPenjualanTerbaru(
-  data
-) {
-
-  const container =
-    document.getElementById(
-      "penjualanList"
-    );
-
-
-  if (!container) {
-    return;
-  }
-
-
-  if (!data.length) {
-
-    container.innerHTML =
-      "<p>Belum ada penjualan.</p>";
-
-    return;
-
-  }
-
-
-  const sorted =
-    [...data]
-      .sort(
-        function(a, b) {
-
-          return String(
-            b.createdAt ||
-            b.tanggal ||
-            ""
-          ).localeCompare(
-            String(
-              a.createdAt ||
-              a.tanggal ||
-              ""
-            )
-          );
-
-        }
-      )
-      .slice(
-        0,
-        5
-      );
-
-
-  container.innerHTML =
-    sorted
-      .map(
-        function(item) {
-
-          return `
-
-            <div class="list-item">
-
-              <div>
-
-                <strong>
-                  ${escapeHtml(
-                    item.namaBarang
-                  )}
-                </strong>
-
-                <small>
-                  ${escapeHtml(
-                    item.tanggal || ""
-                  )}
-
-                  ·
-
-                  ${Number(
-                    item.qty || 0
-                  )}
-
-                  pcs
-                </small>
-
-              </div>
-
-              <div>
-
-                <strong>
-                  ${rupiah(
-                    item.omzet
-                  )}
-                </strong>
-
-                <small>
-                  Untung
-                  ${rupiah(
-                    item.untung
-                  )}
-                </small>
-
-              </div>
-
-            </div>
-
-          `;
-
-        }
-      )
-      .join("");
-
-}
-
-
-/* =========================================================
-   TRANSAKSI
-   ========================================================= */
-
-async function loadTransaksi() {
-
-  const data =
-    await dbGetAll(
-      STORE.transaksi
-    );
-
-
-  const container =
-    document.getElementById(
-      "transaksiList"
-    );
-
-
-  if (!container) {
-    return data;
-  }
-
-
-  if (!data.length) {
-
-    container.innerHTML =
-      "<p>Belum ada transaksi.</p>";
-
-    return data;
-
-  }
-
-
-  const sorted =
-    [...data]
-      .sort(
-        function(a, b) {
-
-          return String(
-            b.createdAt ||
-            b.tanggal ||
-            ""
-          ).localeCompare(
-            String(
-              a.createdAt ||
-              a.tanggal ||
-              ""
-            )
-          );
-
-        }
-      );
-
-
-  container.innerHTML =
-    sorted
-      .map(
-        function(item) {
-
-          const masuk =
-            String(
-              item.jenis
-            ).toLowerCase() ===
-            "masuk";
-
-
-          return `
-
-            <div class="list-item">
-
-              <div>
-
-                <strong>
-                  ${escapeHtml(
-                    item.keterangan ||
-                    item.kategori ||
-                    "Transaksi"
-                  )}
-                </strong>
-
-                <small>
-                  ${escapeHtml(
-                    item.tanggal || ""
-                  )}
-
-                  ·
-
-                  ${escapeHtml(
-                    item.sumber || ""
-                  )}
-                </small>
-
-              </div>
-
-              <strong class="${
-                masuk
-                  ? "text-success"
-                  : "text-danger"
-              }">
-
-                ${
-                  masuk
-                    ? "+"
-                    : "-"
-                }
-
-                ${rupiah(
-                  item.jumlah
-                )}
-
-              </strong>
-
-            </div>
-
-          `;
-
-        }
-      )
-      .join("");
-
-
-  return data;
-
-}
-
-
-/* =========================================================
-   BARANG
+   LOAD BARANG
    ========================================================= */
 
 async function loadBarang() {
 
   const data =
     await dbGetAll(
-      STORE.barang
-    );
-
-
-  const container =
-    document.getElementById(
-      "barangList"
-    );
-
-
-  const select =
-    document.getElementById(
-      "barangId"
-    );
-
-
-  if (container) {
-
-    if (!data.length) {
-
-      container.innerHTML =
-        "<p>Belum ada barang.</p>";
-
-    }
-    else {
-
-      container.innerHTML =
-        data
-          .map(
-            function(item) {
-
-              const stok =
-                Number(
-                  item.stok || 0
-                );
-
-
-              const low =
-                stok <=
-                Number(
-                  item.stokMin || 0
-                );
-
-
-              return `
-
-                <div class="list-item">
-
-                  <div>
-
-                    <strong>
-                      ${escapeHtml(
-                        item.nama
-                      )}
-                    </strong>
-
-                    <small>
-                      ${escapeHtml(
-                        item.kode || ""
-                      )}
-                    </small>
-
-                  </div>
-
-                  <div>
-
-                    <strong>
-                      ${rupiah(
-                        item.hargaJual
-                      )}
-                    </strong>
-
-                    <small class="${
-                      low
-                        ? "text-danger"
-                        : ""
-                    }">
-
-                      Stok:
-                      ${stok}
-
-                    </small>
-
-                  </div>
-
-                </div>
-
-              `;
-
-            }
-          )
-          .join("");
-
-    }
-
-  }
-
-
-  if (select) {
-
-    const current =
-      select.value;
-
-
-    select.innerHTML =
-      `
-        <option value="">
-          Pilih barang
-        </option>
-      `;
-
-
-    data.forEach(
-      function(item) {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-
-        option.value =
-          item.id;
-
-
-        option.textContent =
-          (
-            item.kode
-              ? item.kode + " - "
-              : ""
-          ) +
-          item.nama +
-          " | Stok " +
-          Number(
-            item.stok || 0
-          );
-
-
-        option.dataset.harga =
-          Number(
-            item.hargaJual || 0
-          );
-
-
-        select.appendChild(
-          option
-        );
-
-      }
-    );
-
-
-    if (current) {
-
-      select.value =
-        current;
-
-    }
-
-  }
-
-
-  return data;
-
-}
-
-
-/* =========================================================
-   PENJUALAN
-   ========================================================= */
-
-async function loadPenjualan() {
-
-  const data =
-    await dbGetAll(
-      STORE.penjualan
+      STORES.barang
     );
 
 
@@ -2349,12 +2864,42 @@ async function loadPenjualan() {
     function(a, b) {
 
       return String(
-        b.createdAt ||
+        a.nama ||
+        ""
+      ).localeCompare(
+        String(
+          b.nama ||
+          ""
+        ),
+        "id"
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   LOAD TRANSAKSI
+   ========================================================= */
+
+async function loadTransaksi() {
+
+  const data =
+    await dbGetAll(
+      STORES.transaksi
+    );
+
+
+  return data.sort(
+    function(a, b) {
+
+      return String(
         b.tanggal ||
         ""
       ).localeCompare(
         String(
-          a.createdAt ||
           a.tanggal ||
           ""
         )
@@ -2366,16 +2911,274 @@ async function loadPenjualan() {
 }
 
 
-async function renderPenjualanHistory() {
+/* =========================================================
+   LOAD PENJUALAN
+   ========================================================= */
 
-  const container =
-    document.getElementById(
-      "penjualanHistory"
+async function loadPenjualan() {
+
+  const data =
+    await dbGetAll(
+      STORES.penjualan
     );
 
 
-  if (!container) {
+  return data.sort(
+    function(a, b) {
+
+      return String(
+        b.tanggal ||
+        ""
+      ).localeCompare(
+        String(
+          a.tanggal ||
+          ""
+        )
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   RENDER BARANG
+   ========================================================= */
+
+async function renderBarang(
+  containerId
+) {
+
+  const container =
+    document.getElementById(
+      containerId
+    );
+
+
+  if (
+    !container
+  ) {
+
     return;
+
+  }
+
+
+  const barang =
+    await loadBarang();
+
+
+  if (
+    barang.length === 0
+  ) {
+
+    container.innerHTML =
+      "<p>Belum ada barang.</p>";
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+    barang.map(
+      function(item) {
+
+        const stok =
+          number(
+            item.stok
+          );
+
+
+        const stokMin =
+          number(
+            item.stokMin
+          );
+
+
+        const lowStock =
+          stok <= stokMin;
+
+
+        return `
+
+          <div class="barang-item">
+
+            <div class="barang-info">
+
+              <strong>
+                ${escapeHTML(
+                  item.nama
+                )}
+              </strong>
+
+              <small>
+                ${escapeHTML(
+                  item.kode
+                )}
+              </small>
+
+            </div>
+
+            <div class="barang-stok">
+
+              <strong>
+                Stok ${stok}
+              </strong>
+
+              ${
+                lowStock
+                  ? `<small>Stok menipis</small>`
+                  : ""
+              }
+
+            </div>
+
+            <div class="barang-harga">
+
+              Modal:
+              ${rupiah(
+                item.hargaModal
+              )}
+
+              <br>
+
+              Jual:
+              ${rupiah(
+                item.hargaJual
+              )}
+
+            </div>
+
+          </div>
+
+        `;
+
+      }
+    ).join("");
+
+}
+
+
+/* =========================================================
+   RENDER TRANSAKSI
+   ========================================================= */
+
+async function renderTransaksi(
+  containerId
+) {
+
+  const container =
+    document.getElementById(
+      containerId
+    );
+
+
+  if (
+    !container
+  ) {
+
+    return;
+
+  }
+
+
+  const data =
+    await loadTransaksi();
+
+
+  if (
+    data.length === 0
+  ) {
+
+    container.innerHTML =
+      "<p>Belum ada transaksi.</p>";
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+    data.map(
+      function(item) {
+
+        const masuk =
+          item.jenis ===
+          "masuk";
+
+
+        return `
+
+          <div class="transaksi-item">
+
+            <div>
+
+              <strong>
+                ${escapeHTML(
+                  item.keterangan ||
+                  item.kategori ||
+                  "Transaksi"
+                )}
+              </strong>
+
+              <small>
+                ${escapeHTML(
+                  item.tanggal
+                )}
+              </small>
+
+            </div>
+
+            <strong class="${
+              masuk
+                ? "text-success"
+                : "text-danger"
+            }">
+
+              ${
+                masuk
+                  ? "+"
+                  : "-"
+              }
+
+              ${rupiah(
+                item.jumlah
+              )}
+
+            </strong>
+
+          </div>
+
+        `;
+
+      }
+    ).join("");
+
+}
+
+
+/* =========================================================
+   RENDER PENJUALAN
+   ========================================================= */
+
+async function renderPenjualan(
+  containerId
+) {
+
+  const container =
+    document.getElementById(
+      containerId
+    );
+
+
+  if (
+    !container
+  ) {
+
+    return;
+
   }
 
 
@@ -2383,7 +3186,9 @@ async function renderPenjualanHistory() {
     await loadPenjualan();
 
 
-  if (!data.length) {
+  if (
+    data.length === 0
+  ) {
 
     container.innerHTML =
       "<p>Belum ada penjualan.</p>";
@@ -2394,62 +3199,121 @@ async function renderPenjualanHistory() {
 
 
   container.innerHTML =
-    data
-      .map(
-        function(item) {
+    data.map(
+      function(item) {
 
-          return `
+        return `
 
-            <div class="list-item">
+          <div class="penjualan-item">
 
-              <div>
+            <div>
 
-                <strong>
-                  ${escapeHtml(
-                    item.namaBarang
-                  )}
-                </strong>
+              <strong>
+                ${escapeHTML(
+                  item.namaBarang
+                )}
+              </strong>
 
-                <small>
-                  ${escapeHtml(
-                    item.tanggal || ""
-                  )}
-
-                  ·
-
-                  ${Number(
-                    item.qty || 0
-                  )}
-
-                  pcs
-                </small>
-
-              </div>
-
-              <div>
-
-                <strong>
-                  ${rupiah(
-                    item.omzet
-                  )}
-                </strong>
-
-                <small>
-                  Untung:
-                  ${rupiah(
-                    item.untung
-                  )}
-                </small>
-
-              </div>
+              <small>
+                ${escapeHTML(
+                  item.tanggal
+                )}
+                ·
+                ${number(
+                  item.qty
+                )}
+                pcs
+              </small>
 
             </div>
 
-          `;
+            <div>
 
-        }
-      )
-      .join("");
+              <strong>
+                ${rupiah(
+                  item.omzet
+                )}
+              </strong>
+
+              <small>
+                Untung:
+                ${rupiah(
+                  item.untung
+                )}
+              </small>
+
+            </div>
+
+          </div>
+
+        `;
+
+      }
+    ).join("");
+
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+function showToast(
+  message
+) {
+
+  let toast =
+    document.getElementById(
+      "catatkuToast"
+    );
+
+
+  if (
+    !toast
+  ) {
+
+    toast =
+      document.createElement(
+        "div"
+      );
+
+
+    toast.id =
+      "catatkuToast";
+
+
+    document.body.appendChild(
+      toast
+    );
+
+  }
+
+
+  toast.textContent =
+    message;
+
+
+  toast.classList.add(
+    "show"
+  );
+
+
+  clearTimeout(
+    toast._timer
+  );
+
+
+  toast._timer =
+    setTimeout(
+      function() {
+
+        toast.classList.remove(
+          "show"
+        );
+
+      },
+      2200
+    );
 
 }
 
@@ -2458,121 +3322,117 @@ async function renderPenjualanHistory() {
    FORM TRANSAKSI
    ========================================================= */
 
-async function handleTransaksi(
-  event
-) {
-
-  event.preventDefault();
-
+function initTransaksiForm() {
 
   const form =
-    event.target;
-
-
-  const fd =
-    new FormData(
-      form
+    document.getElementById(
+      "transaksiForm"
     );
-
-
-  const data = {
-
-    id:
-      uid("TRX"),
-
-    tanggal:
-      fd.get("tanggal") ||
-      today(),
-
-    jenis:
-      fd.get("jenis") ||
-      "masuk",
-
-    kategori:
-      fd.get("kategori") ||
-      "",
-
-    keterangan:
-      fd.get("keterangan") ||
-      "",
-
-    jumlah:
-      Number(
-        fd.get("jumlah") || 0
-      ),
-
-    sumber:
-      fd.get("sumber") ||
-      "toko",
-
-    createdAt:
-      new Date().toISOString()
-
-  };
 
 
   if (
-    !Number.isFinite(
-      data.jumlah
-    ) ||
-    data.jumlah <= 0
+    !form
   ) {
-
-    toast(
-      "Jumlah harus diisi"
-    );
 
     return;
 
   }
 
 
-  try {
+  if (
+    form.dataset.initialized ===
+    "1"
+  ) {
 
-    await saveTransaksi(
-      data
-    );
+    return;
 
-
-    form.reset();
-
-
-    setDateDefaults();
+  }
 
 
-    await loadTransaksi();
-
-    await loadDashboard();
-
-
-    toast(
-      navigator.onLine
-        ? "Transaksi disimpan"
-        : "Disimpan offline"
-    );
+  form.dataset.initialized =
+    "1";
 
 
-    if (navigator.onLine) {
+  form.addEventListener(
+    "submit",
+    async function(event) {
 
-      await sync();
+      event.preventDefault();
+
+
+      try {
+
+        const formData =
+          new FormData(
+            form
+          );
+
+
+        await saveTransaksi({
+
+          tanggal:
+            formData.get(
+              "tanggal"
+            ) ||
+            today(),
+
+          jenis:
+            formData.get(
+              "jenis"
+            ),
+
+          kategori:
+            formData.get(
+              "kategori"
+            ),
+
+          keterangan:
+            formData.get(
+              "keterangan"
+            ),
+
+          jumlah:
+            formData.get(
+              "jumlah"
+            ),
+
+          sumber:
+            formData.get(
+              "sumber"
+            ) ||
+            "toko"
+
+        });
+
+
+        form.reset();
+
+
+        await loadDashboard();
+
+
+        await renderTransaksi(
+          "transaksiList"
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Simpan transaksi:",
+          error
+        );
+
+
+        showToast(
+          error.message
+        );
+
+      }
 
     }
-
-  }
-  catch(error) {
-
-    console.error(
-      "handleTransaksi:",
-      error
-    );
-
-
-    toast(
-      error.message ||
-      "Gagal menyimpan transaksi"
-    );
-
-  }
+  );
 
 }
 
@@ -2581,158 +3441,238 @@ async function handleTransaksi(
    FORM BARANG
    ========================================================= */
 
-async function handleBarang(
-  event
-) {
-
-  event.preventDefault();
-
+function initBarangForm() {
 
   const form =
-    event.target;
-
-
-  const fd =
-    new FormData(
-      form
+    document.getElementById(
+      "barangForm"
     );
-
-
-  const nama =
-    String(
-      fd.get("nama") || ""
-    ).trim();
-
-
-  if (!nama) {
-
-    toast(
-      "Nama barang wajib diisi"
-    );
-
-    return;
-
-  }
-
-
-  const data = {
-
-    id:
-      uid("BRG"),
-
-    kode:
-      String(
-        fd.get("kode") || ""
-      ).trim(),
-
-    nama:
-      nama,
-
-    stok:
-      Number(
-        fd.get("stok") || 0
-      ),
-
-    hargaModal:
-      Number(
-        fd.get("hargaModal") || 0
-      ),
-
-    hargaJual:
-      Number(
-        fd.get("hargaJual") || 0
-      ),
-
-    stokMin:
-      Number(
-        fd.get("stokMin") || 2
-      ),
-
-    terjual:
-      0,
-
-    omzet:
-      0,
-
-    untung:
-      0,
-
-    updatedAt:
-      new Date().toISOString()
-
-  };
 
 
   if (
-    data.stok < 0
+    !form
   ) {
-
-    toast(
-      "Stok tidak boleh minus"
-    );
 
     return;
 
   }
 
 
-  try {
+  if (
+    form.dataset.initialized ===
+    "1"
+  ) {
 
-    await saveBarang(
-      data
-    );
-
-
-    form.reset();
-
-
-    const stokMin =
-      form.querySelector(
-        '[name="stokMin"]'
-      );
-
-
-    if (stokMin) {
-
-      stokMin.value =
-        "2";
-
-    }
-
-
-    await loadBarang();
-
-    await loadDashboard();
-
-
-    toast(
-      navigator.onLine
-        ? "Barang disimpan"
-        : "Barang disimpan offline"
-    );
-
-
-    if (navigator.onLine) {
-
-      await sync();
-
-    }
+    return;
 
   }
-  catch(error) {
 
-    console.error(
-      "handleBarang:",
-      error
+
+  form.dataset.initialized =
+    "1";
+
+
+  form.addEventListener(
+    "submit",
+    async function(event) {
+
+      event.preventDefault();
+
+
+      try {
+
+        const formData =
+          new FormData(
+            form
+          );
+
+
+        await saveBarang({
+
+          kode:
+            formData.get(
+              "kode"
+            ),
+
+          nama:
+            formData.get(
+              "nama"
+            ),
+
+          stok:
+            formData.get(
+              "stok"
+            ),
+
+          hargaModal:
+            formData.get(
+              "hargaModal"
+            ),
+
+          hargaJual:
+            formData.get(
+              "hargaJual"
+            ),
+
+          stokMin:
+            formData.get(
+              "stokMin"
+            )
+
+        });
+
+
+        form.reset();
+
+
+        await loadDashboard();
+
+
+        await renderBarang(
+          "barangList"
+        );
+
+
+        await fillBarangSelect(
+          "barangId"
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Simpan barang:",
+          error
+        );
+
+
+        showToast(
+          error.message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   FORM PENJUALAN
+   ========================================================= */
+
+function initPenjualanForm() {
+
+  const form =
+    document.getElementById(
+      "penjualanForm"
     );
 
 
-    toast(
-      error.message ||
-      "Gagal menyimpan barang"
-    );
+  if (
+    !form
+  ) {
+
+    return;
 
   }
+
+
+  if (
+    form.dataset.initialized ===
+    "1"
+  ) {
+
+    return;
+
+  }
+
+
+  form.dataset.initialized =
+    "1";
+
+
+  form.addEventListener(
+    "submit",
+    async function(event) {
+
+      event.preventDefault();
+
+
+      try {
+
+        const formData =
+          new FormData(
+            form
+          );
+
+
+        await savePenjualan({
+
+          tanggal:
+            formData.get(
+              "tanggal"
+            ) ||
+            today(),
+
+          barangId:
+            formData.get(
+              "barangId"
+            ),
+
+          qty:
+            formData.get(
+              "qty"
+            ),
+
+          hargaJual:
+            formData.get(
+              "hargaJual"
+            )
+
+        });
+
+
+        form.reset();
+
+
+        await loadDashboard();
+
+
+        await renderBarang(
+          "barangList"
+        );
+
+
+        await renderPenjualan(
+          "penjualanList"
+        );
+
+
+        await fillBarangSelect(
+          "barangId"
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Simpan penjualan:",
+          error
+        );
+
+
+        showToast(
+          error.message
+        );
+
+      }
+
+    }
+  );
 
 }
 
@@ -2741,7 +3681,100 @@ async function handleBarang(
    SELECT BARANG
    ========================================================= */
 
-function setupBarangSelect() {
+async function fillBarangSelect(
+  selectId
+) {
+
+  const select =
+    document.getElementById(
+      selectId
+    );
+
+
+  if (
+    !select
+  ) {
+
+    return;
+
+  }
+
+
+  const barang =
+    await loadBarang();
+
+
+  select.innerHTML =
+    "";
+
+
+  const defaultOption =
+    document.createElement(
+      "option"
+    );
+
+
+  defaultOption.value =
+    "";
+
+
+  defaultOption.textContent =
+    "Pilih barang";
+
+
+  select.appendChild(
+    defaultOption
+  );
+
+
+  barang.forEach(
+    function(item) {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        item.id;
+
+
+      option.textContent =
+        item.nama +
+        " — stok " +
+        number(
+          item.stok
+        );
+
+
+      option.dataset.harga =
+        number(
+          item.hargaJual
+        );
+
+
+      option.dataset.modal =
+        number(
+          item.hargaModal
+        );
+
+
+      select.appendChild(
+        option
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   AUTO HARGA JUAL
+   ========================================================= */
+
+function initBarangSelect() {
 
   const select =
     document.getElementById(
@@ -2751,7 +3784,7 @@ function setupBarangSelect() {
 
   const harga =
     document.querySelector(
-      '#penjualanForm [name="hargaJual"]'
+      '[name="hargaJual"]'
     );
 
 
@@ -2767,49 +3800,21 @@ function setupBarangSelect() {
 
   select.addEventListener(
     "change",
-    async function() {
+    function() {
 
-      if (!select.value) {
+      const option =
+        select.options[
+          select.selectedIndex
+        ];
+
+
+      if (
+        option &&
+        option.dataset.harga
+      ) {
 
         harga.value =
-          "";
-
-        return;
-
-      }
-
-
-      try {
-
-        const barang =
-          await dbGet(
-            STORE.barang,
-            select.value
-          );
-
-
-        if (barang) {
-
-          harga.value =
-            Number(
-              barang.hargaJual || 0
-            );
-
-        }
-        else {
-
-          harga.value =
-            "";
-
-        }
-
-      }
-      catch(error) {
-
-        console.error(
-          "barang select:",
-          error
-        );
+          option.dataset.harga;
 
       }
 
@@ -2820,56 +3825,17 @@ function setupBarangSelect() {
 
 
 /* =========================================================
-   FORM PENJUALAN
+   MANUAL SYNC
    ========================================================= */
 
-async function handlePenjualan(
-  event
-) {
+async function manualSync() {
 
-  event.preventDefault();
+  if (
+    !navigator.onLine
+  ) {
 
-
-  const form =
-    event.target;
-
-
-  const fd =
-    new FormData(
-      form
-    );
-
-
-  const data = {
-
-    id:
-      uid("JUAL"),
-
-    tanggal:
-      fd.get("tanggal") ||
-      today(),
-
-    barangId:
-      fd.get("barangId"),
-
-    qty:
-      Number(
-        fd.get("qty") || 0
-      ),
-
-    hargaJual:
-      fd.get("hargaJual"),
-
-    createdAt:
-      new Date().toISOString()
-
-  };
-
-
-  if (!data.barangId) {
-
-    toast(
-      "Pilih barang"
+    showToast(
+      "Tidak ada internet"
     );
 
     return;
@@ -2878,14 +3844,11 @@ async function handlePenjualan(
 
 
   if (
-    !Number.isFinite(
-      data.qty
-    ) ||
-    data.qty <= 0
+    APP_STATE.syncing
   ) {
 
-    toast(
-      "Jumlah penjualan tidak valid"
+    showToast(
+      "Sinkronisasi sedang berjalan"
     );
 
     return;
@@ -2893,65 +3856,71 @@ async function handlePenjualan(
   }
 
 
+  showToast(
+    "Sinkronisasi..."
+  );
+
+
   try {
 
-    await savePenjualan(
-      data
-    );
+    /* -----------------------------------------------
+       1. KIRIM DATA LOKAL
+       ----------------------------------------------- */
+
+    await syncQueue();
 
 
-    form.reset();
+    /* -----------------------------------------------
+       2. AMBIL DATA SERVER
+       ----------------------------------------------- */
+
+    await downloadData();
 
 
-    setDateDefaults();
-
-
-    const qty =
-      form.querySelector(
-        '[name="qty"]'
-      );
-
-
-    if (qty) {
-
-      qty.value =
-        "1";
-
-    }
-
-
-    await loadBarang();
+    /* -----------------------------------------------
+       3. REFRESH UI
+       ----------------------------------------------- */
 
     await loadDashboard();
 
-    await renderPenjualanHistory();
 
-
-    toast(
-      navigator.onLine
-        ? "Penjualan disimpan"
-        : "Penjualan disimpan offline"
+    await renderBarang(
+      "barangList"
     );
 
 
-    if (navigator.onLine) {
+    await renderTransaksi(
+      "transaksiList"
+    );
 
-      await sync();
 
-    }
+    await renderPenjualan(
+      "penjualanList"
+    );
+
+
+    await fillBarangSelect(
+      "barangId"
+    );
+
+
+    showToast(
+      "Sinkronisasi selesai"
+    );
 
   }
-  catch(error) {
+
+  catch (error) {
 
     console.error(
-      "handlePenjualan:",
+      "Manual sync:",
       error
     );
 
 
-    toast(
-      error.message ||
-      "Gagal menyimpan penjualan"
+    showToast(
+      "Sync gagal: " +
+      error.message
     );
 
   }
@@ -2960,476 +3929,219 @@ async function handlePenjualan(
 
 
 /* =========================================================
-   SYNC
+   REFRESH APP
    ========================================================= */
 
-async function sync() {
+async function refreshApp() {
 
-  if (syncRunning) {
-    return;
-  }
+  try {
+
+    if (
+      navigator.onLine
+    ) {
+
+      await syncQueue();
 
 
-  if (!navigator.onLine) {
+      /*
+       * Download setelah queue dikirim
+       */
 
-    await updateSyncCount();
+      await downloadData();
 
-    setSyncStatus(
-      "Offline - menunggu internet"
+    }
+
+
+    await loadDashboard();
+
+
+    await renderBarang(
+      "barangList"
     );
 
+
+    await renderTransaksi(
+      "transaksiList"
+    );
+
+
+    await renderPenjualan(
+      "penjualanList"
+    );
+
+
+    await fillBarangSelect(
+      "barangId"
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Refresh:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   INIT APP
+   ========================================================= */
+
+async function initApp() {
+
+  if (
+    APP_STATE.initialized
+  ) {
+
     return;
 
   }
 
 
-  syncRunning =
+  APP_STATE.initialized =
     true;
 
 
-  try {
-
-    const queue =
-      await dbGetAll(
-        STORE.queue
-      );
-
-
-    if (!queue.length) {
-
-      setSyncStatus(
-        "Tersinkron"
-      );
-
-      return;
-
-    }
-
-
-    setSyncStatus(
-      "Mengirim " +
-      queue.length +
-      " data..."
-    );
-
-
-    const result =
-      await gasPost(
-        "sync",
-        {
-          items:
-            queue
-        }
-      );
-
-
-    if (
-      !result ||
-      !Array.isArray(
-        result.results
-      )
-    ) {
-
-      throw new Error(
-        "Response sync tidak valid"
-      );
-
-    }
-
-
-    let berhasil =
-      0;
-
-    let gagal =
-      0;
-
-
-    for (
-      const resultItem
-      of result.results
-    ) {
-
-      if (
-        resultItem &&
-        resultItem.success &&
-        resultItem.id
-      ) {
-
-        await dbDelete(
-          STORE.queue,
-          resultItem.id
-        );
-
-        berhasil++;
-
-      }
-      else {
-
-        gagal++;
-
-      }
-
-    }
-
-
-    await updateSyncCount();
-
-
-    /*
-     * Jangan loadRemoteData di sini.
-     *
-     * Data lokal jangan langsung ditimpa
-     * setelah berhasil sync.
-     */
-
-    await loadDashboard();
-
-    await loadTransaksi();
-
-    await loadBarang();
-
-    await renderPenjualanHistory();
-
-
-    if (gagal > 0) {
-
-      setSyncStatus(
-        gagal +
-        " data gagal sync"
-      );
-
-
-      toast(
-        berhasil +
-        " berhasil, " +
-        gagal +
-        " gagal"
-      );
-
-    }
-    else {
-
-      setSyncStatus(
-        "Tersinkron"
-      );
-
-
-      if (berhasil > 0) {
-
-        toast(
-          berhasil +
-          " data berhasil sync"
-        );
-
-      }
-
-    }
-
-  }
-  catch(error) {
-
-    console.error(
-      "SYNC ERROR:",
-      error
-    );
-
-
-    setSyncStatus(
-      "Sync gagal - data tetap aman"
-    );
-
-  }
-  finally {
-
-    syncRunning =
-      false;
-
-  }
-
-}
-
-
-/* =========================================================
-   REFRESH
-   ========================================================= */
-
-async function refresh() {
-
-  if (!navigator.onLine) {
-
-    await loadDashboard();
-
-    await loadTransaksi();
-
-    await loadBarang();
-
-    await renderPenjualanHistory();
-
-    await updateSyncCount();
-
-
-    toast(
-      "Offline - menampilkan data HP"
-    );
-
-
-    return;
-
-  }
+  console.log(
+    "CatatKu mulai..."
+  );
 
 
   try {
 
-    setSyncStatus(
-      "Memeriksa data..."
-    );
-
-
-    await sync();
-
-
-    const queue =
-      await dbGetAll(
-        STORE.queue
-      );
-
-
-    if (
-      queue.length === 0
-    ) {
-
-      await loadRemoteData();
-
-    }
-
-
-    await loadDashboard();
-
-    await loadTransaksi();
-
-    await loadBarang();
-
-    await renderPenjualanHistory();
-
-    await updateSyncCount();
-
-
-    setSyncStatus(
-      "Tersinkron"
-    );
-
-
-    toast(
-      "Data diperbarui"
-    );
-
-  }
-  catch(error) {
-
-    console.error(
-      "REFRESH ERROR:",
-      error
-    );
-
-
-    await loadDashboard();
-
-    await loadTransaksi();
-
-    await loadBarang();
-
-    await renderPenjualanHistory();
-
-
-    toast(
-      "Gagal mengambil data server"
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   DATE DEFAULT
-   ========================================================= */
-
-function setDateDefaults() {
-
-  document
-    .querySelectorAll(
-      'input[type="date"]'
-    )
-    .forEach(
-      function(input) {
-
-        if (!input.value) {
-
-          input.value =
-            today();
-
-        }
-
-      }
-    );
-
-}
-
-
-/* =========================================================
-   TEST GOOGLE APPS SCRIPT
-   ========================================================= */
-
-async function testConnection() {
-
-  if (!navigator.onLine) {
-
-    setConnectionStatus(
-      false,
-      "Offline"
-    );
-
-    return false;
-
-  }
-
-
-  try {
-
-    await gasGet(
-      "ping"
-    );
-
-
-    setConnectionStatus(
-      true,
-      "Online"
-    );
-
-
-    setDatabaseStatus(
-      "Database tersambung"
-    );
-
-
-    return true;
-
-  }
-  catch(error) {
-
-    console.error(
-      "TEST GAS:",
-      error
-    );
-
-
-    setConnectionStatus(
-      false,
-      "GAS gagal"
-    );
-
-
-    setDatabaseStatus(
-      "Database lokal"
-    );
-
-
-    return false;
-
-  }
-
-}
-
-
-/* =========================================================
-   INIT
-   ========================================================= */
-
-async function init() {
-
-  try {
-
-    updateConnection();
-
-    setDateDefaults();
-
-
-    /*
-     * Buka database BARU.
-     */
+    /* -----------------------------------------------------
+       1. BUKA DATABASE
+       ----------------------------------------------------- */
 
     await openDB();
 
-    setDatabaseStatus(
-      "Database lokal siap"
+
+    console.log(
+      "IndexedDB siap:",
+      DB_NAME
     );
 
 
-    await updateSyncCount();
+    /* -----------------------------------------------------
+       2. STATUS ONLINE
+       ----------------------------------------------------- */
+
+    updateOnlineStatus();
 
 
-    /*
-     * Tampilkan data lokal.
-     */
+    /* -----------------------------------------------------
+       3. FORM
+       ----------------------------------------------------- */
+
+    initTransaksiForm();
+
+    initBarangForm();
+
+    initPenjualanForm();
+
+    initBarangSelect();
+
+
+    /* -----------------------------------------------------
+       4. LOAD LOKAL DULU
+       ----------------------------------------------------- */
 
     await loadDashboard();
 
-    await loadTransaksi();
 
-    await loadBarang();
-
-    await renderPenjualanHistory();
-
-
-    setupBarangSelect();
+    await renderBarang(
+      "barangList"
+    );
 
 
-    /*
-     * Jika online:
-     *
-     * 1. Tes GAS
-     * 2. Ambil data server
-     * 3. Sync queue
-     */
+    await renderTransaksi(
+      "transaksiList"
+    );
+
+
+    await renderPenjualan(
+      "penjualanList"
+    );
+
+
+    await fillBarangSelect(
+      "barangId"
+    );
+
+
+    /* -----------------------------------------------------
+       5. JIKA ONLINE
+       ----------------------------------------------------- */
 
     if (
       navigator.onLine
     ) {
 
       const connected =
-        await testConnection();
+        await testGAS();
 
 
-      if (connected) {
+      if (
+        connected
+      ) {
 
         /*
-         * Server menjadi sumber data
-         * untuk database baru.
+         * Kirim queue dahulu
          */
 
-        await loadRemoteData();
+        await syncQueue();
 
+
+        /*
+         * Baru ambil data server
+         */
+
+        await downloadData();
+
+
+        /*
+         * Refresh tampilan
+         */
 
         await loadDashboard();
 
-        await loadTransaksi();
 
-        await loadBarang();
+        await renderBarang(
+          "barangList"
+        );
 
-        await renderPenjualanHistory();
+
+        await renderTransaksi(
+          "transaksiList"
+        );
 
 
-        await sync();
+        await renderPenjualan(
+          "penjualanList"
+        );
+
+
+        await fillBarangSelect(
+          "barangId"
+        );
 
       }
 
     }
 
 
-    setDateDefaults();
+    console.log(
+      "CatatKu siap digunakan"
+    );
 
   }
-  catch(error) {
+
+  catch (error) {
 
     console.error(
       "INIT ERROR:",
@@ -3438,12 +4150,9 @@ async function init() {
 
 
     setDatabaseStatus(
-      "Database lokal gagal"
-    );
-
-
-    toast(
-      "Database lokal belum siap"
+      "error",
+      "Database lokal gagal: " +
+      error.message
     );
 
   }
@@ -3452,137 +4161,72 @@ async function init() {
 
 
 /* =========================================================
-   EVENT FORM
-   ========================================================= */
-
-document.addEventListener(
-  "DOMContentLoaded",
-  function() {
-
-    const transaksiForm =
-      document.getElementById(
-        "transaksiForm"
-      );
-
-
-    if (transaksiForm) {
-
-      transaksiForm.addEventListener(
-        "submit",
-        handleTransaksi
-      );
-
-    }
-
-
-    const barangForm =
-      document.getElementById(
-        "barangForm"
-      );
-
-
-    if (barangForm) {
-
-      barangForm.addEventListener(
-        "submit",
-        handleBarang
-      );
-
-    }
-
-
-    const penjualanForm =
-      document.getElementById(
-        "penjualanForm"
-      );
-
-
-    if (penjualanForm) {
-
-      penjualanForm.addEventListener(
-        "submit",
-        handlePenjualan
-      );
-
-    }
-
-
-    setDateDefaults();
-
-
-    init();
-
-  }
-);
-
-
-/* =========================================================
-   AUTO SYNC
-   ========================================================= */
-
-setInterval(
-  async function() {
-
-    if (
-      navigator.onLine
-    ) {
-
-      try {
-
-        await sync();
-
-      }
-      catch(error) {
-
-        console.error(
-          "AUTO SYNC:",
-          error
-        );
-
-      }
-
-    }
-
-  },
-  30000
-);
-
-
-/* =========================================================
-   PUBLIC API
+   GLOBAL API
    ========================================================= */
 
 window.CatatKu = {
 
-  refresh:
-    refresh,
+  saveTransaksi:
+    saveTransaksi,
 
-  sync:
-    sync,
+  saveBarang:
+    saveBarang,
 
-  loadDashboard:
-    loadDashboard,
-
-  loadTransaksi:
-    loadTransaksi,
+  savePenjualan:
+    savePenjualan,
 
   loadBarang:
     loadBarang,
 
+  loadTransaksi:
+    loadTransaksi,
+
   loadPenjualan:
     loadPenjualan,
 
-  renderPenjualanHistory:
-    renderPenjualanHistory,
+  loadDashboard:
+    loadDashboard,
 
-  testConnection:
-    testConnection,
+  sync:
+    manualSync,
 
-  db:
-    function() {
+  refresh:
+    refreshApp,
 
-      return openDB();
+  testGAS:
+    testGAS,
 
-    }
+  downloadData:
+    downloadData,
+
+  getQueueCount:
+    getQueueCount
 
 };
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+if (
+  document.readyState ===
+  "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initApp,
+    {
+      once:
+        true
+    }
+  );
+
+}
+
+else {
+
+  initApp();
+
+}
