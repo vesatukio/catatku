@@ -1,7 +1,8 @@
 /* =========================================================
    CATATKU
    FINAL STYLE
-   Wallet + POS Mobile App
+   WALLET + POS MOBILE APP
+   MOBILE LARGE / EASY TO READ
    ========================================================= */
 
 :root {
@@ -12,32 +13,37 @@
   --green-dark: #15803d;
 
   --red: #dc2626;
+  --red-dark: #b91c1c;
+
   --orange: #ea580c;
+  --orange-dark: #c2410c;
+
+  --purple: #7c3aed;
+  --purple-dark: #6d28d9;
+
+  --yellow: #ca8a04;
+  --yellow-dark: #a16207;
 
   --blue-soft: #eff6ff;
   --green-soft: #f0fdf4;
   --red-soft: #fef2f2;
   --orange-soft: #fff7ed;
-
-  --purple: #7c3aed;
   --purple-soft: #f5f3ff;
-
-  --yellow: #ca8a04;
   --yellow-soft: #fefce8;
 
   --text: #172033;
-  --text-soft: #64748b;
-  --border: #e5e7eb;
+  --text-soft: #475569;
+  --border: #dbe2ea;
 
-  --background: #f5f7fb;
+  --background: #f3f6fb;
   --card: #ffffff;
 
   --radius: 18px;
 
   --shadow:
-    0 4px 18px rgba(15, 23, 42, .07);
+    0 5px 18px rgba(15, 23, 42, .09);
 
-  --bottom-nav-height: 76px;
+  --bottom-nav-height: 84px;
 }
 
 
@@ -50,14 +56,12 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-
 html {
   width: 100%;
   min-height: 100%;
   overflow-x: hidden;
   scroll-behavior: smooth;
 }
-
 
 body {
   margin: 0;
@@ -79,19 +83,17 @@ body {
     Arial,
     sans-serif;
 
-  font-size: 16px;
+  font-size: 17px;
 
-  line-height: 1.45;
+  line-height: 1.5;
 
   overflow-x: hidden;
 
   padding-bottom:
     calc(
-      var(--bottom-nav-height) +
-      24px
+      var(--bottom-nav-height) + 24px
     );
 }
-
 
 button,
 input,
@@ -100,11 +102,9 @@ textarea {
   font-family: inherit;
 }
 
-
 button {
   cursor: pointer;
 }
-
 
 img {
   max-width: 100%;
@@ -117,7 +117,6 @@ img {
    ========================================================= */
 
 .topbar {
-
   position: sticky;
   top: 0;
   z-index: 100;
@@ -128,12 +127,12 @@ img {
   align-items: center;
   justify-content: space-between;
 
-  gap: 12px;
+  gap: 14px;
 
   padding:
-    15px
+    17px
     16px
-    14px;
+    16px;
 
   background:
     linear-gradient(
@@ -145,35 +144,31 @@ img {
   color: white;
 
   box-shadow:
-    0 3px 12px
-    rgba(37, 99, 235, .22);
+    0 4px 14px
+    rgba(37, 99, 235, .25);
 }
 
-
 .topbar h1 {
-
   margin: 0;
 
-  font-size: 24px;
+  font-size: 27px;
 
   line-height: 1.1;
 
-  font-weight: 800;
+  font-weight: 900;
 
-  letter-spacing: -.4px;
+  letter-spacing: -.5px;
 }
 
-
 .topbar p {
-
-  margin: 4px 0 0;
+  margin: 5px 0 0;
 
   color:
-    rgba(255,255,255,.82);
+    rgba(255,255,255,.90);
 
-  font-size: 13px;
+  font-size: 14px;
 
-  font-weight: 500;
+  font-weight: 600;
 }
 
 
@@ -182,29 +177,28 @@ img {
    ========================================================= */
 
 .status-badge {
-
   flex-shrink: 0;
 
-  min-width: 58px;
+  min-width: 64px;
 
   padding:
-    7px
-    10px;
+    8px
+    11px;
 
   border-radius: 999px;
 
   background:
-    rgba(255,255,255,.18);
+    rgba(255,255,255,.20);
 
   border:
     1px solid
-    rgba(255,255,255,.25);
+    rgba(255,255,255,.30);
 
   color: white;
 
-  font-size: 12px;
+  font-size: 13px;
 
-  font-weight: 700;
+  font-weight: 800;
 
   text-align: center;
 
@@ -217,18 +211,17 @@ img {
    ========================================================= */
 
 .status-panel {
-
   width: 100%;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  gap: 8px;
+  gap: 10px;
 
   padding:
-    8px
-    14px;
+    10px
+    15px;
 
   background: white;
 
@@ -237,16 +230,14 @@ img {
 
   color: var(--text-soft);
 
-  font-size: 12px;
+  font-size: 13px;
 
-  font-weight: 600;
+  font-weight: 700;
 
   overflow: hidden;
 }
 
-
 .status-panel span {
-
   min-width: 0;
 
   overflow: hidden;
@@ -262,7 +253,6 @@ img {
    ========================================================= */
 
 .container {
-
   width: 100%;
 
   max-width: 1100px;
@@ -270,9 +260,9 @@ img {
   margin: 0 auto;
 
   padding:
-    16px
+    18px
     14px
-    10px;
+    12px;
 }
 
 
@@ -281,7 +271,6 @@ img {
    ========================================================= */
 
 .page {
-
   display: none;
 
   width: 100%;
@@ -292,11 +281,9 @@ img {
     pageIn .18s ease;
 }
 
-
 .page.active {
   display: block;
 }
-
 
 @keyframes pageIn {
 
@@ -328,34 +315,34 @@ img {
   gap: 12px;
 
   margin:
-    3px
+    4px
     2px
-    14px;
+    16px;
 }
-
 
 .section-title h2 {
 
   margin: 0;
 
-  font-size: 23px;
+  font-size: 26px;
 
-  font-weight: 800;
+  font-weight: 900;
 
-  letter-spacing: -.3px;
+  letter-spacing: -.4px;
 }
-
 
 .section-title p {
 
   margin:
-    3px
+    4px
     0
     0;
 
   color: var(--text-soft);
 
-  font-size: 13px;
+  font-size: 14px;
+
+  font-weight: 600;
 }
 
 
@@ -365,17 +352,19 @@ img {
 
 .btn-small {
 
-  width: 42px;
-  height: 42px;
+  width: 46px;
+
+  height: 46px;
 
   display: flex;
 
   align-items: center;
+
   justify-content: center;
 
   border: 0;
 
-  border-radius: 13px;
+  border-radius: 14px;
 
   background: white;
 
@@ -383,15 +372,14 @@ img {
 
   box-shadow: var(--shadow);
 
-  font-size: 22px;
+  font-size: 24px;
 
-  font-weight: 700;
+  font-weight: 800;
 
   transition:
     transform .15s ease,
     background .15s ease;
 }
-
 
 .btn-small:active {
 
@@ -413,23 +401,23 @@ img {
   grid-template-columns:
     repeat(2, minmax(0, 1fr));
 
-  gap: 10px;
+  gap: 11px;
 
   width: 100%;
 
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 
 /* =========================================================
-   CARD
+   CARD DASAR
    ========================================================= */
 
 .card {
 
   min-width: 0;
 
-  min-height: 100px;
+  min-height: 115px;
 
   display: flex;
 
@@ -438,6 +426,7 @@ img {
   justify-content: center;
 
   padding:
+    17px
     15px;
 
   background:
@@ -445,7 +434,7 @@ img {
 
   border:
     1px solid
-    rgba(226,232,240,.9);
+    rgba(226,232,240,.95);
 
   border-radius:
     var(--radius);
@@ -456,21 +445,21 @@ img {
   overflow: hidden;
 }
 
-
 .card span {
 
   display: block;
 
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 
   color:
     var(--text-soft);
 
-  font-size: 13px;
+  font-size: 14px;
 
-  font-weight: 600;
+  font-weight: 800;
+
+  line-height: 1.25;
 }
-
 
 .card strong {
 
@@ -487,13 +476,13 @@ img {
   color:
     var(--text);
 
-  font-size: 20px;
+  font-size: 24px;
 
   line-height: 1.2;
 
-  font-weight: 800;
+  font-weight: 900;
 
-  letter-spacing: -.4px;
+  letter-spacing: -.5px;
 }
 
 
@@ -506,9 +495,11 @@ img {
   grid-column:
     1 / -1;
 
-  min-height: 145px;
+  min-height: 165px;
 
-  padding: 21px;
+  padding:
+    23px
+    21px;
 
   background:
     linear-gradient(
@@ -522,27 +513,283 @@ img {
   color: white;
 
   box-shadow:
-    0 8px 25px
-    rgba(37,99,235,.23);
+    0 9px 27px
+    rgba(37,99,235,.25);
 }
-
 
 .saldo-card span {
 
   color:
-    rgba(255,255,255,.82);
+    rgba(255,255,255,.90);
 
-  font-size: 14px;
+  font-size: 15px;
+
+  font-weight: 700;
 }
-
 
 .saldo-card strong {
 
   color: white;
 
-  font-size: 32px;
+  font-size: 36px;
 
-  letter-spacing: -.8px;
+  letter-spacing: -.9px;
+}
+
+
+/* =========================================================
+   WARNA KARTU DASHBOARD
+   Otomatis berdasarkan class
+   ========================================================= */
+
+
+/* UANG MASUK */
+
+.uang-masuk,
+.pemasukan,
+.income-card {
+
+  background:
+    linear-gradient(
+      135deg,
+      #ecfdf5,
+      #d1fae5
+    );
+
+  border-color:
+    #a7f3d0;
+}
+
+.uang-masuk strong,
+.pemasukan strong,
+.income-card strong {
+
+  color:
+    #047857;
+}
+
+
+/* UANG KELUAR */
+
+.uang-keluar,
+.pengeluaran,
+.expense-card {
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff1f2,
+      #ffe4e6
+    );
+
+  border-color:
+    #fecdd3;
+}
+
+.uang-keluar strong,
+.pengeluaran strong,
+.expense-card strong {
+
+  color:
+    #be123c;
+}
+
+
+/* OMZET */
+
+.omzet,
+.omzet-card {
+
+  background:
+    linear-gradient(
+      135deg,
+      #eff6ff,
+      #dbeafe
+    );
+
+  border-color:
+    #bfdbfe;
+}
+
+.omzet strong,
+.omzet-card strong {
+
+  color:
+    #1d4ed8;
+}
+
+
+/* UNTUNG */
+
+.untung,
+.untung-card,
+.profit-card {
+
+  background:
+    linear-gradient(
+      135deg,
+      #f0fdf4,
+      #dcfce7
+    );
+
+  border-color:
+    #bbf7d0;
+}
+
+.untung strong,
+.untung-card strong,
+.profit-card strong {
+
+  color:
+    #15803d;
+}
+
+
+/* STOK */
+
+.stok,
+.stok-card {
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff7ed,
+      #ffedd5
+    );
+
+  border-color:
+    #fed7aa;
+}
+
+.stok strong,
+.stok-card strong {
+
+  color:
+    #c2410c;
+}
+
+
+/* JUMLAH BARANG */
+
+.jumlah-barang,
+.barang-count,
+.jenis-barang {
+
+  background:
+    linear-gradient(
+      135deg,
+      #f5f3ff,
+      #ede9fe
+    );
+
+  border-color:
+    #ddd6fe;
+}
+
+.jumlah-barang strong,
+.barang-count strong,
+.jenis-barang strong {
+
+  color:
+    #6d28d9;
+}
+
+
+/* TOTAL STOK */
+
+.total-stok,
+.total-stok-card {
+
+  background:
+    linear-gradient(
+      135deg,
+      #fefce8,
+      #fef3c7
+    );
+
+  border-color:
+    #fde68a;
+}
+
+.total-stok strong,
+.total-stok-card strong {
+
+  color:
+    #a16207;
+}
+
+
+/* =========================================================
+   APABILA CARD MENGGUNAKAN URUTAN
+   Ini membantu jika HTML belum mempunyai class khusus
+   ========================================================= */
+
+.summary-grid .card:nth-child(2):not(.saldo-card) {
+  background:
+    linear-gradient(
+      135deg,
+      #ecfdf5,
+      #d1fae5
+    );
+
+  border-color:
+    #a7f3d0;
+}
+
+.summary-grid .card:nth-child(2):not(.saldo-card) strong {
+  color:
+    #047857;
+}
+
+.summary-grid .card:nth-child(3):not(.saldo-card) {
+  background:
+    linear-gradient(
+      135deg,
+      #fff1f2,
+      #ffe4e6
+    );
+
+  border-color:
+    #fecdd3;
+}
+
+.summary-grid .card:nth-child(3):not(.saldo-card) strong {
+  color:
+    #be123c;
+}
+
+.summary-grid .card:nth-child(4):not(.saldo-card) {
+  background:
+    linear-gradient(
+      135deg,
+      #eff6ff,
+      #dbeafe
+    );
+
+  border-color:
+    #bfdbfe;
+}
+
+.summary-grid .card:nth-child(4):not(.saldo-card) strong {
+  color:
+    #1d4ed8;
+}
+
+.summary-grid .card:nth-child(5):not(.saldo-card) {
+  background:
+    linear-gradient(
+      135deg,
+      #f0fdf4,
+      #dcfce7
+    );
+
+  border-color:
+    #bbf7d0;
+}
+
+.summary-grid .card:nth-child(5):not(.saldo-card) strong {
+  color:
+    #15803d;
 }
 
 
@@ -553,7 +800,6 @@ img {
 .text-success {
   color: var(--green) !important;
 }
-
 
 .text-danger {
   color: var(--red) !important;
@@ -570,9 +816,9 @@ img {
 
   min-width: 0;
 
-  margin-top: 14px;
+  margin-top: 16px;
 
-  padding: 15px;
+  padding: 17px;
 
   background:
     var(--card);
@@ -590,7 +836,6 @@ img {
   overflow: hidden;
 }
 
-
 .panel-header {
 
   display: flex;
@@ -599,17 +844,18 @@ img {
 
   justify-content: space-between;
 
-  margin-bottom: 12px;
-}
+  gap: 10px;
 
+  margin-bottom: 14px;
+}
 
 .panel-header h3 {
 
   margin: 0;
 
-  font-size: 17px;
+  font-size: 19px;
 
-  font-weight: 800;
+  font-weight: 900;
 }
 
 
@@ -626,20 +872,23 @@ img {
   color:
     var(--text-soft);
 
-  font-size: 14px;
+  font-size: 15px;
 }
-
 
 .list > p {
 
   margin:
-    10px
+    12px
     0;
 
   text-align: center;
 
   color:
-    #94a3b8;
+    #64748b;
+
+  font-size: 14px;
+
+  font-weight: 600;
 }
 
 
@@ -655,11 +904,11 @@ img {
 
   flex-direction: column;
 
-  gap: 13px;
+  gap: 15px;
 
-  margin-bottom: 15px;
+  margin-bottom: 17px;
 
-  padding: 17px;
+  padding: 18px;
 
   background:
     white;
@@ -686,7 +935,7 @@ img {
 
   flex-direction: column;
 
-  gap: 6px;
+  gap: 7px;
 
   width: 100%;
 
@@ -695,9 +944,9 @@ img {
   color:
     #334155;
 
-  font-size: 14px;
+  font-size: 15px;
 
-  font-weight: 700;
+  font-weight: 800;
 }
 
 
@@ -712,18 +961,18 @@ img {
 
   min-width: 0;
 
-  height: 50px;
+  height: 54px;
 
   padding:
     0
-    14px;
+    15px;
 
   border:
     1px solid
-    #dbe2ea;
+    #cbd5e1;
 
   border-radius:
-    13px;
+    14px;
 
   outline: none;
 
@@ -733,11 +982,9 @@ img {
   color:
     var(--text);
 
-  font-size: 16px;
+  font-size: 17px;
 
-  font-weight: 500;
-
-  
+  font-weight: 600;
 
   transition:
     border-color .15s ease,
@@ -745,25 +992,24 @@ img {
     background .15s ease;
 }
 
-
 .form-card input:focus,
 .form-card select:focus {
 
-  background: white;
+  background:
+    white;
 
   border-color:
     var(--primary);
 
   box-shadow:
     0 0 0 3px
-    rgba(37,99,235,.10);
+    rgba(37,99,235,.12);
 }
-
 
 .form-card input::placeholder {
 
   color:
-    #94a3b8;
+    #64748b;
 }
 
 
@@ -773,9 +1019,9 @@ img {
 
 .form-card input[type="number"] {
 
-  font-size: 17px;
+  font-size: 18px;
 
-  font-weight: 700;
+  font-weight: 800;
 }
 
 
@@ -787,14 +1033,14 @@ img {
 
   width: 100%;
 
-  min-height: 52px;
+  min-height: 56px;
 
-  margin-top: 4px;
+  margin-top: 5px;
 
   border: 0;
 
   border-radius:
-    14px;
+    15px;
 
   background:
     linear-gradient(
@@ -805,19 +1051,18 @@ img {
 
   color: white;
 
-  font-size: 16px;
+  font-size: 17px;
 
-  font-weight: 800;
+  font-weight: 900;
 
   box-shadow:
-    0 6px 15px
-    rgba(37,99,235,.20);
+    0 7px 17px
+    rgba(37,99,235,.22);
 
   transition:
     transform .12s ease,
     box-shadow .12s ease;
 }
-
 
 .btn-primary:active {
 
@@ -842,17 +1087,16 @@ img {
 
   justify-content: space-between;
 
-  gap: 12px;
+  gap: 13px;
 
   padding:
-    13px
+    15px
     0;
 
   border-bottom:
     1px solid
     #edf0f4;
 }
-
 
 .transaksi-item:last-child {
 
@@ -874,10 +1118,10 @@ img {
 
   justify-content: space-between;
 
-  gap: 12px;
+  gap: 13px;
 
   padding:
-    13px
+    15px
     0;
 
   border-bottom:
@@ -885,18 +1129,15 @@ img {
     #edf0f4;
 }
 
-
 .penjualan-item:last-child {
 
   border-bottom: 0;
 }
 
-
 .penjualan-item > div {
 
   min-width: 0;
 }
-
 
 .penjualan-item strong {
 
@@ -913,24 +1154,24 @@ img {
   color:
     var(--text);
 
-  font-size: 14px;
+  font-size: 15px;
 
-  font-weight: 800;
+  font-weight: 900;
 }
-
 
 .penjualan-item small {
 
   display: block;
 
-  margin-top: 3px;
+  margin-top: 4px;
 
   color:
     var(--text-soft);
 
-  font-size: 12px;
-}
+  font-size: 13px;
 
+  font-weight: 600;
+}
 
 .penjualan-item > div:last-child {
 
@@ -954,17 +1195,16 @@ img {
 
   justify-content: space-between;
 
-  gap: 12px;
+  gap: 13px;
 
   padding:
-    14px
+    15px
     0;
 
   border-bottom:
     1px solid
     #edf0f4;
 }
-
 
 .barang-item:last-child {
 
@@ -974,6 +1214,7 @@ img {
 
 /* =========================================================
    BOTTOM NAVIGATION
+   FULL WIDTH HP
    ========================================================= */
 
 .bottom-nav {
@@ -981,7 +1222,9 @@ img {
   position: fixed;
 
   left: 0;
+
   right: 0;
+
   bottom: 0;
 
   z-index: 999;
@@ -998,25 +1241,25 @@ img {
 
   padding:
     7px
-    8px
+    4px
     calc(
       7px +
       env(safe-area-inset-bottom)
     );
 
   background:
-    rgba(255,255,255,.97);
+    rgba(255,255,255,.98);
 
   border-top:
     1px solid
-    #e5e7eb;
+    #dbe2ea;
 
   box-shadow:
-    0 -5px 20px
-    rgba(15,23,42,.08);
+    0 -5px 22px
+    rgba(15,23,42,.10);
 
   backdrop-filter:
-    blur(12px);
+    blur(14px);
 }
 
 
@@ -1041,11 +1284,11 @@ img {
   gap: 3px;
 
   margin:
-    2px;
+    1px;
 
   padding:
     5px
-    2px;
+    1px;
 
   border: 0;
 
@@ -1056,7 +1299,7 @@ img {
     transparent;
 
   color:
-    #64748b;
+    #475569;
 
   transition:
     transform .15s ease,
@@ -1064,33 +1307,33 @@ img {
     color .15s ease;
 }
 
-
 .nav-item span {
 
-  width: 34px;
-  height: 28px;
+  width: 40px;
+
+  height: 32px;
 
   display: flex;
 
   align-items: center;
+
   justify-content: center;
 
   border-radius:
     10px;
 
-  font-size: 20px;
+  font-size: 23px;
 
   line-height: 1;
 }
 
-
 .nav-item small {
 
-  font-size: 11px;
+  font-size: 12px;
 
   line-height: 1.1;
 
-  font-weight: 700;
+  font-weight: 800;
 
   white-space: nowrap;
 }
@@ -1099,8 +1342,6 @@ img {
 /* =========================================================
    NAV COLORS
    ========================================================= */
-
-/* BERANDA */
 
 .nav-item[data-page="dashboard"].active {
 
@@ -1111,15 +1352,12 @@ img {
     #2563eb;
 }
 
-
 .nav-item[data-page="dashboard"].active span {
 
   background:
     #dbeafe;
 }
 
-
-/* KEUANGAN */
 
 .nav-item[data-page="keuangan"].active {
 
@@ -1130,15 +1368,12 @@ img {
     #16a34a;
 }
 
-
 .nav-item[data-page="keuangan"].active span {
 
   background:
     #dcfce7;
 }
 
-
-/* BARANG */
 
 .nav-item[data-page="barang"].active {
 
@@ -1149,15 +1384,12 @@ img {
     #ea580c;
 }
 
-
 .nav-item[data-page="barang"].active span {
 
   background:
     #ffedd5;
 }
 
-
-/* PENJUALAN */
 
 .nav-item[data-page="penjualan"].active {
 
@@ -1168,11 +1400,26 @@ img {
     #7c3aed;
 }
 
-
 .nav-item[data-page="penjualan"].active span {
 
   background:
     #ede9fe;
+}
+
+
+.nav-item[data-page="laporan"].active {
+
+  background:
+    #fefce8;
+
+  color:
+    #ca8a04;
+}
+
+.nav-item[data-page="laporan"].active span {
+
+  background:
+    #fef3c7;
 }
 
 
@@ -1186,11 +1433,11 @@ img {
 
   position: absolute;
 
-  top: -7px;
+  top: -6px;
 
   left: 50%;
 
-  width: 28px;
+  width: 32px;
 
   height: 3px;
 
@@ -1228,8 +1475,7 @@ img {
 
   bottom:
     calc(
-      var(--bottom-nav-height) +
-      16px
+      var(--bottom-nav-height) + 17px
     );
 
   z-index: 2000;
@@ -1240,15 +1486,15 @@ img {
     );
 
   padding:
-    12px
-    17px;
+    13px
+    18px;
 
   transform:
     translateX(-50%)
     translateY(20px);
 
   border-radius:
-    13px;
+    14px;
 
   background:
     #172033;
@@ -1256,15 +1502,20 @@ img {
   color:
     white;
 
-  font-size: 14px;
+  font-size:
+    15px;
 
-  font-weight: 700;
+  font-weight:
+    800;
 
-  text-align: center;
+  text-align:
+    center;
 
-  opacity: 0;
+  opacity:
+    0;
 
-  pointer-events: none;
+  pointer-events:
+    none;
 
   box-shadow:
     0 8px 25px
@@ -1275,10 +1526,10 @@ img {
     transform .2s ease;
 }
 
-
 .toast.show {
 
-  opacity: 1;
+  opacity:
+    1;
 
   transform:
     translateX(-50%)
@@ -1295,13 +1546,11 @@ img {
   width: 5px;
 }
 
-
 ::-webkit-scrollbar-track {
 
   background:
     transparent;
 }
-
 
 ::-webkit-scrollbar-thumb {
 
@@ -1321,14 +1570,14 @@ img {
 
   body {
 
-    padding-bottom: 20px;
-
+    padding-bottom:
+      20px;
   }
-
 
   .topbar {
 
-    position: relative;
+    position:
+      relative;
 
     padding:
       20px
@@ -1338,9 +1587,7 @@ img {
           (100vw - 1100px) / 2
         )
       );
-
   }
-
 
   .status-panel {
 
@@ -1359,60 +1606,58 @@ img {
           (100vw - 1100px) / 2
         )
       );
-
   }
-
 
   .container {
 
     padding:
-      25px
+      28px
       20px;
   }
-
 
   .summary-grid {
 
     grid-template-columns:
       repeat(4, minmax(0,1fr));
 
-    gap: 14px;
-
+    gap:
+      14px;
   }
-
 
   .saldo-card {
 
     grid-column:
       span 2;
-
   }
-
 
   .form-card {
 
-    max-width: 700px;
-
+    max-width:
+      700px;
   }
-
 
   .bottom-nav {
 
-    position: fixed;
+    position:
+      fixed;
 
-    left: 50%;
+    left:
+      50%;
 
-    right: auto;
+    right:
+      auto;
 
-    bottom: 20px;
+    bottom:
+      20px;
 
     width:
       min(
-        600px,
+        650px,
         calc(100% - 40px)
       );
 
-    height: 70px;
+    height:
+      74px;
 
     transform:
       translateX(-50%);
@@ -1426,7 +1671,6 @@ img {
 
     padding:
       7px;
-
   }
 
 }
@@ -1442,116 +1686,126 @@ img {
 
     max-width:
       1150px;
-
   }
-
 
   .summary-grid {
 
     grid-template-columns:
       repeat(4, 1fr);
-
   }
-
 
   .saldo-card {
 
     grid-column:
       span 2;
-
   }
 
 }
 
 
 /* =========================================================
-   SMALL ANDROID
+   TABLET
    ========================================================= */
 
-@media (max-width: 360px) {
+@media (
+  min-width: 600px
+)
+and (
+  max-width: 699px
+) {
+
+  .summary-grid {
+
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+}
+
+
+/* =========================================================
+   HP KECIL
+   ========================================================= */
+
+@media (max-width: 380px) {
 
   .container {
 
     padding:
-      13px
+      15px
+      10px
       10px;
-
   }
-
 
   .topbar {
 
     padding:
-      13px
+      15px
       12px;
-
   }
-
 
   .topbar h1 {
 
     font-size:
-      22px;
-
+      24px;
   }
-
 
   .summary-grid {
 
     gap:
       8px;
-
   }
-
 
   .card {
 
     padding:
-      13px;
+      14px
+      12px;
 
     min-height:
-      92px;
-
+      105px;
   }
 
+  .card span {
+
+    font-size:
+      13px;
+  }
 
   .card strong {
 
     font-size:
-      18px;
-
+      21px;
   }
-
 
   .saldo-card {
 
     min-height:
-      132px;
-
+      145px;
   }
-
 
   .saldo-card strong {
 
     font-size:
-      28px;
-
+      31px;
   }
-
 
   .form-card {
 
     padding:
-      14px;
-
+      15px;
   }
 
+  .nav-item span {
+
+    font-size:
+      21px;
+  }
 
   .nav-item small {
 
     font-size:
-      10px;
-
+      10.5px;
   }
 
 }
@@ -1573,7 +1827,6 @@ img {
         7px +
         env(safe-area-inset-bottom)
       );
-
   }
 
 }
@@ -1592,40 +1845,131 @@ section,
 .form-card,
 .list {
 
-  max-width: 100%;
+  max-width:
+    100%;
 
-  overflow-x: hidden;
-
+  overflow-x:
+    hidden;
 }
 
 
 /* =========================================================
-   TABLET
+   EXTRA MOBILE READABILITY
    ========================================================= */
 
-@media (
-  min-width: 600px
-) and (
-  max-width: 699px
-) {
+@media (max-width: 699px) {
 
-  .summary-grid {
+  .panel-header h3 {
 
-    grid-template-columns:
-      repeat(2, 1fr);
+    font-size:
+      19px;
+  }
 
+  .transaksi-item {
+
+    font-size:
+      15px;
+  }
+
+  .barang-item {
+
+    font-size:
+      15px;
+  }
+
+  .penjualan-item {
+
+    font-size:
+      15px;
+  }
+
+  /* Angka uang dibuat lebih menonjol */
+
+  .text-success {
+
+    font-weight:
+      900 !important;
+  }
+
+  .text-danger {
+
+    font-weight:
+      900 !important;
   }
 
 }
+
+
 /* =========================================================
-   LAPORAN
+   EXTRA BESAR UNTUK ANGKA UTAMA
    ========================================================= */
 
-.nav-item[data-page="laporan"].active {
-  background: #fefce8;
-  color: #ca8a04;
+.card strong,
+.saldo-card strong {
+
+  font-variant-numeric:
+    tabular-nums;
 }
 
-.nav-item[data-page="laporan"].active span {
-  background: #fef3c7;
+
+/* =========================================================
+   KONTRAS TINGGI
+   ========================================================= */
+
+.uang-masuk span,
+.pemasukan span,
+.income-card span {
+
+  color:
+    #065f46;
 }
+
+.uang-keluar span,
+.pengeluaran span,
+.expense-card span {
+
+  color:
+    #9f1239;
+}
+
+.omzet span,
+.omzet-card span {
+
+  color:
+    #1e40af;
+}
+
+.untung span,
+.untung-card span,
+.profit-card span {
+
+  color:
+    #166534;
+}
+
+.stok span,
+.stok-card span {
+
+  color:
+    #9a3412;
+}
+
+.jumlah-barang span,
+.barang-count span,
+.jenis-barang span {
+
+  color:
+    #5b21b6;
+}
+
+.total-stok span,
+.total-stok-card span {
+
+  color:
+    #854d0e;
+}
+
+
+/* =========================================================
+   AKHIR STYLE
+   ========================================================= */
