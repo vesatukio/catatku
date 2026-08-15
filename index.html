@@ -297,19 +297,40 @@
 </label>
     
 
+<label>
+  Jenis Transaksi
 
-    <label>
+  <select
+    name="jenis"
+    id="jenisTransaksi"
+    onchange="ubahKategori()"
+    required
+  >
+    <option value="masuk">
+      💰 Uang Masuk
+    </option>
 
-      Kategori
+    <option value="keluar">
+      💸 Uang Keluar
+    </option>
+  </select>
+</label>
 
-      <input
-        type="text"
-        name="kategori"
-        placeholder="Contoh: Penjualan"
-        autocomplete="off"
-      >
 
-    </label>
+<label>
+  Kategori
+
+  <select
+    name="kategori"
+    id="kategoriTransaksi"
+    required
+  >
+    <option value="">
+      Pilih kategori
+    </option>
+  </select>
+</label>
+    
 
 
     <label>
@@ -2350,7 +2371,94 @@ setInterval(
 
 })();
 </script>
+<script>
 
+function ubahKategori() {
+
+  const jenis =
+    document.getElementById(
+      "jenisTransaksi"
+    ).value;
+
+  const kategori =
+    document.getElementById(
+      "kategoriTransaksi"
+    );
+
+
+  if (jenis === "masuk") {
+
+    kategori.innerHTML = `
+
+      <option value="">
+        Pilih kategori pemasukan
+      </option>
+
+      <option value="Penjualan">
+        Penjualan
+      </option>
+
+      <option value="Modal">
+        Tambahan Modal
+      </option>
+
+      <option value="Piutang">
+        Pembayaran Piutang
+      </option>
+
+      <option value="Lainnya">
+        Pemasukan Lainnya
+      </option>
+
+    `;
+
+  } else {
+
+    kategori.innerHTML = `
+
+      <option value="">
+        Pilih kategori pengeluaran
+      </option>
+
+      <option value="Belanja Barang">
+        Belanja Barang
+      </option>
+
+      <option value="Operasional">
+        Operasional
+      </option>
+
+      <option value="Bayar Hutang">
+        Bayar Hutang
+      </option>
+
+      <option value="Pribadi">
+        Pengeluaran Pribadi
+      </option>
+
+      <option value="Lainnya">
+        Pengeluaran Lainnya
+      </option>
+
+    `;
+
+  }
+
+}
+
+
+/* kategori awal */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    ubahKategori();
+
+  }
+);
+
+</script>
 
 </body>
 
