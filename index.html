@@ -262,26 +262,41 @@
     </label>
 
 
-    <label>
+    <label class="jenis-transaksi-label">
 
-      Jenis
+  Jenis Transaksi
 
-      <select
-        name="jenis"
-        required
-      >
+  <div class="jenis-transaksi">
 
-        <option value="masuk">
-          Uang Masuk
-        </option>
+    <button
+      type="button"
+      class="jenis-btn masuk active"
+      data-jenis="masuk"
+    >
+      <span>💰</span>
+      Uang Masuk
+    </button>
 
-        <option value="keluar">
-          Uang Keluar
-        </option>
+    <button
+      type="button"
+      class="jenis-btn keluar"
+      data-jenis="keluar"
+    >
+      <span>💸</span>
+      Uang Keluar
+    </button>
 
-      </select>
+  </div>
 
-    </label>
+  <!-- Nilai tetap dikirim sebagai "masuk" / "keluar" -->
+  <input
+    type="hidden"
+    name="jenis"
+    value="masuk"
+    id="jenisTransaksi"
+  >
+
+</label>
 
 
     <label>
@@ -2229,7 +2244,67 @@ setInterval(
   },
   60000
 );
+/* =====================================================
+   TOMBOL UANG MASUK / KELUAR
+   ===================================================== */
 
+(function () {
+
+  const buttons =
+    document.querySelectorAll(
+      ".jenis-btn"
+    );
+
+  const input =
+    document.getElementById(
+      "jenisTransaksi"
+    );
+
+
+  buttons.forEach(
+    function (button) {
+
+      button.addEventListener(
+        "click",
+        function () {
+
+          const jenis =
+            button.dataset.jenis;
+
+
+          if (!jenis || !input) {
+            return;
+          }
+
+
+          /* nilai yang dikirim ke app.js */
+          input.value =
+            jenis;
+
+
+          /* aktifkan tombol */
+          buttons.forEach(
+            function (item) {
+
+              item.classList.remove(
+                "active"
+              );
+
+            }
+          );
+
+
+          button.classList.add(
+            "active"
+          );
+
+        }
+      );
+
+    }
+  );
+
+})();
 </script>
 
 
