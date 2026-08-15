@@ -3642,3 +3642,113 @@ window.CatatKu = {
     }
 
 };
+async function cekDatabaseCatatKu() {
+
+  console.log("=== CEK DATABASE CATATKU ===");
+
+  try {
+
+    if (!window.indexedDB) {
+      alert("❌ IndexedDB TIDAK TERSEDIA");
+      return;
+    }
+
+    let daftar = [];
+
+    if (indexedDB.databases) {
+      daftar = await indexedDB.databases();
+    }
+
+    console.log("Semua database:", daftar);
+
+    const ditemukan =
+      daftar.find(
+        x => x.name === DB_NAME
+      );
+
+    if (!ditemukan) {
+
+      alert(
+        "❌ Database belum ditemukan\n\n" +
+        "Nama: " + DB_NAME
+      );
+
+      return;
+    }
+
+    let hasil =
+      "DATABASE DITEMUKAN\n\n" +
+      "Nama: " + ditemukan.name + "\n" +
+      "Versi: " + ditemukan.version + "\n\n";
+
+    const request =
+      indexedDB.open(
+        DB_NAME
+      );
+
+    request.onsuccess =
+      function(event) {
+
+        const database =
+          event.target.result;
+
+        hasil +=
+          "Object Store:\n";
+
+        for (
+          const store
+          of database.objectStoreNames
+        ) {
+
+          hasil +=
+            "✓ " + store + "\n";
+
+        }
+
+        hasil +=
+          "\nJumlah Store: " +
+          database.objectStoreNames.length;
+
+        console.log(hasil);
+
+        alert(hasil);
+
+        database.close();
+
+      };
+
+    request.onerror =
+      function(event) {
+
+        const error =
+          event.target.error;
+
+        alert(
+          "❌ DATABASE GAGAL DIBUKA\n\n" +
+          error.name +
+          "\n" +
+          error.message
+        );
+
+        console.error(
+          "Database error:",
+          error
+        );
+
+      };
+
+  }
+  catch (error) {
+
+    alert(
+      "❌ ERROR CEK DATABASE\n\n" +
+      error.name +
+      "\n" +
+      error.message
+    );
+
+    console.error(error);
+
+  }
+
+}
