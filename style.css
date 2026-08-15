@@ -2000,3 +2000,240 @@ section,
   overflow-x:
     hidden;
 }
+/* =========================================================
+   DASHBOARD - WARNA KARTU BERBEDA
+   MOBILE HP
+   ========================================================= */
+
+.summary-grid .card {
+  min-height: 115px;
+  padding: 17px;
+  border: 1px solid transparent;
+}
+
+
+/* =========================================================
+   UANG MASUK
+   HIJAU
+   ========================================================= */
+
+.summary-income {
+  background: #dcfce7 !important;
+  border-color: #86efac !important;
+}
+
+.summary-income span {
+  color: #166534 !important;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.summary-income strong {
+  color: #14532d !important;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   UANG KELUAR
+   MERAH
+   ========================================================= */
+
+.summary-expense {
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+}
+
+.summary-expense span {
+  color: #991b1b !important;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.summary-expense strong {
+  color: #7f1d1d !important;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   OMZET
+   BIRU
+   ========================================================= */
+
+.summary-omzet {
+  background: #dbeafe !important;
+  border-color: #93c5fd !important;
+}
+
+.summary-omzet span {
+  color: #1e40af !important;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.summary-omzet strong {
+  color: #1e3a8a !important;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   UNTUNG
+   HIJAU MUDA
+   ========================================================= */
+
+.summary-profit {
+  background: #bbf7d0 !important;
+  border-color: #4ade80 !important;
+}
+
+.summary-profit span {
+  color: #166534 !important;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.summary-profit strong {
+  color: #14532d !important;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   NILAI STOK
+   ORANYE
+   ========================================================= */
+
+.summary-stock-value {
+  background: #ffedd5 !important;
+  border-color: #fdba74 !important;
+}
+
+.summary-stock-value span {
+  color: #9a3412 !important;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.summary-stock-value strong {
+  color: #7c2d12 !important;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   JENIS BARANG
+   UNGU
+   ========================================================= */
+
+.summary-products {
+  background: #ede9fe !important;
+  border-color: #c4b5fd !important;
+}
+
+.summary-products span {
+  color: #6d28d9 !important;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.summary-products strong {
+  color: #4c1d95 !important;
+  font-size: 25px;
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   TOTAL STOK
+   KUNING
+   ========================================================= */
+
+.summary-stock-total {
+  background: #fef3c7 !important;
+  border-color: #fcd34d !important;
+}
+
+.summary-stock-total span {
+  color: #92400e !important;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.summary-stock-total strong {
+  color: #78350f !important;
+  font-size: 25px;
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   HP - PERBESAR LAGI
+   ========================================================= */
+
+@media (max-width: 599px) {
+
+  .summary-grid {
+    gap: 11px;
+  }
+
+  .summary-grid .card {
+    min-height: 125px;
+    padding: 17px 15px;
+    border-radius: 18px;
+  }
+
+  .summary-grid .card span {
+    font-size: 14px;
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+
+  .summary-grid .card strong {
+    font-size: 21px;
+    line-height: 1.2;
+  }
+
+  .summary-grid .summary-products strong,
+  .summary-grid .summary-stock-total strong {
+    font-size: 27px;
+  }
+
+}
+
+
+/* =========================================================
+   HP KECIL
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+  .summary-grid {
+    gap: 9px;
+  }
+
+  .summary-grid .card {
+    min-height: 118px;
+    padding: 14px 12px;
+  }
+
+  .summary-grid .card span {
+    font-size: 13px;
+  }
+
+  .summary-grid .card strong {
+    font-size: 19px;
+  }
+
+  .summary-grid .summary-products strong,
+  .summary-grid .summary-stock-total strong {
+    font-size: 24px;
+  }
+
+}
