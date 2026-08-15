@@ -3833,6 +3833,11 @@ async function renderTransaksi(
    RENDER PENJUALAN
    ========================================================= */
 
+/* =========================================================
+   RENDER PENJUALAN
+   + TOMBOL CETAK NOTA
+   ========================================================= */
+
 async function renderPenjualan(
   containerId
 ) {
@@ -3870,26 +3875,22 @@ async function renderPenjualan(
 
         return `
 
-          <div class="penjualan-item">
+          <div
+            class="penjualan-item"
+            data-id="${escapeHTML(item.id)}"
+          >
 
             <div>
 
               <strong>
+
                 ${escapeHTML(
                   item.namaBarang
                 )}
+
               </strong>
 
               <small>
-
-                ${
-                  item.nomorNota
-                    ? escapeHTML(
-                        item.nomorNota
-                      ) +
-                      " · "
-                    : ""
-                }
 
                 ${escapeHTML(
                   item.tanggal
@@ -3900,34 +3901,56 @@ async function renderPenjualan(
                 ${number(
                   item.qty
                 )}
+
                 pcs
 
               </small>
 
             </div>
 
+
             <div>
 
               <strong>
+
                 ${rupiah(
                   item.omzet
                 )}
+
               </strong>
 
               <small>
 
                 Untung:
+
                 ${rupiah(
                   item.untung
                 )}
 
               </small>
 
+            </div>
+
+
+            <div
+              style="
+                margin-top:8px;
+              "
+            >
+
               <button
                 type="button"
-                onclick="CatatKu.cetakNota('${escapeHTML(item.id)}')"
+                class="btn-cetak-nota"
+                onclick="
+                  cetakNota(
+                    '${String(item.id)
+                      .replace(/'/g, "\\'")}'
+                  )
+                "
               >
-                🧾 Nota
+
+                🧾 Cetak Nota
+
               </button>
 
             </div>
@@ -3940,7 +3963,438 @@ async function renderPenjualan(
     ).join("");
 
 }
+/* =========================================================
+   CETAK NOTA PENJUALAN
+   ========================================================= */
 
+async function cetakNota(penjualanId) {
+
+  try {
+
+    if (!penjualanId) {
+      showToast("ID penjualan tidak ditemukan");
+      return;
+    }
+
+    const penjualan = await dbGet(
+      STORES.penjualan,
+      penjualanId
+    );
+
+    if (!penjualan) {
+      showToast("Data penjualan tidak ditemukan");
+      return;
+    }
+
+    const qty =
+      number(penjualan.qty);
+
+    const hargaJual =
+      number(penjualan.hargaJual);
+
+    const omzet =
+      number(penjualan.omzet);
+
+    const untung =
+      number(penjualan.untung);
+
+    const modal =
+      number(penjualan.modal);
+
+    const nomorNota =
+      penjualan.id || uid("NOTA");
+
+    const tanggal =
+      penjualan.tanggal || today();
+
+    const waktu =
+      penjualan.createdAt
+        ? new Date(
+            penjualan.createdAt
+          ).toLocaleString(
+            "id-ID"
+          )
+        : tanggal;
+
+
+    const html = `
+
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
+<title>Nota ${escapeHTML(nomorNota)}</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+
+  margin: 0;
+
+  padding: 15px;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  background: #fff;
+
+  color: #111;
+
+}
+
+.nota {
+
+  width: 80mm;
+
+  max-width: 100%;
+
+  margin: 0 auto;
+
+}
+
+.header {
+
+  text-align: center;
+
+  margin-bottom: 12px;
+
+}
+
+.nama-toko {
+
+  font-size: 20px;
+
+  font-weight: 700;
+
+}
+
+.subjudul {
+
+  font-size: 12px;
+
+  margin-top: 3px;
+
+}
+
+.garis {
+
+  border-top:
+    1px dashed #000;
+
+  margin:
+    10px 0;
+
+}
+
+.info {
+
+  font-size: 12px;
+
+  line-height: 1.6;
+
+}
+
+.item {
+
+  margin-top: 10px;
+
+}
+
+.nama-barang {
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+}
+
+.detail {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  font-size: 12px;
+
+  margin-top: 4px;
+
+}
+
+.total {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  font-size: 16px;
+
+  font-weight: 700;
+
+  margin-top: 8px;
+
+}
+
+.terima {
+
+  text-align: center;
+
+  margin-top: 15px;
+
+  font-size: 12px;
+
+}
+
+.tombol {
+
+  text-align: center;
+
+  margin-top: 20px;
+
+}
+
+button {
+
+  border: 0;
+
+  padding:
+    10px 18px;
+
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+}
+
+@media print {
+
+  @page {
+
+    size: 80mm auto;
+
+    margin: 3mm;
+
+  }
+
+  body {
+
+    padding: 0;
+
+  }
+
+  .nota {
+
+    width: 100%;
+
+  }
+
+  .tombol {
+
+    display: none;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="nota">
+
+  <div class="header">
+
+    <div class="nama-toko">
+      CATATKU
+    </div>
+
+    <div class="subjudul">
+      Nota Penjualan
+    </div>
+
+  </div>
+
+
+  <div class="garis"></div>
+
+
+  <div class="info">
+
+    <div>
+      No: ${escapeHTML(nomorNota)}
+    </div>
+
+    <div>
+      Tanggal: ${escapeHTML(tanggal)}
+    </div>
+
+    <div>
+      Waktu: ${escapeHTML(waktu)}
+    </div>
+
+  </div>
+
+
+  <div class="garis"></div>
+
+
+  <div class="item">
+
+    <div class="nama-barang">
+
+      ${escapeHTML(
+        penjualan.namaBarang ||
+        "Barang"
+      )}
+
+    </div>
+
+
+    <div class="detail">
+
+      <span>
+        ${qty} x ${rupiah(hargaJual)}
+      </span>
+
+      <span>
+        ${rupiah(omzet)}
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div class="garis"></div>
+
+
+  <div class="total">
+
+    <span>
+      TOTAL
+    </span>
+
+    <span>
+      ${rupiah(omzet)}
+    </span>
+
+  </div>
+
+
+  <div class="garis"></div>
+
+
+  <div class="terima">
+
+    Terima kasih
+
+    <br>
+
+    atas pembelian Anda.
+
+  </div>
+
+
+  <div class="tombol">
+
+    <button
+      onclick="window.print()"
+    >
+      🖨 Cetak Nota
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+window.onload = function() {
+
+  setTimeout(
+    function() {
+
+      window.print();
+
+    },
+    300
+  );
+
+};
+
+</script>
+
+</body>
+
+</html>
+
+`;
+
+
+    const printWindow =
+      window.open(
+        "",
+        "_blank",
+        "width=420,height=700"
+      );
+
+
+    if (!printWindow) {
+
+      showToast(
+        "Popup diblokir Chrome. Izinkan popup untuk mencetak nota."
+      );
+
+      return;
+
+    }
+
+
+    printWindow.document.open();
+
+    printWindow.document.write(
+      html
+    );
+
+    printWindow.document.close();
+
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Cetak nota:",
+      error
+    );
+
+    showToast(
+      "Gagal mencetak nota: " +
+      error.message
+    );
+
+  }
+
+}
 
 /* =========================================================
    TOAST
@@ -5231,9 +5685,17 @@ window.CatatKu = {
     getQueueCount,
 
   cetakNota:
-    cetakNotaById
+    cetakNota
 
 };
+
+
+/* =========================================================
+   GLOBAL CETAK NOTA
+   ========================================================= */
+
+window.cetakNota =
+  cetakNota;
 
 
 /* =========================================================
