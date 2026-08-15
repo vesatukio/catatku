@@ -2237,3 +2237,118 @@ section,
   }
 
 }
+/* =========================================================
+   TOMBOL JENIS TRANSAKSI
+   ========================================================= */
+
+.jenis-transaksi-label {
+  gap: 8px !important;
+}
+
+.jenis-transaksi {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+
+/* TOMBOL */
+
+.jenis-btn {
+  min-height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  border-radius: 15px;
+
+  font-size: 15px;
+  font-weight: 800;
+
+  border: 2px solid transparent;
+
+  background: #f8fafc;
+
+  transition:
+    transform .12s ease,
+    background .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease;
+}
+
+.jenis-btn span {
+  font-size: 21px;
+}
+
+
+/* =========================================================
+   UANG MASUK
+   ========================================================= */
+
+.jenis-btn.masuk {
+  color: #166534;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.jenis-btn.masuk.active {
+  color: #14532d;
+  background: #dcfce7;
+  border-color: #22c55e;
+
+  box-shadow:
+    0 4px 12px
+    rgba(22, 163, 74, .18);
+}
+
+
+/* =========================================================
+   UANG KELUAR
+   ========================================================= */
+
+.jenis-btn.keluar {
+  color: #991b1b;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.jenis-btn.keluar.active {
+  color: #7f1d1d;
+  background: #fee2e2;
+  border-color: #ef4444;
+
+  box-shadow:
+    0 4px 12px
+    rgba(220, 38, 38, .18);
+}
+
+
+/* =========================================================
+   TEKAN HP
+   ========================================================= */
+
+.jenis-btn:active {
+  transform: scale(.97);
+}
+
+
+/* =========================================================
+   HP
+   ========================================================= */
+
+@media (max-width: 599px) {
+
+  .jenis-btn {
+    min-height: 62px;
+    font-size: 16px;
+  }
+
+  .jenis-btn span {
+    font-size: 23px;
+  }
+
+}
