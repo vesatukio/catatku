@@ -1,6 +1,6 @@
 /* =========================================================
    CATATKU
-   app.js
+   app.js - FINAL SYNC
    =========================================================
 
    DATABASE UTAMA
@@ -22,6 +22,7 @@
    - Manual sync
    - Dashboard
    - Auto repair IndexedDB
+   - Chrome HP
    ========================================================= */
 
 "use strict";
@@ -233,10 +234,6 @@ function escapeHTML(value) {
 
 function openDB() {
 
-  /* -------------------------------------------------------
-     Jika database sudah terbuka
-     ------------------------------------------------------- */
-
   if (
     db &&
     db.objectStoreNames
@@ -248,10 +245,6 @@ function openDB() {
 
   }
 
-
-  /* -------------------------------------------------------
-     Jika sedang proses membuka database
-     ------------------------------------------------------- */
 
   if (dbPromise) {
 
@@ -283,6 +276,7 @@ function openDB() {
 
         let request;
 
+
         try {
 
           request =
@@ -304,9 +298,9 @@ function openDB() {
         }
 
 
-        /* -------------------------------------------------
+        /* =================================================
            UPGRADE DATABASE
-           ------------------------------------------------- */
+           ================================================= */
 
         request.onupgradeneeded =
           function(event) {
@@ -445,9 +439,9 @@ function openDB() {
           };
 
 
-        /* -------------------------------------------------
+        /* =================================================
            DATABASE BERHASIL DIBUKA
-           ------------------------------------------------- */
+           ================================================= */
 
         request.onsuccess =
           function(event) {
@@ -479,6 +473,16 @@ function openDB() {
               };
 
 
+            db.onclose =
+              function() {
+
+                db = null;
+
+                dbPromise = null;
+
+              };
+
+
             resolve(
               db
             );
@@ -486,9 +490,9 @@ function openDB() {
           };
 
 
-        /* -------------------------------------------------
+        /* =================================================
            ERROR
-           ------------------------------------------------- */
+           ================================================= */
 
         request.onerror =
           function() {
@@ -507,15 +511,15 @@ function openDB() {
           };
 
 
-        /* -------------------------------------------------
+        /* =================================================
            BLOCKED
-           ------------------------------------------------- */
+           ================================================= */
 
         request.onblocked =
           function() {
 
             console.warn(
-              "IndexedDB sedang diblokir. Tutup tab CatatKu lain."
+              "IndexedDB diblokir. Tutup tab CatatKu lain."
             );
 
           };
@@ -530,7 +534,7 @@ function openDB() {
 
 
 /* =========================================================
-   CEK STORE
+   CEK DATABASE
    ========================================================= */
 
 async function ensureDB() {
@@ -539,9 +543,7 @@ async function ensureDB() {
     await openDB();
 
 
-  if (
-    !database
-  ) {
+  if (!database) {
 
     throw new Error(
       "Database lokal belum siap"
@@ -599,10 +601,6 @@ async function dbPut(
   };
 
 
-  /* -------------------------------------------------------
-     Pastikan ID ada
-     ------------------------------------------------------- */
-
   if (
     item.id === undefined ||
     item.id === null ||
@@ -631,6 +629,7 @@ async function dbPut(
     function(resolve, reject) {
 
       let transaction;
+
 
       try {
 
@@ -730,10 +729,25 @@ async function dbGet(
     await ensureDB();
 
 
+  if (
+    !database.objectStoreNames.contains(
+      storeName
+    )
+  ) {
+
+    throw new Error(
+      "Object store tidak ditemukan: " +
+      storeName
+    );
+
+  }
+
+
   return new Promise(
     function(resolve, reject) {
 
       let transaction;
+
 
       try {
 
@@ -826,6 +840,7 @@ async function dbGetAll(
 
       let transaction;
 
+
       try {
 
         transaction =
@@ -905,6 +920,7 @@ async function dbDelete(
 
       let transaction;
 
+
       try {
 
         transaction =
@@ -939,9 +955,7 @@ async function dbDelete(
       request.onsuccess =
         function() {
 
-          resolve(
-            true
-          );
+          resolve(true);
 
         };
 
@@ -1001,9 +1015,7 @@ async function dbClear(
         request.onsuccess =
           function() {
 
-            resolve(
-              true
-            );
+            resolve(true);
 
           };
 
@@ -1040,12 +1052,22 @@ async function queueAdd(
   data
 ) {
 
-  if (
-    !type
-  ) {
+  if (!type) {
 
     throw new Error(
       "Tipe queue kosong"
+    );
+
+  }
+
+
+  if (
+    !data ||
+    typeof data !== "object"
+  ) {
+
+    throw new Error(
+      "Data queue tidak valid"
     );
 
   }
@@ -1119,9 +1141,7 @@ async function postGAS(
   data
 ) {
 
-  if (
-    !GAS_URL
-  ) {
+  if (!GAS_URL) {
 
     throw new Error(
       "GAS_URL belum diisi"
@@ -1160,9 +1180,7 @@ async function postGAS(
     );
 
 
-  if (
-    !response.ok
-  ) {
+  if (!response.ok) {
 
     throw new Error(
       "HTTP " +
@@ -1204,11 +1222,15 @@ async function postGAS(
 
   if (
     result &&
-    result.success === false
+    (
+      result.success === false ||
+      result.ok === false
+    )
   ) {
 
     throw new Error(
       result.error ||
+      result.message ||
       "Google Apps Script gagal"
     );
 
@@ -1254,9 +1276,7 @@ async function getGAS(
     );
 
 
-  if (
-    !response.ok
-  ) {
+  if (!response.ok) {
 
     throw new Error(
       "HTTP " +
@@ -1298,11 +1318,15 @@ async function getGAS(
 
   if (
     result &&
-    result.success === false
+    (
+      result.success === false ||
+      result.ok === false
+    )
   ) {
 
     throw new Error(
       result.error ||
+      result.message ||
       "Google Apps Script gagal"
     );
 
@@ -1320,7 +1344,7 @@ async function getGAS(
 
 
 /* =========================================================
-   TEST GOOGLE APPS SCRIPT
+   TEST GAS
    ========================================================= */
 
 async function testGAS() {
@@ -1448,9 +1472,7 @@ function updateOnlineStatus() {
       }
 
 
-      if (
-        APP_STATE.online
-      ) {
+      if (APP_STATE.online) {
 
         el.textContent =
           "ONLINE";
@@ -1474,9 +1496,7 @@ function updateOnlineStatus() {
   );
 
 
-  if (
-    APP_STATE.online
-  ) {
+  if (APP_STATE.online) {
 
     setDatabaseStatus(
       "checking",
@@ -1488,9 +1508,7 @@ function updateOnlineStatus() {
       .then(
         function(ok) {
 
-          if (
-            ok
-          ) {
+          if (ok) {
 
             syncQueue();
 
@@ -1527,7 +1545,7 @@ function updateOnlineStatus() {
 
 
 /* =========================================================
-   EVENT ONLINE / OFFLINE
+   ONLINE / OFFLINE
    ========================================================= */
 
 window.addEventListener(
@@ -1589,9 +1607,7 @@ async function updateSyncStatus() {
         }
 
 
-        if (
-          APP_STATE.syncing
-        ) {
+        if (APP_STATE.syncing) {
 
           el.textContent =
             "⟳ Sinkronisasi...";
@@ -1604,9 +1620,7 @@ async function updateSyncStatus() {
         }
 
 
-        if (
-          count === 0
-        ) {
+        if (count === 0) {
 
           el.textContent =
             "✓ Tersinkron";
@@ -1715,19 +1729,11 @@ async function saveTransaksi(
   }
 
 
-  /* -------------------------------------------------------
-     SIMPAN LOKAL
-     ------------------------------------------------------- */
-
   await dbPut(
     STORES.transaksi,
     transaksi
   );
 
-
-  /* -------------------------------------------------------
-     MASUK QUEUE
-     ------------------------------------------------------- */
 
   await queueAdd(
     "transaksi",
@@ -1735,13 +1741,7 @@ async function saveTransaksi(
   );
 
 
-  /* -------------------------------------------------------
-     COBA SYNC
-     ------------------------------------------------------- */
-
-  if (
-    navigator.onLine
-  ) {
+  if (navigator.onLine) {
 
     await syncQueue();
 
@@ -1759,8 +1759,9 @@ async function saveTransaksi(
 
 
 /* =========================================================
-   SIMPAN BARANG
+   GENERATE KODE BARANG
    ========================================================= */
+
 async function generateLocalKodeBarang() {
 
   const semuaBarang =
@@ -1768,39 +1769,69 @@ async function generateLocalKodeBarang() {
       STORES.barang
     );
 
-  let nomorTerbesar = 0;
 
-  semuaBarang.forEach(function(item) {
+  let nomorTerbesar =
+    0;
 
-    const kode =
-      String(item.kode || "")
-        .trim()
-        .toUpperCase();
 
-    const match =
-      kode.match(/^BRG-(\d+)$/);
+  semuaBarang.forEach(
+    function(item) {
 
-    if (match) {
+      const kode =
+        String(
+          item.kode || ""
+        )
+          .trim()
+          .toUpperCase();
 
-      const nomor =
-        Number(match[1]);
 
-      if (nomor > nomorTerbesar) {
-        nomorTerbesar = nomor;
+      const match =
+        kode.match(
+          /^BRG-(\d+)$/
+        );
+
+
+      if (match) {
+
+        const nomor =
+          Number(
+            match[1]
+          );
+
+
+        if (
+          nomor >
+          nomorTerbesar
+        ) {
+
+          nomorTerbesar =
+            nomor;
+
+        }
+
       }
 
     }
+  );
 
-  });
 
   return (
     "BRG-" +
     String(
       nomorTerbesar + 1
-    ).padStart(4, "0")
+    ).padStart(
+      4,
+      "0"
+    )
   );
 
 }
+
+
+/* =========================================================
+   SIMPAN BARANG
+   ========================================================= */
+
 async function saveBarang(
   data = {}
 ) {
@@ -1862,9 +1893,7 @@ async function saveBarang(
   };
 
 
-  if (
-    !barang.nama
-  ) {
+  if (!barang.nama) {
 
     throw new Error(
       "Nama barang wajib diisi"
@@ -1873,19 +1902,11 @@ async function saveBarang(
   }
 
 
-  /* -------------------------------------------------------
-     SIMPAN LOKAL DULU
-     ------------------------------------------------------- */
-
   await dbPut(
     STORES.barang,
     barang
   );
 
-
-  /* -------------------------------------------------------
-     QUEUE
-     ------------------------------------------------------- */
 
   await queueAdd(
     "barang",
@@ -1893,13 +1914,7 @@ async function saveBarang(
   );
 
 
-  /* -------------------------------------------------------
-     SYNC JIKA ONLINE
-     ------------------------------------------------------- */
-
-  if (
-    navigator.onLine
-  ) {
+  if (navigator.onLine) {
 
     await syncQueue();
 
@@ -1931,9 +1946,7 @@ async function savePenjualan(
     );
 
 
-  if (
-    !barang
-  ) {
+  if (!barang) {
 
     throw new Error(
       "Barang tidak ditemukan"
@@ -1948,9 +1961,7 @@ async function savePenjualan(
     );
 
 
-  if (
-    qty <= 0
-  ) {
+  if (qty <= 0) {
 
     throw new Error(
       "Jumlah penjualan tidak valid"
@@ -2047,10 +2058,6 @@ async function savePenjualan(
   };
 
 
-  /* -------------------------------------------------------
-     UPDATE BARANG
-     ------------------------------------------------------- */
-
   const barangBaru = {
 
     ...barang,
@@ -2085,10 +2092,6 @@ async function savePenjualan(
   };
 
 
-  /* -------------------------------------------------------
-     SIMPAN LOKAL
-     ------------------------------------------------------- */
-
   await dbPut(
     STORES.penjualan,
     penjualan
@@ -2101,23 +2104,13 @@ async function savePenjualan(
   );
 
 
-  /* -------------------------------------------------------
-     QUEUE
-     ------------------------------------------------------- */
-
   await queueAdd(
     "penjualan",
     penjualan
   );
 
 
-  /* -------------------------------------------------------
-     SYNC
-     ------------------------------------------------------- */
-
-  if (
-    navigator.onLine
-  ) {
+  if (navigator.onLine) {
 
     await syncQueue();
 
@@ -2142,7 +2135,21 @@ async function syncQueueItem(
   item
 ) {
 
-  let result;
+  if (
+    !item ||
+    !item.type ||
+    !item.data
+  ) {
+
+    throw new Error(
+      "Data queue tidak valid"
+    );
+
+  }
+
+
+  let action =
+    "";
 
 
   switch (
@@ -2151,33 +2158,24 @@ async function syncQueueItem(
 
     case "transaksi":
 
-      result =
-        await postGAS(
-          "tambahTransaksi",
-          item.data
-        );
+      action =
+        "tambahTransaksi";
 
       break;
 
 
     case "barang":
 
-      result =
-        await postGAS(
-          "tambahBarang",
-          item.data
-        );
+      action =
+        "tambahBarang";
 
       break;
 
 
     case "penjualan":
 
-      result =
-        await postGAS(
-          "tambahPenjualan",
-          item.data
-        );
+      action =
+        "tambahPenjualan";
 
       break;
 
@@ -2192,14 +2190,25 @@ async function syncQueueItem(
   }
 
 
+  const result =
+    await postGAS(
+      action,
+      item.data
+    );
+
+
   if (
-    !result ||
-    result.success !== true
+    result &&
+    (
+      result.success === false ||
+      result.ok === false
+    )
   ) {
 
     throw new Error(
-      result?.error ||
-      "GAS tidak mengembalikan status sukses"
+      result.error ||
+      result.message ||
+      "Google Apps Script gagal"
     );
 
   }
@@ -2216,18 +2225,14 @@ async function syncQueueItem(
 
 async function syncQueue() {
 
-  if (
-    APP_STATE.syncing
-  ) {
+  if (APP_STATE.syncing) {
 
     return;
 
   }
 
 
-  if (
-    !navigator.onLine
-  ) {
+  if (!navigator.onLine) {
 
     return;
 
@@ -2250,6 +2255,7 @@ async function syncQueue() {
 
 
     if (
+      !Array.isArray(queue) ||
       queue.length === 0
     ) {
 
@@ -2258,20 +2264,14 @@ async function syncQueue() {
     }
 
 
-    /* -----------------------------------------------------
-       Urutkan dari yang paling lama
-       ----------------------------------------------------- */
-
     queue.sort(
       function(a, b) {
 
         return String(
-          a.createdAt ||
-          ""
+          a.createdAt || ""
         ).localeCompare(
           String(
-            b.createdAt ||
-            ""
+            b.createdAt || ""
           )
         );
 
@@ -2280,16 +2280,25 @@ async function syncQueue() {
 
 
     for (
-      const item of queue
+      const item
+      of queue
     ) {
 
-      if (
-        !navigator.onLine
-      ) {
+      if (!navigator.onLine) {
 
         break;
 
       }
+
+
+      item.attempts =
+        number(
+          item.attempts
+        ) + 1;
+
+
+      item.lastAttempt =
+        nowISO();
 
 
       try {
@@ -2299,10 +2308,6 @@ async function syncQueue() {
         );
 
 
-        /* -----------------------------------------------
-           BERHASIL
-           ----------------------------------------------- */
-
         await dbDelete(
           STORES.queue,
           item.id
@@ -2310,27 +2315,14 @@ async function syncQueue() {
 
 
         console.log(
-          "Sync berhasil:",
+          "SYNC BERHASIL:",
           item.type,
-          item.id
+          item.data?.id
         );
 
       }
 
       catch (error) {
-
-        console.warn(
-          "Sync gagal:",
-          item,
-          error
-        );
-
-
-        item.attempts =
-          number(
-            item.attempts
-          ) + 1;
-
 
         item.lastError =
           error?.message ||
@@ -2339,20 +2331,18 @@ async function syncQueue() {
           );
 
 
-        item.lastAttempt =
-          nowISO();
-
-
         await dbPut(
           STORES.queue,
           item
         );
 
 
-        /*
-         * Hentikan sementara.
-         * Queue tetap aman di IndexedDB.
-         */
+        console.warn(
+          "SYNC GAGAL:",
+          item.type,
+          error
+        );
+
 
         break;
 
@@ -2365,7 +2355,7 @@ async function syncQueue() {
   catch (error) {
 
     console.error(
-      "SYNC ERROR:",
+      "SYNC QUEUE ERROR:",
       error
     );
 
@@ -2390,9 +2380,7 @@ async function syncQueue() {
 
 async function downloadData() {
 
-  if (
-    !navigator.onLine
-  ) {
+  if (!navigator.onLine) {
 
     throw new Error(
       "Tidak ada internet"
@@ -2423,9 +2411,44 @@ async function downloadData() {
     result.data;
 
 
-  /* -------------------------------------------------------
+  /*
+   * DATA YANG MASIH MENUNGGU SYNC
+   */
+
+  const queue =
+    await dbGetAll(
+      STORES.queue
+    );
+
+
+  const pendingIds =
+    new Set();
+
+
+  queue.forEach(
+    function(item) {
+
+      if (
+        item &&
+        item.data &&
+        item.data.id
+      ) {
+
+        pendingIds.add(
+          String(
+            item.data.id
+          )
+        );
+
+      }
+
+    }
+  );
+
+
+  /* =======================================================
      TRANSAKSI
-     ------------------------------------------------------- */
+     ======================================================= */
 
   if (
     Array.isArray(
@@ -2439,25 +2462,41 @@ async function downloadData() {
     ) {
 
       if (
-        item &&
-        item.id
+        !item ||
+        !item.id
       ) {
 
-        await dbPut(
-          STORES.transaksi,
-          item
-        );
+        continue;
 
       }
+
+
+      if (
+        pendingIds.has(
+          String(
+            item.id
+          )
+        )
+      ) {
+
+        continue;
+
+      }
+
+
+      await dbPut(
+        STORES.transaksi,
+        item
+      );
 
     }
 
   }
 
 
-  /* -------------------------------------------------------
+  /* =======================================================
      BARANG
-     ------------------------------------------------------- */
+     ======================================================= */
 
   if (
     Array.isArray(
@@ -2471,25 +2510,41 @@ async function downloadData() {
     ) {
 
       if (
-        item &&
-        item.id
+        !item ||
+        !item.id
       ) {
 
-        await dbPut(
-          STORES.barang,
-          item
-        );
+        continue;
 
       }
+
+
+      if (
+        pendingIds.has(
+          String(
+            item.id
+          )
+        )
+      ) {
+
+        continue;
+
+      }
+
+
+      await dbPut(
+        STORES.barang,
+        item
+      );
 
     }
 
   }
 
 
-  /* -------------------------------------------------------
+  /* =======================================================
      PENJUALAN
-     ------------------------------------------------------- */
+     ======================================================= */
 
   if (
     Array.isArray(
@@ -2503,16 +2558,32 @@ async function downloadData() {
     ) {
 
       if (
-        item &&
-        item.id
+        !item ||
+        !item.id
       ) {
 
-        await dbPut(
-          STORES.penjualan,
-          item
-        );
+        continue;
 
       }
+
+
+      if (
+        pendingIds.has(
+          String(
+            item.id
+          )
+        )
+      ) {
+
+        continue;
+
+      }
+
+
+      await dbPut(
+        STORES.penjualan,
+        item
+      );
 
     }
 
@@ -2520,7 +2591,7 @@ async function downloadData() {
 
 
   console.log(
-    "Data Google Sheets berhasil diambil"
+    "DATA SERVER BERHASIL DISINKRONKAN"
   );
 
 
@@ -2578,10 +2649,6 @@ async function getLocalDashboard() {
     0;
 
 
-  /* -------------------------------------------------------
-     TRANSAKSI
-     ------------------------------------------------------- */
-
   transaksi.forEach(
     function(item) {
 
@@ -2616,10 +2683,6 @@ async function getLocalDashboard() {
   );
 
 
-  /* -------------------------------------------------------
-     PENJUALAN
-     ------------------------------------------------------- */
-
   penjualan.forEach(
     function(item) {
 
@@ -2641,10 +2704,6 @@ async function getLocalDashboard() {
     }
   );
 
-
-  /* -------------------------------------------------------
-     STOK
-     ------------------------------------------------------- */
 
   barang.forEach(
     function(item) {
@@ -2836,9 +2895,7 @@ function setText(
     );
 
 
-  if (
-    el
-  ) {
+  if (el) {
 
     el.textContent =
       value;
@@ -2956,9 +3013,7 @@ async function renderBarang(
     );
 
 
-  if (
-    !container
-  ) {
+  if (!container) {
 
     return;
 
@@ -2969,9 +3024,7 @@ async function renderBarang(
     await loadBarang();
 
 
-  if (
-    barang.length === 0
-  ) {
+  if (barang.length === 0) {
 
     container.innerHTML =
       "<p>Belum ada barang.</p>";
@@ -3075,9 +3128,7 @@ async function renderTransaksi(
     );
 
 
-  if (
-    !container
-  ) {
+  if (!container) {
 
     return;
 
@@ -3088,9 +3139,7 @@ async function renderTransaksi(
     await loadTransaksi();
 
 
-  if (
-    data.length === 0
-  ) {
+  if (data.length === 0) {
 
     container.innerHTML =
       "<p>Belum ada transaksi.</p>";
@@ -3173,9 +3222,7 @@ async function renderPenjualan(
     );
 
 
-  if (
-    !container
-  ) {
+  if (!container) {
 
     return;
 
@@ -3186,9 +3233,7 @@ async function renderPenjualan(
     await loadPenjualan();
 
 
-  if (
-    data.length === 0
-  ) {
+  if (data.length === 0) {
 
     container.innerHTML =
       "<p>Belum ada penjualan.</p>";
@@ -3268,9 +3313,7 @@ function showToast(
     );
 
 
-  if (
-    !toast
-  ) {
+  if (!toast) {
 
     toast =
       document.createElement(
@@ -3330,9 +3373,7 @@ function initTransaksiForm() {
     );
 
 
-  if (
-    !form
-  ) {
+  if (!form) {
 
     return;
 
@@ -3449,9 +3490,7 @@ function initBarangForm() {
     );
 
 
-  if (
-    !form
-  ) {
+  if (!form) {
 
     return;
 
@@ -3571,9 +3610,7 @@ function initPenjualanForm() {
     );
 
 
-  if (
-    !form
-  ) {
+  if (!form) {
 
     return;
 
@@ -3691,9 +3728,7 @@ async function fillBarangSelect(
     );
 
 
-  if (
-    !select
-  ) {
+  if (!select) {
 
     return;
 
@@ -3830,9 +3865,7 @@ function initBarangSelect() {
 
 async function manualSync() {
 
-  if (
-    !navigator.onLine
-  ) {
+  if (!navigator.onLine) {
 
     showToast(
       "Tidak ada internet"
@@ -3843,9 +3876,7 @@ async function manualSync() {
   }
 
 
-  if (
-    APP_STATE.syncing
-  ) {
+  if (APP_STATE.syncing) {
 
     showToast(
       "Sinkronisasi sedang berjalan"
@@ -3856,30 +3887,45 @@ async function manualSync() {
   }
 
 
-  showToast(
-    "Sinkronisasi..."
-  );
-
-
   try {
 
-    /* -----------------------------------------------
-       1. KIRIM DATA LOKAL
-       ----------------------------------------------- */
+    showToast(
+      "Sinkronisasi..."
+    );
+
+
+    /*
+     * 1. KIRIM DATA LOKAL
+     */
 
     await syncQueue();
 
 
-    /* -----------------------------------------------
-       2. AMBIL DATA SERVER
-       ----------------------------------------------- */
+    /*
+     * 2. CEK QUEUE
+     */
 
-    await downloadData();
+    const queueCount =
+      await getQueueCount();
 
 
-    /* -----------------------------------------------
-       3. REFRESH UI
-       ----------------------------------------------- */
+    /*
+     * 3. DOWNLOAD SERVER
+     * HANYA JIKA QUEUE SUDAH HABIS
+     */
+
+    if (
+      queueCount === 0
+    ) {
+
+      await downloadData();
+
+    }
+
+
+    /*
+     * 4. REFRESH UI
+     */
 
     await loadDashboard();
 
@@ -3904,16 +3950,36 @@ async function manualSync() {
     );
 
 
-    showToast(
-      "Sinkronisasi selesai"
-    );
+    await updateSyncStatus();
+
+
+    const sisa =
+      await getQueueCount();
+
+
+    if (sisa === 0) {
+
+      showToast(
+        "✓ Semua data sudah sinkron"
+      );
+
+    }
+
+    else {
+
+      showToast(
+        sisa +
+        " data masih menunggu sync"
+      );
+
+    }
 
   }
 
   catch (error) {
 
     console.error(
-      "Manual sync:",
+      "MANUAL SYNC ERROR:",
       error
     );
 
@@ -3936,21 +4002,41 @@ async function refreshApp() {
 
   try {
 
-    if (
-      navigator.onLine
-    ) {
+    if (navigator.onLine) {
+
+      /*
+       * 1. KIRIM DATA LOKAL
+       */
 
       await syncQueue();
 
 
       /*
-       * Download setelah queue dikirim
+       * 2. CEK QUEUE
        */
 
-      await downloadData();
+      const queueCount =
+        await getQueueCount();
+
+
+      /*
+       * 3. DOWNLOAD SERVER
+       */
+
+      if (
+        queueCount === 0
+      ) {
+
+        await downloadData();
+
+      }
 
     }
 
+
+    /*
+     * REFRESH LOKAL
+     */
 
     await loadDashboard();
 
@@ -3974,12 +4060,20 @@ async function refreshApp() {
       "barangId"
     );
 
+
+    await updateSyncStatus();
+
+
+    console.log(
+      "APP BERHASIL DIREFRESH"
+    );
+
   }
 
   catch (error) {
 
     console.error(
-      "Refresh:",
+      "REFRESH ERROR:",
       error
     );
 
@@ -4014,9 +4108,9 @@ async function initApp() {
 
   try {
 
-    /* -----------------------------------------------------
-       1. BUKA DATABASE
-       ----------------------------------------------------- */
+    /*
+     * 1. BUKA DATABASE
+     */
 
     await openDB();
 
@@ -4027,16 +4121,16 @@ async function initApp() {
     );
 
 
-    /* -----------------------------------------------------
-       2. STATUS ONLINE
-       ----------------------------------------------------- */
+    /*
+     * 2. STATUS ONLINE
+     */
 
     updateOnlineStatus();
 
 
-    /* -----------------------------------------------------
-       3. FORM
-       ----------------------------------------------------- */
+    /*
+     * 3. FORM
+     */
 
     initTransaksiForm();
 
@@ -4047,9 +4141,9 @@ async function initApp() {
     initBarangSelect();
 
 
-    /* -----------------------------------------------------
-       4. LOAD LOKAL DULU
-       ----------------------------------------------------- */
+    /*
+     * 4. LOAD LOKAL DAHULU
+     */
 
     await loadDashboard();
 
@@ -4074,38 +4168,49 @@ async function initApp() {
     );
 
 
-    /* -----------------------------------------------------
-       5. JIKA ONLINE
-       ----------------------------------------------------- */
+    /*
+     * 5. ONLINE
+     */
 
-    if (
-      navigator.onLine
-    ) {
+    if (navigator.onLine) {
 
       const connected =
         await testGAS();
 
 
-      if (
-        connected
-      ) {
+      if (connected) {
 
         /*
-         * Kirim queue dahulu
+         * KIRIM QUEUE LOKAL DAHULU
          */
 
         await syncQueue();
 
 
         /*
-         * Baru ambil data server
+         * CEK QUEUE
          */
 
-        await downloadData();
+        const queueCount =
+          await getQueueCount();
 
 
         /*
-         * Refresh tampilan
+         * DOWNLOAD SERVER
+         * HANYA SETELAH QUEUE SELESAI
+         */
+
+        if (
+          queueCount === 0
+        ) {
+
+          await downloadData();
+
+        }
+
+
+        /*
+         * REFRESH TAMPILAN
          */
 
         await loadDashboard();
