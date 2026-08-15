@@ -2352,3 +2352,132 @@ section,
   }
 
 }
+/* =========================================================
+   JENIS TRANSAKSI - TOMBOL HP
+   ========================================================= */
+
+.jenis-transaksi-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jenis-transaksi {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+
+/* SEMUA TOMBOL */
+
+.jenis-btn {
+  width: 100%;
+  min-height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  border-radius: 16px;
+
+  font-size: 16px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform .12s ease,
+    background .15s ease,
+    border .15s ease,
+    box-shadow .15s ease;
+}
+
+.jenis-btn span {
+  font-size: 24px;
+}
+
+.jenis-btn:active {
+  transform: scale(.96);
+}
+
+
+/* =========================================================
+   UANG MASUK - NORMAL
+   ========================================================= */
+
+.jenis-btn.masuk {
+  background: #f0fdf4;
+  color: #166534;
+
+  border: 2px solid #bbf7d0;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   UANG MASUK - TERPILIH
+   ========================================================= */
+
+.jenis-btn.masuk.selected {
+  background: #22c55e !important;
+  color: #ffffff !important;
+
+  border: 3px solid #15803d !important;
+
+  box-shadow:
+    0 5px 15px
+    rgba(22, 163, 74, .30) !important;
+}
+
+
+/* =========================================================
+   UANG KELUAR - NORMAL
+   ========================================================= */
+
+.jenis-btn.keluar {
+  background: #fef2f2;
+  color: #991b1b;
+
+  border: 2px solid #fecaca;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   UANG KELUAR - TERPILIH
+   ========================================================= */
+
+.jenis-btn.keluar.selected {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+
+  border: 3px solid #b91c1c !important;
+
+  box-shadow:
+    0 5px 15px
+    rgba(220, 38, 38, .30) !important;
+}
+
+
+/* =========================================================
+   HP
+   ========================================================= */
+
+@media (max-width: 599px) {
+
+  .jenis-btn {
+    min-height: 68px;
+    font-size: 16px;
+  }
+
+  .jenis-btn span {
+    font-size: 25px;
+  }
+
+}
