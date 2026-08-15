@@ -588,7 +588,6 @@
 <!-- =====================================================
      PENJUALAN
      ===================================================== -->
-
 <section
   id="penjualan"
   class="page"
@@ -613,7 +612,6 @@
     id="penjualanForm"
     class="form-card"
   >
-
 
     <label>
 
@@ -647,12 +645,62 @@
     </label>
 
 
+    <!-- INFORMASI BARANG -->
+
+    <div
+      id="infoBarangPenjualan"
+      class="info-barang-penjualan"
+      style="display:none;"
+    >
+
+      <div>
+
+        <small>Nama Barang</small>
+
+        <strong
+          id="namaBarangPenjualan"
+        >
+          -
+        </strong>
+
+      </div>
+
+
+      <div>
+
+        <small>Harga Jual</small>
+
+        <strong
+          id="hargaBarangPenjualan"
+        >
+          Rp0
+        </strong>
+
+      </div>
+
+
+      <div>
+
+        <small>Stok</small>
+
+        <strong
+          id="stokBarangPenjualan"
+        >
+          0
+        </strong>
+
+      </div>
+
+    </div>
+
+
     <label>
 
       Jumlah
 
       <input
         type="number"
+        id="qtyPenjualan"
         name="qty"
         min="1"
         inputmode="numeric"
@@ -663,19 +711,22 @@
     </label>
 
 
-    <label>
+    <!-- TOTAL -->
 
-      Harga Jual
+    <div
+      id="totalPenjualan"
+      class="total-penjualan"
+    >
 
-      <input
-        type="number"
-        name="hargaJual"
-        min="0"
-        inputmode="numeric"
-        placeholder="Otomatis dari barang"
-      >
+      <span>
+        Total
+      </span>
 
-    </label>
+      <strong>
+        Rp0
+      </strong>
+
+    </div>
 
 
     <button
