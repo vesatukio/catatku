@@ -1,6 +1,6 @@
 /* =========================================================
    CATATKU
-   app.js - FINAL SYNC
+   app.js - FINAL SYNC + NOTA
    =========================================================
 
    DATABASE UTAMA
@@ -23,6 +23,8 @@
    - Dashboard
    - Auto repair IndexedDB
    - Chrome HP
+   - Nomor nota otomatis
+   - Cetak nota
    ========================================================= */
 
 "use strict";
@@ -116,6 +118,81 @@ function uid(prefix = "ID") {
 }
 
 
+/* =========================================================
+   NOMOR NOTA
+   ========================================================= */
+
+function generateNomorNota() {
+
+  const d =
+    new Date();
+
+  const tanggal =
+    d.getFullYear() +
+    String(
+      d.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    ) +
+    String(
+      d.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const jam =
+    String(
+      d.getHours()
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const menit =
+    String(
+      d.getMinutes()
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const detik =
+    String(
+      d.getSeconds()
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const random =
+    Math.floor(
+      Math.random() * 1000
+    )
+      .toString()
+      .padStart(
+        3,
+        "0"
+      );
+
+  return (
+    "NOTA-" +
+    tanggal +
+    "-" +
+    jam +
+    menit +
+    detik +
+    random
+  );
+
+}
+
+
+/* =========================================================
+   NUMBER
+   ========================================================= */
+
 function number(value) {
 
   if (
@@ -131,7 +208,10 @@ function number(value) {
   const n =
     Number(
       String(value)
-        .replace(/[^\d.-]/g, "")
+        .replace(
+          /[^\d.-]/g,
+          ""
+        )
     );
 
   return Number.isFinite(n)
@@ -140,6 +220,10 @@ function number(value) {
 
 }
 
+
+/* =========================================================
+   RUPIAH
+   ========================================================= */
 
 function rupiah(value) {
 
@@ -162,6 +246,10 @@ function rupiah(value) {
 }
 
 
+/* =========================================================
+   TODAY
+   ========================================================= */
+
 function today() {
 
   const d =
@@ -173,12 +261,18 @@ function today() {
   const bulan =
     String(
       d.getMonth() + 1
-    ).padStart(2, "0");
+    ).padStart(
+      2,
+      "0"
+    );
 
   const tanggal =
     String(
       d.getDate()
-    ).padStart(2, "0");
+    ).padStart(
+      2,
+      "0"
+    );
 
   return (
     tahun +
@@ -191,6 +285,10 @@ function today() {
 }
 
 
+/* =========================================================
+   NOW ISO
+   ========================================================= */
+
 function nowISO() {
 
   return new Date()
@@ -198,6 +296,10 @@ function nowISO() {
 
 }
 
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
 
 function escapeHTML(value) {
 
@@ -1996,9 +2098,10 @@ async function savePenjualan(
 
 
   const hargaJual =
-  number(
-    barang.hargaJual
-  );
+    number(
+      barang.hargaJual
+    );
+
 
   const omzet =
     qty *
@@ -2015,15 +2118,35 @@ async function savePenjualan(
     modal;
 
 
+  /* =======================================================
+     DATA PENJUALAN + NOTA
+     ======================================================= */
+
   const penjualan = {
 
     id:
       data.id ||
       uid("JUAL"),
 
+    nomorNota:
+      data.nomorNota ||
+      generateNomorNota(),
+
     tanggal:
       data.tanggal ||
       today(),
+
+    jam:
+      new Date().toLocaleTimeString(
+        "id-ID",
+        {
+          hour:
+            "2-digit",
+
+          minute:
+            "2-digit"
+        }
+      ),
 
     barangId:
       barang.id,
@@ -2089,6 +2212,10 @@ async function savePenjualan(
   };
 
 
+  /* =======================================================
+     SIMPAN LOKAL
+     ======================================================= */
+
   await dbPut(
     STORES.penjualan,
     penjualan
@@ -2101,11 +2228,19 @@ async function savePenjualan(
   );
 
 
+  /* =======================================================
+     MASUK QUEUE
+     ======================================================= */
+
   await queueAdd(
     "penjualan",
     penjualan
   );
 
+
+  /* =======================================================
+     AUTO SYNC
+     ======================================================= */
 
   if (navigator.onLine) {
 
@@ -2115,11 +2250,500 @@ async function savePenjualan(
 
 
   showToast(
-    "Penjualan tersimpan"
+    "Penjualan tersimpan • " +
+    penjualan.nomorNota
   );
 
 
   return penjualan;
+
+}
+
+
+/* =========================================================
+   CETAK NOTA
+   ========================================================= */
+
+function cetakNota(
+  penjualan
+) {
+
+  if (!penjualan) {
+
+    showToast(
+      "Data nota tidak ditemukan"
+    );
+
+    return;
+
+  }
+
+
+  const nomorNota =
+    penjualan.nomorNota ||
+    "-";
+
+
+  const tanggal =
+    penjualan.tanggal ||
+    today();
+
+
+  const jam =
+    penjualan.jam ||
+    new Date().toLocaleTimeString(
+      "id-ID",
+      {
+        hour:
+          "2-digit",
+
+        minute:
+          "2-digit"
+      }
+    );
+
+
+  const namaBarang =
+    penjualan.namaBarang ||
+    "Barang";
+
+
+  const qty =
+    number(
+      penjualan.qty
+    );
+
+
+  const harga =
+    number(
+      penjualan.hargaJual
+    );
+
+
+  const total =
+    number(
+      penjualan.omzet
+    );
+
+
+  const html = `
+
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
+<title>
+  ${escapeHTML(nomorNota)}
+</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+
+  margin: 0;
+
+  padding: 10px;
+
+  background: #fff;
+
+  color: #000;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+}
+
+.nota {
+
+  width: 100%;
+
+  max-width: 380px;
+
+  margin: auto;
+
+}
+
+.header {
+
+  text-align: center;
+
+  margin-bottom: 12px;
+
+}
+
+.nama-toko {
+
+  font-size: 22px;
+
+  font-weight: 700;
+
+}
+
+.alamat {
+
+  font-size: 12px;
+
+  margin-top: 3px;
+
+}
+
+hr {
+
+  border: 0;
+
+  border-top:
+    1px dashed #000;
+
+  margin:
+    10px 0;
+
+}
+
+.info {
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+}
+
+.row {
+
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  gap: 10px;
+
+}
+
+.item {
+
+  margin-top: 12px;
+
+}
+
+.item-nama {
+
+  font-weight: 700;
+
+  font-size: 14px;
+
+}
+
+.detail {
+
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  font-size: 13px;
+
+  margin-top: 5px;
+
+}
+
+.total {
+
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  margin-top: 10px;
+
+}
+
+.footer {
+
+  text-align: center;
+
+  font-size: 12px;
+
+  margin-top: 20px;
+
+}
+
+.tombol {
+
+  display: block;
+
+  width: 100%;
+
+  padding: 12px;
+
+  margin-top: 20px;
+
+  background: #2563eb;
+
+  color: white;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  font-size: 16px;
+
+}
+
+@media print {
+
+  body {
+
+    padding: 0;
+
+  }
+
+  .tombol {
+
+    display: none;
+
+  }
+
+  .nota {
+
+    max-width: none;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="nota">
+
+  <div class="header">
+
+    <div class="nama-toko">
+      CATATKU
+    </div>
+
+    <div class="alamat">
+      Keuangan & Penjualan
+    </div>
+
+  </div>
+
+  <hr>
+
+  <div class="info">
+
+    <div class="row">
+
+      <span>
+        No. Nota
+      </span>
+
+      <strong>
+        ${escapeHTML(nomorNota)}
+      </strong>
+
+    </div>
+
+    <div class="row">
+
+      <span>
+        Tanggal
+      </span>
+
+      <span>
+        ${escapeHTML(tanggal)}
+      </span>
+
+    </div>
+
+    <div class="row">
+
+      <span>
+        Jam
+      </span>
+
+      <span>
+        ${escapeHTML(jam)}
+      </span>
+
+    </div>
+
+  </div>
+
+  <hr>
+
+  <div class="item">
+
+    <div class="item-nama">
+
+      ${escapeHTML(namaBarang)}
+
+    </div>
+
+    <div class="detail">
+
+      <span>
+        ${qty} x ${rupiah(harga)}
+      </span>
+
+      <strong>
+        ${rupiah(total)}
+      </strong>
+
+    </div>
+
+  </div>
+
+  <hr>
+
+  <div class="total">
+
+    <span>
+      TOTAL
+    </span>
+
+    <span>
+      ${rupiah(total)}
+    </span>
+
+  </div>
+
+  <div class="footer">
+
+    Terima kasih
+
+    <br>
+
+    Barang yang sudah dibeli
+    tidak dapat dikembalikan
+    kecuali sesuai ketentuan toko.
+
+  </div>
+
+  <button
+    class="tombol"
+    onclick="window.print()"
+  >
+    🖨️ CETAK NOTA
+  </button>
+
+</div>
+
+</body>
+
+</html>
+
+`;
+
+
+  const win =
+    window.open(
+      "",
+      "_blank",
+      "width=450,height=700"
+    );
+
+
+  if (!win) {
+
+    showToast(
+      "Popup diblokir browser. Izinkan popup untuk CatatKu."
+    );
+
+    return;
+
+  }
+
+
+  win.document.open();
+
+  win.document.write(
+    html
+  );
+
+  win.document.close();
+
+}
+
+
+/* =========================================================
+   CETAK NOTA BERDASARKAN ID
+   ========================================================= */
+
+async function cetakNotaById(
+  id
+) {
+
+  if (!id) {
+
+    showToast(
+      "ID penjualan tidak ditemukan"
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    const penjualan =
+      await dbGet(
+        STORES.penjualan,
+        id
+      );
+
+
+    if (!penjualan) {
+
+      showToast(
+        "Data penjualan tidak ditemukan"
+      );
+
+      return;
+
+    }
+
+
+    cetakNota(
+      penjualan
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Cetak nota:",
+      error
+    );
+
+    showToast(
+      error.message
+    );
+
+  }
 
 }
 
@@ -2408,9 +3032,9 @@ async function downloadData() {
     result.data;
 
 
-  /*
-   * DATA YANG MASIH MENUNGGU SYNC
-   */
+  /* =======================================================
+     DATA YANG MASIH MENUNGGU SYNC
+     ======================================================= */
 
   const queue =
     await dbGetAll(
@@ -3257,14 +3881,27 @@ async function renderPenjualan(
               </strong>
 
               <small>
+
+                ${
+                  item.nomorNota
+                    ? escapeHTML(
+                        item.nomorNota
+                      ) +
+                      " · "
+                    : ""
+                }
+
                 ${escapeHTML(
                   item.tanggal
                 )}
+
                 ·
+
                 ${number(
                   item.qty
                 )}
                 pcs
+
               </small>
 
             </div>
@@ -3278,11 +3915,20 @@ async function renderPenjualan(
               </strong>
 
               <small>
+
                 Untung:
                 ${rupiah(
                   item.untung
                 )}
+
               </small>
+
+              <button
+                type="button"
+                onclick="CatatKu.cetakNota('${escapeHTML(item.id)}')"
+              >
+                🧾 Nota
+              </button>
 
             </div>
 
@@ -3643,25 +4289,30 @@ function initPenjualanForm() {
           );
 
 
-        await savePenjualan({
+        /* =================================================
+           SIMPAN PENJUALAN
+           ================================================= */
 
-  tanggal:
-    formData.get(
-      "tanggal"
-    ) ||
-    today(),
+        const penjualan =
+          await savePenjualan({
 
-  barangId:
-    formData.get(
-      "barangId"
-    ),
+            tanggal:
+              formData.get(
+                "tanggal"
+              ) ||
+              today(),
 
-  qty:
-    formData.get(
-      "qty"
-    )
+            barangId:
+              formData.get(
+                "barangId"
+              ),
 
-});
+            qty:
+              formData.get(
+                "qty"
+              )
+
+          });
 
 
         form.reset();
@@ -3682,6 +4333,22 @@ function initPenjualanForm() {
 
         await fillBarangSelect(
           "barangId"
+        );
+
+
+        /* =================================================
+           BUKA NOTA
+           ================================================= */
+
+        setTimeout(
+          function() {
+
+            cetakNota(
+              penjualan
+            );
+
+          },
+          300
         );
 
       }
@@ -3871,17 +4538,17 @@ function initBarangSelect() {
     );
 
 
-  /*
-   * DATA BARANG YANG DIPILIH
-   */
+  /* =================================================
+     DATA BARANG
+     ================================================= */
 
   let barangTerpilih =
     null;
 
 
-  /*
-   * HITUNG TOTAL
-   */
+  /* =================================================
+     HITUNG TOTAL
+     ================================================= */
 
   function hitungTotal() {
 
@@ -3925,9 +4592,9 @@ function initBarangSelect() {
   }
 
 
-  /*
-   * SAAT PILIH BARANG
-   */
+  /* =================================================
+     SAAT PILIH BARANG
+     ================================================= */
 
   select.addEventListener(
     "change",
@@ -3961,6 +4628,7 @@ function initBarangSelect() {
 
         hitungTotal();
 
+
         return;
 
       }
@@ -3984,18 +4652,10 @@ function initBarangSelect() {
         }
 
 
-        /*
-         * TAMPILKAN NAMA
-         */
-
         nama.textContent =
           barangTerpilih.nama ||
           "-";
 
-
-        /*
-         * TAMPILKAN HARGA
-         */
 
         harga.textContent =
           rupiah(
@@ -4003,27 +4663,15 @@ function initBarangSelect() {
           );
 
 
-        /*
-         * TAMPILKAN STOK
-         */
-
         stok.textContent =
           number(
             barangTerpilih.stok
           );
 
 
-        /*
-         * TAMPILKAN INFO
-         */
-
         info.style.display =
           "grid";
 
-
-        /*
-         * HITUNG TOTAL
-         */
 
         hitungTotal();
 
@@ -4055,9 +4703,9 @@ function initBarangSelect() {
   );
 
 
-  /*
-   * SAAT JUMLAH DIKETIK
-   */
+  /* =================================================
+     SAAT JUMLAH DIKETIK
+     ================================================= */
 
   qty.addEventListener(
     "input",
@@ -4069,9 +4717,9 @@ function initBarangSelect() {
   );
 
 
-  /*
-   * SAAT FORM RESET
-   */
+  /* =================================================
+     SAAT FORM RESET
+     ================================================= */
 
   const form =
     document.getElementById(
@@ -4125,13 +4773,15 @@ function initBarangSelect() {
   }
 
 
-  /*
-   * TOTAL AWAL
-   */
+  /* =================================================
+     TOTAL AWAL
+     ================================================= */
 
   hitungTotal();
 
 }
+
+
 /* =========================================================
    MANUAL SYNC
    ========================================================= */
@@ -4167,25 +4817,25 @@ async function manualSync() {
     );
 
 
-    /*
-     * 1. KIRIM DATA LOKAL
-     */
+    /* =================================================
+       1. KIRIM DATA LOKAL
+       ================================================= */
 
     await syncQueue();
 
 
-    /*
-     * 2. CEK QUEUE
-     */
+    /* =================================================
+       2. CEK QUEUE
+       ================================================= */
 
     const queueCount =
       await getQueueCount();
 
 
-    /*
-     * 3. DOWNLOAD SERVER
-     * HANYA JIKA QUEUE SUDAH HABIS
-     */
+    /* =================================================
+       3. DOWNLOAD SERVER
+       HANYA JIKA QUEUE HABIS
+       ================================================= */
 
     if (
       queueCount === 0
@@ -4196,9 +4846,9 @@ async function manualSync() {
     }
 
 
-    /*
-     * 4. REFRESH UI
-     */
+    /* =================================================
+       4. REFRESH UI
+       ================================================= */
 
     await loadDashboard();
 
@@ -4277,24 +4927,24 @@ async function refreshApp() {
 
     if (navigator.onLine) {
 
-      /*
-       * 1. KIRIM DATA LOKAL
-       */
+      /* =================================================
+         1. KIRIM DATA LOKAL
+         ================================================= */
 
       await syncQueue();
 
 
-      /*
-       * 2. CEK QUEUE
-       */
+      /* =================================================
+         2. CEK QUEUE
+         ================================================= */
 
       const queueCount =
         await getQueueCount();
 
 
-      /*
-       * 3. DOWNLOAD SERVER
-       */
+      /* =================================================
+         3. DOWNLOAD SERVER
+         ================================================= */
 
       if (
         queueCount === 0
@@ -4307,9 +4957,9 @@ async function refreshApp() {
     }
 
 
-    /*
-     * REFRESH LOKAL
-     */
+    /* =================================================
+       REFRESH LOKAL
+       ================================================= */
 
     await loadDashboard();
 
@@ -4381,9 +5031,9 @@ async function initApp() {
 
   try {
 
-    /*
-     * 1. BUKA DATABASE
-     */
+    /* =================================================
+       1. BUKA DATABASE
+       ================================================= */
 
     await openDB();
 
@@ -4394,16 +5044,16 @@ async function initApp() {
     );
 
 
-    /*
-     * 2. STATUS ONLINE
-     */
+    /* =================================================
+       2. STATUS ONLINE
+       ================================================= */
 
     updateOnlineStatus();
 
 
-    /*
-     * 3. FORM
-     */
+    /* =================================================
+       3. FORM
+       ================================================= */
 
     initTransaksiForm();
 
@@ -4414,9 +5064,9 @@ async function initApp() {
     initBarangSelect();
 
 
-    /*
-     * 4. LOAD LOKAL DAHULU
-     */
+    /* =================================================
+       4. LOAD LOKAL DAHULU
+       ================================================= */
 
     await loadDashboard();
 
@@ -4441,9 +5091,9 @@ async function initApp() {
     );
 
 
-    /*
-     * 5. ONLINE
-     */
+    /* =================================================
+       5. ONLINE
+       ================================================= */
 
     if (navigator.onLine) {
 
@@ -4453,25 +5103,25 @@ async function initApp() {
 
       if (connected) {
 
-        /*
-         * KIRIM QUEUE LOKAL DAHULU
-         */
+        /* =============================================
+           KIRIM QUEUE LOKAL DAHULU
+           ============================================= */
 
         await syncQueue();
 
 
-        /*
-         * CEK QUEUE
-         */
+        /* =============================================
+           CEK QUEUE
+           ============================================= */
 
         const queueCount =
           await getQueueCount();
 
 
-        /*
-         * DOWNLOAD SERVER
-         * HANYA SETELAH QUEUE SELESAI
-         */
+        /* =============================================
+           DOWNLOAD SERVER
+           HANYA SETELAH QUEUE SELESAI
+           ============================================= */
 
         if (
           queueCount === 0
@@ -4482,9 +5132,9 @@ async function initApp() {
         }
 
 
-        /*
-         * REFRESH TAMPILAN
-         */
+        /* =============================================
+           REFRESH TAMPILAN
+           ============================================= */
 
         await loadDashboard();
 
@@ -4578,7 +5228,10 @@ window.CatatKu = {
     downloadData,
 
   getQueueCount:
-    getQueueCount
+    getQueueCount,
+
+  cetakNota:
+    cetakNotaById
 
 };
 
