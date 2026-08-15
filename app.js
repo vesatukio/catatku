@@ -1,3 +1,55 @@
+window.addEventListener("load", async () => {
+  const hasil = document.createElement("div");
+
+  hasil.style.cssText = `
+    position:fixed;
+    top:10px;
+    left:10px;
+    right:10px;
+    z-index:999999;
+    padding:20px;
+    background:#111;
+    color:#fff;
+    font-size:18px;
+    border-radius:12px;
+  `;
+
+  try {
+    if (!window.indexedDB) {
+      hasil.textContent = "❌ IndexedDB TIDAK TERSEDIA";
+    } else {
+      const request = indexedDB.open("CatatKuTest", 1);
+
+      request.onsuccess = () => {
+        hasil.textContent = "✅ IndexedDB BERHASIL DIBUKA";
+        document.body.appendChild(hasil);
+      };
+
+      request.onerror = () => {
+        hasil.textContent =
+          "❌ IndexedDB ERROR: " +
+          request.error;
+
+        document.body.appendChild(hasil);
+      };
+
+      request.onupgradeneeded = () => {
+        hasil.textContent =
+          "🔄 IndexedDB sedang membuat database...";
+
+        document.body.appendChild(hasil);
+      };
+
+      return;
+    }
+  } catch (e) {
+    hasil.textContent =
+      "❌ ERROR: " + e.message;
+  }
+
+  document.body.appendChild(hasil);
+});
+
 /* =========================================================
    CATATKU
    APP.JS FINAL - CHROME HP
