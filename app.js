@@ -3798,7 +3798,8 @@ async function fillBarangSelect(
 
 
 /* =========================================================
-   AUTO HARGA JUAL + TOTAL PENJUALAN
+   SELECT BARANG PENJUALAN
+   NAMA + HARGA + STOK + TOTAL
    ========================================================= */
 
 function initBarangSelect() {
@@ -3808,125 +3809,61 @@ function initBarangSelect() {
       "barangId"
     );
 
-  if (!select) {
-    return;
-  }
 
-
-  const form =
+  const qty =
     document.getElementById(
-      "penjualanForm"
+      "qtyPenjualan"
+    );
+
+
+  const nama =
+    document.getElementById(
+      "namaBarangPenjualan"
     );
 
 
   const harga =
-    form
-      ? form.querySelector(
-          '[name="hargaJual"]'
-        )
-      : document.querySelector(
-          '[name="hargaJual"]'
-        );
+    document.getElementById(
+      "hargaBarangPenjualan"
+    );
 
 
-  const qty =
-    form
-      ? form.querySelector(
-          '[name="qty"]'
-        )
-      : document.querySelector(
-          '[name="qty"]'
-        );
+  const stok =
+    document.getElementById(
+      "stokBarangPenjualan"
+    );
 
 
-  if (!qty) {
+  const info =
+    document.getElementById(
+      "infoBarangPenjualan"
+    );
+
+
+  const total =
+    document.getElementById(
+      "totalPenjualan"
+    );
+
+
+  if (
+    !select ||
+    !qty ||
+    !nama ||
+    !harga ||
+    !stok ||
+    !info ||
+    !total
+  ) {
 
     console.warn(
-      "Input qty penjualan tidak ditemukan"
+      "Form penjualan belum lengkap"
     );
 
     return;
 
   }
 
-
-  /*
-   * CARI / BUAT TAMPILAN TOTAL
-   */
-
-  let total =
-    form
-      ? form.querySelector(
-          '[name="totalPenjualan"]'
-        )
-      : document.querySelector(
-          '[name="totalPenjualan"]'
-        );
-
-
-  /*
-   * Kalau elemen total belum ada
-   * otomatis dibuat oleh JS
-   */
-
-  if (!total) {
-
-    total =
-      document.createElement(
-        "div"
-      );
-
-
-    total.className =
-      "total-penjualan";
-
-
-    total.setAttribute(
-      "name",
-      "totalPenjualan"
-    );
-
-
-    total.id =
-      "totalPenjualan";
-
-
-    total.innerHTML =
-      `
-        <span>Total</span>
-        <strong>Rp0</strong>
-      `;
-
-
-    /*
-     * Letakkan setelah input jumlah
-     */
-
-    if (
-      qty.parentElement
-    ) {
-
-      qty.parentElement
-        .appendChild(
-          total
-        );
-
-    }
-
-    else if (form) {
-
-      form.appendChild(
-        total
-      );
-
-    }
-
-  }
-
-
-  /*
-   * AMBIL ELEMEN ANGKA TOTAL
-   */
 
   const totalValue =
     total.querySelector(
@@ -3935,55 +3872,18 @@ function initBarangSelect() {
 
 
   /*
-   * FUNGSI HITUNG TOTAL
+   * DATA BARANG YANG DIPILIH
+   */
+
+  let barangTerpilih =
+    null;
+
+
+  /*
+   * HITUNG TOTAL
    */
 
   function hitungTotal() {
-
-    const option =
-      select.options[
-        select.selectedIndex
-      ];
-
-
-    let hargaJual =
-      0;
-
-
-    /*
-     * Harga dari barang yang dipilih
-     */
-
-    if (
-      option &&
-      option.dataset.harga
-    ) {
-
-      hargaJual =
-        number(
-          option.dataset.harga
-        );
-
-    }
-
-
-    /*
-     * Jika input harga sudah ada
-     * dan nilainya valid, gunakan
-     */
-
-    if (
-      hargaJual <= 0 &&
-      harga
-    ) {
-
-      hargaJual =
-        number(
-          harga.value
-        );
-
-    }
-
 
     const jumlah =
       number(
@@ -3991,28 +3891,18 @@ function initBarangSelect() {
       );
 
 
+    const hargaJual =
+      barangTerpilih
+        ? number(
+            barangTerpilih.hargaJual
+          )
+        : 0;
+
+
     const hasil =
-      hargaJual *
-      jumlah;
+      jumlah *
+      hargaJual;
 
-
-    /*
-     * Tampilkan harga
-     */
-
-    if (harga) {
-
-      harga.value =
-        hargaJual > 0
-          ? hargaJual
-          : "";
-
-    }
-
-
-    /*
-     * Tampilkan TOTAL
-     */
 
     if (totalValue) {
 
@@ -4023,11 +3913,6 @@ function initBarangSelect() {
 
     }
 
-
-    /*
-     * Simpan total sebagai
-     * value kalau dibutuhkan form
-     */
 
     total.dataset.value =
       String(
@@ -4046,47 +3931,125 @@ function initBarangSelect() {
 
   select.addEventListener(
     "change",
-    function() {
+    async function() {
 
-      const option =
-        select.options[
-          select.selectedIndex
-        ];
+      const barangId =
+        select.value;
 
 
-      if (
-        option &&
-        option.dataset.harga
-      ) {
+      if (!barangId) {
 
-        if (harga) {
+        barangTerpilih =
+          null;
 
-          harga.value =
-            number(
-              option.dataset.harga
-            );
 
-        }
+        info.style.display =
+          "none";
+
+
+        nama.textContent =
+          "-";
+
+
+        harga.textContent =
+          "Rp0";
+
+
+        stok.textContent =
+          "0";
+
+
+        hitungTotal();
+
+        return;
 
       }
 
-      else {
 
-        if (harga) {
+      try {
 
-          harga.value =
-            "";
+        barangTerpilih =
+          await dbGet(
+            STORES.barang,
+            barangId
+          );
+
+
+        if (!barangTerpilih) {
+
+          throw new Error(
+            "Data barang tidak ditemukan"
+          );
 
         }
 
+
+        /*
+         * TAMPILKAN NAMA
+         */
+
+        nama.textContent =
+          barangTerpilih.nama ||
+          "-";
+
+
+        /*
+         * TAMPILKAN HARGA
+         */
+
+        harga.textContent =
+          rupiah(
+            barangTerpilih.hargaJual
+          );
+
+
+        /*
+         * TAMPILKAN STOK
+         */
+
+        stok.textContent =
+          number(
+            barangTerpilih.stok
+          );
+
+
+        /*
+         * TAMPILKAN INFO
+         */
+
+        info.style.display =
+          "grid";
+
+
+        /*
+         * HITUNG TOTAL
+         */
+
+        hitungTotal();
+
       }
 
+      catch (error) {
 
-      /*
-       * Hitung ulang total
-       */
+        console.error(
+          "Pilih barang:",
+          error
+        );
 
-      hitungTotal();
+
+        barangTerpilih =
+          null;
+
+
+        info.style.display =
+          "none";
+
+
+        showToast(
+          error.message
+        );
+
+      }
 
     }
   );
@@ -4107,16 +4070,54 @@ function initBarangSelect() {
 
 
   /*
-   * SAAT HARGA BERUBAH
+   * SAAT FORM RESET
    */
 
-  if (harga) {
+  const form =
+    document.getElementById(
+      "penjualanForm"
+    );
 
-    harga.addEventListener(
-      "input",
+
+  if (form) {
+
+    form.addEventListener(
+      "reset",
       function() {
 
-        hitungTotal();
+        setTimeout(
+          function() {
+
+            barangTerpilih =
+              null;
+
+
+            info.style.display =
+              "none";
+
+
+            nama.textContent =
+              "-";
+
+
+            harga.textContent =
+              "Rp0";
+
+
+            stok.textContent =
+              "0";
+
+
+            if (totalValue) {
+
+              totalValue.textContent =
+                "Rp0";
+
+            }
+
+          },
+          0
+        );
 
       }
     );
@@ -4125,7 +4126,7 @@ function initBarangSelect() {
 
 
   /*
-   * HITUNG AWAL
+   * TOTAL AWAL
    */
 
   hitungTotal();
