@@ -261,8 +261,7 @@
 
     </label>
 
-
-    <label class="jenis-transaksi-label">
+<label class="jenis-transaksi-label">
 
   Jenis Transaksi
 
@@ -270,11 +269,11 @@
 
     <button
       type="button"
-      class="jenis-btn masuk active"
+      class="jenis-btn masuk selected"
       data-jenis="masuk"
     >
       <span>💰</span>
-      Uang Masuk
+      <b>Uang Masuk</b>
     </button>
 
     <button
@@ -283,20 +282,20 @@
       data-jenis="keluar"
     >
       <span>💸</span>
-      Uang Keluar
+      <b>Uang Keluar</b>
     </button>
 
   </div>
 
-  <!-- Nilai tetap dikirim sebagai "masuk" / "keluar" -->
   <input
     type="hidden"
     name="jenis"
-    value="masuk"
     id="jenisTransaksi"
+    value="masuk"
   >
 
 </label>
+    
 
 
     <label>
@@ -2245,64 +2244,109 @@ setInterval(
   60000
 );
 /* =====================================================
-   TOMBOL UANG MASUK / KELUAR
+   PILIH UANG MASUK / UANG KELUAR
    ===================================================== */
 
 (function () {
 
-  const buttons =
-    document.querySelectorAll(
-      ".jenis-btn"
-    );
+  function initJenisTransaksi() {
 
-  const input =
-    document.getElementById(
-      "jenisTransaksi"
-    );
-
-
-  buttons.forEach(
-    function (button) {
-
-      button.addEventListener(
-        "click",
-        function () {
-
-          const jenis =
-            button.dataset.jenis;
-
-
-          if (!jenis || !input) {
-            return;
-          }
-
-
-          /* nilai yang dikirim ke app.js */
-          input.value =
-            jenis;
-
-
-          /* aktifkan tombol */
-          buttons.forEach(
-            function (item) {
-
-              item.classList.remove(
-                "active"
-              );
-
-            }
-          );
-
-
-          button.classList.add(
-            "active"
-          );
-
-        }
+    const buttons =
+      document.querySelectorAll(
+        ".jenis-btn"
       );
 
+    const input =
+      document.getElementById(
+        "jenisTransaksi"
+      );
+
+
+    if (!buttons.length || !input) {
+      return;
     }
-  );
+
+
+    buttons.forEach(
+      function (button) {
+
+        button.addEventListener(
+          "click",
+          function () {
+
+            const jenis =
+              button.getAttribute(
+                "data-jenis"
+              );
+
+
+            if (!jenis) {
+              return;
+            }
+
+
+            /* simpan nilai */
+            input.value =
+              jenis;
+
+
+            /* hapus pilihan */
+            buttons.forEach(
+              function (item) {
+
+                item.classList.remove(
+                  "selected"
+                );
+
+              }
+            );
+
+
+            /* tombol yang dipilih */
+            button.classList.add(
+              "selected"
+            );
+
+          }
+        );
+
+      }
+    );
+
+
+    /* default UANG MASUK */
+    input.value = "masuk";
+
+
+    buttons.forEach(
+      function (button) {
+
+        button.classList.toggle(
+          "selected",
+          button.dataset.jenis === "masuk"
+        );
+
+      }
+    );
+
+  }
+
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initJenisTransaksi
+    );
+
+  } else {
+
+    initJenisTransaksi();
+
+  }
 
 })();
 </script>
