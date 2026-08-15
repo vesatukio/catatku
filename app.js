@@ -3359,10 +3359,6 @@ async function init() {
      */
 
     await openDB();
-await dbGetAll(STORE.barang);
-await dbGetAll(STORE.transaksi);
-await dbGetAll(STORE.penjualan);
-await dbGetAll(STORE.queue);
 
     setDatabaseStatus(
       "Database lokal siap"
