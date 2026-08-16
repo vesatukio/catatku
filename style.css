@@ -1375,3 +1375,314 @@ select {
     min-height: 125px;
   }
 }
+/* =========================================================
+   CATATKU
+   DASHBOARD RINGKASAN PERIODE
+   ========================================================= */
+
+.dashboard-section {
+  width: 100%;
+  margin-top: 18px;
+}
+
+
+.dashboard-section-title {
+  margin:
+    0 2px
+    12px;
+}
+
+
+.dashboard-section-title h3 {
+  margin: 0;
+
+  font-size: 20px;
+
+  line-height: 1.2;
+
+  font-weight: 850;
+
+  color: var(--text);
+}
+
+
+/* =========================================================
+   PILIH PERIODE
+   ========================================================= */
+
+.summary-period {
+
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 6px;
+
+  margin-bottom: 12px;
+
+  padding: 4px;
+
+  background: #e8eef7;
+
+  border-radius: 14px;
+}
+
+
+.period-btn {
+
+  width: 100%;
+
+  min-width: 0;
+
+  min-height: 44px;
+
+  padding:
+    8px 4px;
+
+  border: 0;
+
+  border-radius: 11px;
+
+  background: transparent;
+
+  color: #64748b;
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    color .15s ease,
+    box-shadow .15s ease;
+
+}
+
+
+.period-btn.active {
+
+  background: #ffffff;
+
+  color: #2563eb;
+
+  box-shadow:
+    0 2px 7px
+    rgba(15,23,42,.10);
+
+}
+
+
+/* =========================================================
+   GRID RINGKASAN
+   ========================================================= */
+
+#page-dashboard .summary-grid {
+
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin: 0;
+
+}
+
+
+#page-dashboard .summary-grid .card {
+
+  min-width: 0;
+
+  min-height: 112px;
+
+  margin: 0;
+
+  padding: 15px;
+
+  border-radius: 17px;
+
+}
+
+
+/* =========================================================
+   LABEL
+   ========================================================= */
+
+#page-dashboard .summary-grid .card span {
+
+  display: block;
+
+  margin-bottom: 7px;
+
+  font-size: 13px;
+
+  line-height: 1.25;
+
+  font-weight: 800;
+
+}
+
+
+/* =========================================================
+   ANGKA
+   ========================================================= */
+
+#page-dashboard .summary-grid .card strong {
+
+  display: block;
+
+  max-width: 100%;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-size: 20px;
+
+  line-height: 1.2;
+
+  font-weight: 900;
+
+}
+
+
+/* =========================================================
+   HUTANG
+   ========================================================= */
+
+#page-dashboard .summary-debt {
+
+  background: #fef2f2 !important;
+
+  border-color: #fecaca !important;
+
+}
+
+
+#page-dashboard .summary-debt span {
+
+  color: #991b1b !important;
+
+}
+
+
+#page-dashboard .summary-debt strong {
+
+  color: #7f1d1d !important;
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 599px) {
+
+  #page-dashboard {
+
+    padding:
+      14px 12px 20px;
+
+  }
+
+
+  #page-dashboard .summary-grid {
+
+    gap: 10px;
+
+  }
+
+
+  #page-dashboard .summary-grid .card {
+
+    min-height: 112px;
+
+    padding: 15px;
+
+  }
+
+
+  #page-dashboard .summary-grid .card strong {
+
+    font-size: 19px;
+
+  }
+
+
+  .period-btn {
+
+    min-height: 45px;
+
+    font-size: 12px;
+
+  }
+
+}
+
+
+/* =========================================================
+   HP KECIL
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+  #page-dashboard {
+
+    padding:
+      12px 9px 18px;
+
+  }
+
+
+  #page-dashboard .summary-grid {
+
+    gap: 8px;
+
+  }
+
+
+  #page-dashboard .summary-grid .card {
+
+    min-height: 104px;
+
+    padding: 13px;
+
+  }
+
+
+  #page-dashboard .summary-grid .card span {
+
+    font-size: 12px;
+
+  }
+
+
+  #page-dashboard .summary-grid .card strong {
+
+    font-size: 17px;
+
+  }
+
+
+  .period-btn {
+
+    min-height: 43px;
+
+    font-size: 11px;
+
+  }
+
+}
