@@ -2037,294 +2037,453 @@ async function saveBarang(
    SIMPAN PENJUALAN
    ========================================================= */
 
-async function savePenjualan(
-  data = {}
-) {
+async function savePenjualan(data = {}) {
 
-  const barang =
-    await dbGet(
-      STORES.barang,
-      data.barangId
-    );
+  const items =
+    Array.isArray(data.items)
+      ? data.items
+      : [];
 
 
-  if (!barang) {
-
-    throw new Error(
-      "Barang tidak ditemukan"
-    );
-
-  }
-
-
-  const qty =
-    number(
-      data.qty
-    );
-
-
-  if (qty <= 0) {
-
-    throw new Error(
-      "Jumlah penjualan tidak valid"
-    );
-
-  }
-
+  /* =====================================================
+     MODE LAMA
+     Tetap mendukung 1 barang
+     ===================================================== */
 
   if (
-    qty >
-    number(
-      barang.stok
-    )
+    items.length === 0 &&
+    data.barangId
   ) {
 
+    items.push({
+      barangId: data.barangId,
+      qty: data.qty
+    });
+
+  }
+
+
+  /* =====================================================
+     VALIDASI
+     ===================================================== */
+
+  if (!items.length) {
+
     throw new Error(
-      "Stok tidak cukup. Stok tersedia: " +
-      number(
-        barang.stok
-      )
+      "Belum ada barang yang dipilih"
     );
 
   }
 
 
-  const hargaModal =
-    number(
-      data.hargaModal !== undefined
-        ? data.hargaModal
-        : barang.hargaModal
+  if (items.length > 5) {
+
+    throw new Error(
+      "Maksimal 5 barang dalam satu transaksi"
     );
-
-
-  const hargaJual =
-    number(
-      barang.hargaJual
-    );
-
-
-  const omzet =
-    qty *
-    hargaJual;
-
-
-  const modal =
-    qty *
-    hargaModal;
-
-
-  const untung =
-    omzet -
-    modal;
-
-
-  /* =======================================================
-     DATA PENJUALAN + NOTA
-     ======================================================= */
-
-  const penjualan = {
-
-    id:
-      data.id ||
-      uid("JUAL"),
-
-    nomorNota:
-      data.nomorNota ||
-      generateNomorNota(),
-
-    tanggal:
-      data.tanggal ||
-      today(),
-
-    jam:
-      new Date().toLocaleTimeString(
-        "id-ID",
-        {
-          hour:
-            "2-digit",
-
-          minute:
-            "2-digit"
-        }
-      ),
-
-    barangId:
-      barang.id,
-
-    namaBarang:
-      barang.nama,
-
-    qty:
-      qty,
-
-    hargaModal:
-      hargaModal,
-
-    hargaJual:
-      hargaJual,
-
-    omzet:
-      omzet,
-
-    modal:
-      modal,
-
-    untung:
-      untung,
-
-    createdAt:
-      nowISO()
-
-  };
-
-
-  const barangBaru = {
-
-    ...barang,
-
-    stok:
-      number(
-        barang.stok
-      ) -
-      qty,
-
-    terjual:
-      number(
-        barang.terjual
-      ) +
-      qty,
-
-    omzet:
-      number(
-        barang.omzet
-      ) +
-      omzet,
-
-    untung:
-      number(
-        barang.untung
-      ) +
-      untung,
-
-    updatedAt:
-      nowISO()
-
-  };
-
-
-  /* =======================================================
-     SIMPAN LOKAL
-     ======================================================= */
-
-  await dbPut(
-    STORES.penjualan,
-    penjualan
-  );
-
-
-  await dbPut(
-    STORES.barang,
-    barangBaru
-  );
-
-
-  /* =======================================================
-     MASUK QUEUE
-     ======================================================= */
-
-  await queueAdd(
-    "penjualan",
-    penjualan
-  );
-
-
-  /* =======================================================
-     AUTO SYNC
-     ======================================================= */
-
-  if (navigator.onLine) {
-
-    await syncQueue();
 
   }
 
 
-  showToast(
-    "Penjualan tersimpan • " +
-    penjualan.nomorNota
-  );
-
-
-  return penjualan;
-
-}
-
-
-/* =========================================================
-   CETAK NOTA
-   ========================================================= */
-
-function cetakNota(
-  penjualan
-) {
-
-  if (!penjualan) {
-
-    showToast(
-      "Data nota tidak ditemukan"
-    );
-
-    return;
-
-  }
-
+  /* =====================================================
+     NOMOR NOTA
+     SATU NOTA UNTUK SEMUA BARANG
+     ===================================================== */
 
   const nomorNota =
-    penjualan.nomorNota ||
-    "-";
+    data.nomorNota ||
+    generateNomorNota();
 
 
   const tanggal =
-    penjualan.tanggal ||
+    data.tanggal ||
     today();
 
 
+  const hasil =
+    [];
+
+
+  /* =====================================================
+     CEK SEMUA BARANG TERLEBIH DAHULU
+     JANGAN KURANGI STOK SEBELUM SEMUA VALID
+     ===================================================== */
+
+  for (
+    let i = 0;
+    i < items.length;
+    i++
+  ) {
+
+    const item =
+      items[i];
+
+
+    if (!item.barangId) {
+
+      throw new Error(
+        "Barang nomor " +
+        (i + 1) +
+        " belum dipilih"
+      );
+
+    }
+
+
+    const barang =
+      await dbGet(
+        STORES.barang,
+        item.barangId
+      );
+
+
+    if (!barang) {
+
+      throw new Error(
+        "Barang tidak ditemukan: " +
+        item.barangId
+      );
+
+    }
+
+
+    const qty =
+      number(
+        item.qty
+      );
+
+
+    if (qty <= 0) {
+
+      throw new Error(
+        "Jumlah barang nomor " +
+        (i + 1) +
+        " tidak valid"
+      );
+
+    }
+
+
+    const stok =
+      number(
+        barang.stok
+      );
+
+
+    if (qty > stok) {
+
+      throw new Error(
+        "Stok " +
+        barang.nama +
+        " tidak cukup. Stok tersedia: " +
+        stok
+      );
+
+    }
+
+
+    const hargaModal =
+      number(
+        item.hargaModal !== undefined
+          ? item.hargaModal
+          : barang.hargaModal
+      );
+
+
+    const hargaJual =
+      number(
+        barang.hargaJual
+      );
+
+
+    const omzet =
+      qty *
+      hargaJual;
+
+
+    const modal =
+      qty *
+      hargaModal;
+
+
+    const untung =
+      omzet -
+      modal;
+
+
+    hasil.push({
+
+      item:
+        item,
+
+      barang:
+        barang,
+
+      qty:
+        qty,
+
+      hargaModal:
+        hargaModal,
+
+      hargaJual:
+        hargaJual,
+
+      omzet:
+        omzet,
+
+      modal:
+        modal,
+
+      untung:
+        untung
+
+    });
+
+  }
+
+
+  /* =====================================================
+     SIMPAN SEMUA BARANG
+     ===================================================== */
+
+  const waktu =
+    nowISO();
+
+
   const jam =
-    penjualan.jam ||
     new Date().toLocaleTimeString(
       "id-ID",
       {
-        hour:
-          "2-digit",
-
-        minute:
-          "2-digit"
+        hour: "2-digit",
+        minute: "2-digit"
       }
     );
 
 
-  const namaBarang =
-    penjualan.namaBarang ||
-    "Barang";
+  const tersimpan =
+    [];
 
 
-  const qty =
-    number(
-      penjualan.qty
+  for (
+    let i = 0;
+    i < hasil.length;
+    i++
+  ) {
+
+    const dataItem =
+      hasil[i];
+
+
+    const barang =
+      dataItem.barang;
+
+
+    const qty =
+      dataItem.qty;
+
+
+    const omzet =
+      dataItem.omzet;
+
+
+    const modal =
+      dataItem.modal;
+
+
+    const untung =
+      dataItem.untung;
+
+
+    /* =================================================
+       DATA PENJUALAN
+       ================================================= */
+
+    const penjualan = {
+
+      id:
+        uid("JUAL"),
+
+      nomorNota:
+        nomorNota,
+
+      tanggal:
+        tanggal,
+
+      jam:
+        jam,
+
+      barangId:
+        barang.id,
+
+      namaBarang:
+        barang.nama,
+
+      qty:
+        qty,
+
+      hargaModal:
+        dataItem.hargaModal,
+
+      hargaJual:
+        dataItem.hargaJual,
+
+      omzet:
+        omzet,
+
+      modal:
+        modal,
+
+      untung:
+        untung,
+
+      createdAt:
+        waktu
+
+    };
+
+
+    /* =================================================
+       UPDATE BARANG
+       ================================================= */
+
+    const barangBaru = {
+
+      ...barang,
+
+      stok:
+        number(
+          barang.stok
+        ) -
+        qty,
+
+      terjual:
+        number(
+          barang.terjual
+        ) +
+        qty,
+
+      omzet:
+        number(
+          barang.omzet
+        ) +
+        omzet,
+
+      untung:
+        number(
+          barang.untung
+        ) +
+        untung,
+
+      updatedAt:
+        waktu
+
+    };
+
+
+    /* =================================================
+       SIMPAN PENJUALAN
+       ================================================= */
+
+    await dbPut(
+      STORES.penjualan,
+      penjualan
     );
 
 
-  const harga =
-    number(
-      penjualan.hargaJual
+    /* =================================================
+       SIMPAN BARANG
+       ================================================= */
+
+    await dbPut(
+      STORES.barang,
+      barangBaru
     );
 
 
-  const total =
-    number(
-      penjualan.omzet
+    /* =================================================
+       QUEUE SYNC
+       ================================================= */
+
+    await queueAdd(
+      "penjualan",
+      penjualan
     );
 
+
+    tersimpan.push(
+      penjualan
+    );
+
+  }
+
+
+  /* =====================================================
+     AUTO SYNC
+     ===================================================== */
+
+  if (navigator.onLine) {
+
+    try {
+
+      await syncQueue();
+
+    }
+    catch (error) {
+
+      console.warn(
+        "Sync penjualan gagal:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* =====================================================
+     TOTAL NOTA
+     ===================================================== */
+
+  const totalOmzet =
+    tersimpan.reduce(
+      function(total, item) {
+
+        return total +
+          number(
+            item.omzet
+          );
+
+      },
+      0
+    );
+
+
+  showToast(
+    "Penjualan tersimpan • " +
+    nomorNota +
+    " • " +
+    tersimpan.length +
+    " barang"
+  );
+
+
+  return {
+
+    success:
+      true,
+
+    nomorNota:
+      nomorNota,
+
+    items:
+      tersimpan,
+
+    totalOmzet:
+      totalOmzet
+
+  };
+
+}
 
   const html = `
 
