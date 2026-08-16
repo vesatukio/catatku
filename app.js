@@ -5854,3 +5854,435 @@ else {
   initApp();
 
 }
+/* =========================================================
+   LAPORAN - APP.JS
+   ========================================================= */
+
+let laporanPeriode = "hari";
+
+
+/* =========================================================
+   LOAD LAPORAN
+   ========================================================= */
+
+async function loadLaporan() {
+
+  console.log(
+    "LOAD LAPORAN:",
+    laporanPeriode
+  );
+
+
+  const tanggalEl =
+    document.getElementById(
+      "laporanTanggal"
+    );
+
+
+  const tanggal =
+    tanggalEl
+      ? tanggalEl.value
+      : "";
+
+
+  if (!GAS_URL) {
+
+    console.error(
+      "GAS_URL belum tersedia"
+    );
+
+    showToast(
+      "GAS_URL belum tersedia"
+    );
+
+    return;
+
+  }
+
+
+  const url =
+    GAS_URL +
+    "?action=laporan" +
+    "&periode=" +
+    encodeURIComponent(
+      laporanPeriode
+    ) +
+    "&tanggal=" +
+    encodeURIComponent(
+      tanggal
+    );
+
+
+  console.log(
+    "URL LAPORAN:",
+    url
+  );
+
+
+  try {
+
+    const response =
+      await fetch(
+        url,
+        {
+          method: "GET",
+          cache: "no-store"
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "HTTP " +
+        response.status
+      );
+
+    }
+
+
+    const result =
+      await response.json();
+
+
+    console.log(
+      "HASIL LAPORAN:",
+      result
+    );
+
+
+    if (
+      !result.success
+    ) {
+
+      throw new Error(
+        result.error ||
+        "Laporan gagal dimuat"
+      );
+
+    }
+
+
+    renderLaporan(
+      result
+    );
+
+
+  }
+  catch (error) {
+
+    console.error(
+      "Laporan:",
+      error
+    );
+
+
+    showToast(
+      "Laporan gagal dimuat"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   RENDER LAPORAN
+   ========================================================= */
+
+function renderLaporan(
+  data
+) {
+
+  setText(
+    "laporanMasuk",
+    formatRupiah(
+      Number(
+        data.uangMasuk || 0
+      )
+    )
+  );
+
+
+  setText(
+    "laporanKeluar",
+    formatRupiah(
+      Number(
+        data.uangKeluar || 0
+      )
+    )
+  );
+
+
+  setText(
+    "laporanSaldo",
+    formatRupiah(
+      Number(
+        data.saldo || 0
+      )
+    )
+  );
+
+
+  setText(
+    "laporanOmzet",
+    formatRupiah(
+      Number(
+        data.omzet || 0
+      )
+    )
+  );
+
+
+  setText(
+    "laporanModal",
+    formatRupiah(
+      Number(
+        data.modal || 0
+      )
+    )
+  );
+
+
+  setText(
+    "laporanUntung",
+    formatRupiah(
+      Number(
+        data.untung || 0
+      )
+    )
+  );
+
+
+  setText(
+    "laporanJumlahTransaksi",
+    Number(
+      data.jumlahTransaksi || 0
+    )
+  );
+
+
+  setText(
+    "laporanJumlahPenjualan",
+    Number(
+      data.jumlahPenjualan || 0
+    )
+  );
+
+
+  setText(
+    "laporanBarangTerjual",
+    Number(
+      data.totalBarangTerjual || 0
+    )
+  );
+
+
+  const periodeText = {
+
+    hari:
+      "Laporan Hari",
+
+    minggu:
+      "Laporan Minggu",
+
+    bulan:
+      "Laporan Bulan"
+
+  };
+
+
+  setText(
+    "laporanPeriode",
+
+    (
+      periodeText[
+        data.periode ||
+        laporanPeriode
+      ] ||
+      "Laporan"
+    ) +
+    " · " +
+    (
+      data.tanggalMulai ||
+      ""
+    ) +
+    " - " +
+    (
+      data.tanggalSelesai ||
+      ""
+    )
+
+  );
+
+
+  if (
+    typeof renderLaporanTransaksi ===
+    "function"
+  ) {
+
+    renderLaporanTransaksi(
+      data.transaksi || []
+    );
+
+  }
+
+
+  if (
+    typeof renderLaporanPenjualan ===
+    "function"
+  ) {
+
+    renderLaporanPenjualan(
+      data.penjualan || []
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   TAB LAPORAN
+   ========================================================= */
+
+function initLaporan() {
+
+  const tanggal =
+    document.getElementById(
+      "laporanTanggal"
+    );
+
+
+  if (
+    tanggal &&
+    !tanggal.value
+  ) {
+
+    const sekarang =
+      new Date();
+
+
+    const tahun =
+      sekarang.getFullYear();
+
+
+    const bulan =
+      String(
+        sekarang.getMonth() + 1
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    const hari =
+      String(
+        sekarang.getDate()
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    tanggal.value =
+      tahun +
+      "-" +
+      bulan +
+      "-" +
+      hari;
+
+  }
+
+
+  document
+    .querySelectorAll(
+      ".report-tab"
+    )
+    .forEach(
+      function(button) {
+
+        button.addEventListener(
+          "click",
+          function() {
+
+            document
+              .querySelectorAll(
+                ".report-tab"
+              )
+              .forEach(
+                function(item) {
+
+                  item.classList.remove(
+                    "active"
+                  );
+
+                }
+              );
+
+
+            button.classList.add(
+              "active"
+            );
+
+
+            laporanPeriode =
+              button.dataset.period ||
+              "hari";
+
+
+            loadLaporan();
+
+          }
+        );
+
+      }
+    );
+
+
+  const tombol =
+    document.getElementById(
+      "btnLoadLaporan"
+    );
+
+
+  if (tombol) {
+
+    tombol.addEventListener(
+      "click",
+      function() {
+
+        loadLaporan();
+
+      }
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   JALANKAN SETELAH APP SIAP
+   ========================================================= */
+
+if (
+  document.readyState ===
+  "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+      initLaporan();
+
+    }
+  );
+
+}
+else {
+
+  initLaporan();
+
+}
