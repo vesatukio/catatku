@@ -721,8 +721,8 @@
     <div class="panel-header">
 
       <h3>
-        Riwayat Penjualan
-      </h3>
+  Penjualan Terbaru
+</h3>
 
     </div>
 
@@ -1971,126 +1971,6 @@ function escapeHtml(value) {
 
 
 
-/* =====================================================
-   RENDER PENJUALAN
-   ===================================================== */
-
-async function renderPenjualanHistory() {
-
-  if (
-    !window.CatatKu ||
-    typeof CatatKu.loadPenjualan !==
-      "function"
-  ) {
-
-    return;
-
-  }
-
-
-  const container =
-    document.getElementById(
-      "penjualanHistory"
-    );
-
-
-  if (!container) {
-    return;
-  }
-
-
-  try {
-
-    const data =
-      await CatatKu.loadPenjualan();
-
-
-    if (
-      !Array.isArray(data) ||
-      data.length === 0
-    ) {
-
-      container.innerHTML =
-        "<p>Belum ada penjualan.</p>";
-
-      return;
-
-    }
-
-
-    const terbaru =
-      data.slice(
-        -20
-      ).reverse();
-
-
-    container.innerHTML =
-      terbaru
-        .map(
-          function (item) {
-
-            return `
-
-              <div class="penjualan-item">
-
-                <div>
-
-                  <strong>
-                    ${escapeHtml(
-                      item.namaBarang
-                    )}
-                  </strong>
-
-                  <small>
-                    ${escapeHtml(
-                      item.tanggal
-                    )}
-                    ·
-                    ${escapeHtml(
-                      item.qty
-                    )} pcs
-                  </small>
-
-                </div>
-
-                <div>
-
-                  <strong>
-                    ${formatRupiah(
-                      item.omzet
-                    )}
-                  </strong>
-
-                  <small>
-                    Untung:
-                    ${formatRupiah(
-                      item.untung
-                    )}
-                  </small>
-
-                </div>
-
-              </div>
-
-            `;
-
-          }
-        )
-        .join("");
-
-  }
-  catch (error) {
-
-    console.error(
-      "Gagal menampilkan penjualan:",
-      error
-    );
-
-  }
-
-}
-
-
 
 /* =====================================================
    LOAD AWAL
@@ -2102,21 +1982,8 @@ window.addEventListener(
 
     setDefaultDates();
 
-
-    setTimeout(
-      function () {
-
-        renderPenjualanHistory();
-
-      },
-      800
-    );
-
   }
 );
-
-
-
 /* =====================================================
    REFRESH BERKALA
    ===================================================== */
@@ -2150,8 +2017,7 @@ setInterval(
     }
 
 
-    renderPenjualanHistory();
-
+    
   },
   60000
 );
