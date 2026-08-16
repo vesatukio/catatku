@@ -456,108 +456,268 @@
 
 
   <form
-    id="barangForm"
-    class="form-card"
+  id="barangForm"
+  class="form-card"
+>
+
+  <div class="batch-title">
+    <strong>Input 5 Barang Sekaligus</strong>
+    <small>Isi barang yang diperlukan. Baris kosong akan dilewati.</small>
+  </div>
+
+
+  <!-- BARANG 1 -->
+  <div class="batch-row barang-row">
+
+    <div class="batch-number">1</div>
+
+    <div class="batch-fields">
+
+      <label>
+        Kode
+        <input
+          type="text"
+          name="kode"
+          placeholder="Otomatis"
+          autocomplete="off"
+        >
+      </label>
+
+      <label>
+        Nama Barang
+        <input
+          type="text"
+          name="nama"
+          placeholder="Nama barang"
+          autocomplete="off"
+        >
+      </label>
+
+      <label>
+        Stok
+        <input
+          type="number"
+          name="stok"
+          min="0"
+          value="0"
+          inputmode="numeric"
+        >
+      </label>
+
+      <label>
+        Harga Modal
+        <input
+          type="number"
+          name="hargaModal"
+          min="0"
+          placeholder="0"
+          inputmode="numeric"
+        >
+      </label>
+
+      <label>
+        Harga Jual
+        <input
+          type="number"
+          name="hargaJual"
+          min="0"
+          placeholder="0"
+          inputmode="numeric"
+        >
+      </label>
+
+      <label>
+        Stok Min
+        <input
+          type="number"
+          name="stokMin"
+          min="0"
+          value="2"
+          inputmode="numeric"
+        >
+      </label>
+
+    </div>
+
+  </div>
+
+
+  <!-- BARANG 2 -->
+  <div class="batch-row barang-row">
+
+    <div class="batch-number">2</div>
+
+    <div class="batch-fields">
+
+      <label>
+        Kode
+        <input type="text" name="kode" placeholder="Otomatis">
+      </label>
+
+      <label>
+        Nama Barang
+        <input type="text" name="nama" placeholder="Nama barang">
+      </label>
+
+      <label>
+        Stok
+        <input type="number" name="stok" min="0" value="0">
+      </label>
+
+      <label>
+        Harga Modal
+        <input type="number" name="hargaModal" min="0" placeholder="0">
+      </label>
+
+      <label>
+        Harga Jual
+        <input type="number" name="hargaJual" min="0" placeholder="0">
+      </label>
+
+      <label>
+        Stok Min
+        <input type="number" name="stokMin" min="0" value="2">
+      </label>
+
+    </div>
+
+  </div>
+
+
+  <!-- BARANG 3 -->
+  <div class="batch-row barang-row">
+
+    <div class="batch-number">3</div>
+
+    <div class="batch-fields">
+
+      <label>
+        Kode
+        <input type="text" name="kode" placeholder="Otomatis">
+      </label>
+
+      <label>
+        Nama Barang
+        <input type="text" name="nama" placeholder="Nama barang">
+      </label>
+
+      <label>
+        Stok
+        <input type="number" name="stok" min="0" value="0">
+      </label>
+
+      <label>
+        Harga Modal
+        <input type="number" name="hargaModal" min="0" placeholder="0">
+      </label>
+
+      <label>
+        Harga Jual
+        <input type="number" name="hargaJual" min="0" placeholder="0">
+      </label>
+
+      <label>
+        Stok Min
+        <input type="number" name="stokMin" min="0" value="2">
+      </label>
+
+    </div>
+
+  </div>
+
+
+  <!-- BARANG 4 -->
+  <div class="batch-row barang-row">
+
+    <div class="batch-number">4</div>
+
+    <div class="batch-fields">
+
+      <label>
+        Kode
+        <input type="text" name="kode" placeholder="Otomatis">
+      </label>
+
+      <label>
+        Nama Barang
+        <input type="text" name="nama" placeholder="Nama barang">
+      </label>
+
+      <label>
+        Stok
+        <input type="number" name="stok" min="0" value="0">
+      </label>
+
+      <label>
+        Harga Modal
+        <input type="number" name="hargaModal" min="0" placeholder="0">
+      </label>
+
+      <label>
+        Harga Jual
+        <input type="number" name="hargaJual" min="0" placeholder="0">
+      </label>
+
+      <label>
+        Stok Min
+        <input type="number" name="stokMin" min="0" value="2">
+      </label>
+
+    </div>
+
+  </div>
+
+
+  <!-- BARANG 5 -->
+  <div class="batch-row barang-row">
+
+    <div class="batch-number">5</div>
+
+    <div class="batch-fields">
+
+      <label>
+        Kode
+        <input type="text" name="kode" placeholder="Otomatis">
+      </label>
+
+      <label>
+        Nama Barang
+        <input type="text" name="nama" placeholder="Nama barang">
+      </label>
+
+      <label>
+        Stok
+        <input type="number" name="stok" min="0" value="0">
+      </label>
+
+      <label>
+        Harga Modal
+        <input type="number" name="hargaModal" min="0" placeholder="0">
+      </label>
+
+      <label>
+        Harga Jual
+        <input type="number" name="hargaJual" min="0" placeholder="0">
+      </label>
+
+      <label>
+        Stok Min
+        <input type="number" name="stokMin" min="0" value="2">
+      </label>
+
+    </div>
+
+  </div>
+
+
+  <button
+    type="submit"
+    class="btn-primary"
   >
+    Simpan 5 Barang
+  </button>
 
-
-    <label>
-
-      Kode Barang
-
-      <input
-        type="text"
-        name="kode"
-        placeholder="Otomatis jika kosong"
-        autocomplete="off"
-      >
-
-    </label>
-
-
-    <label>
-
-      Nama Barang
-
-      <input
-        type="text"
-        name="nama"
-        placeholder="Contoh: Modul LED 5W"
-        autocomplete="off"
-        required
-      >
-
-    </label>
-
-
-    <label>
-
-      Stok Awal
-
-      <input
-        type="number"
-        name="stok"
-        min="0"
-        inputmode="numeric"
-        value="0"
-      >
-
-    </label>
-
-
-    <label>
-
-      Harga Modal
-
-      <input
-        type="number"
-        name="hargaModal"
-        min="0"
-        inputmode="numeric"
-        placeholder="Rp 0"
-      >
-
-    </label>
-
-
-    <label>
-
-      Harga Jual
-
-      <input
-        type="number"
-        name="hargaJual"
-        min="0"
-        inputmode="numeric"
-        placeholder="Rp 0"
-      >
-
-    </label>
-
-
-    <label>
-
-      Batas Stok Minimum
-
-      <input
-        type="number"
-        name="stokMin"
-        min="0"
-        inputmode="numeric"
-        value="2"
-      >
-
-    </label>
-
-
-    <button
-      type="submit"
-      class="btn-primary"
-    >
-      Simpan Barang
-    </button>
-
-  </form>
+</form>
 
 
   <!-- DAFTAR BARANG -->
