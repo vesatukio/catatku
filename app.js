@@ -6193,3 +6193,520 @@ function setDashboardValue(
     );
 
 }
+/* =========================================================
+   RINGKASAN DASHBOARD
+   ========================================================= */
+
+CatatKu.pilihPeriodeRingkasan = async function (
+  periode
+) {
+
+  try {
+
+    /* -----------------------------------------
+       tombol aktif
+       ----------------------------------------- */
+
+    document
+      .querySelectorAll(
+        ".periode-btn"
+      )
+      .forEach(
+        function(button) {
+
+          button.classList.toggle(
+            "active",
+            button.dataset.periode === periode
+          );
+
+        }
+      );
+
+
+    /* -----------------------------------------
+       nama periode
+       ----------------------------------------- */
+
+    const namaPeriode = {
+
+      hariIni: "Hari Ini",
+
+      kemarin: "Kemarin",
+
+      mingguIni: "Minggu Ini",
+
+      bulanIni: "Bulan Ini"
+
+    };
+
+
+    const label =
+      document.getElementById(
+        "ringkasanPeriode"
+      );
+
+
+    if (label) {
+
+      label.textContent =
+        namaPeriode[periode] ||
+        "Hari Ini";
+
+    }
+
+
+    /* -----------------------------------------
+       ambil data
+       ----------------------------------------- */
+
+    const semuaTransaksi =
+      await dbGetAll(
+        STORES.transaksi
+      );
+
+
+    const semuaPenjualan =
+      await dbGetAll(
+        STORES.penjualan
+      );
+
+
+    const sekarang =
+      new Date();
+
+
+    const tanggalHariIni =
+      tanggalLocal(
+        sekarang
+      );
+
+
+    const kemarinDate =
+      new Date(
+        sekarang
+      );
+
+    kemarinDate.setDate(
+      kemarinDate.getDate() - 1
+    );
+
+
+    const tanggalKemarin =
+      tanggalLocal(
+        kemarinDate
+      );
+
+
+    function tanggalLocal(date) {
+
+      const y =
+        date.getFullYear();
+
+      const m =
+        String(
+          date.getMonth() + 1
+        ).padStart(2, "0");
+
+      const d =
+        String(
+          date.getDate()
+        ).padStart(2, "0");
+
+      return (
+        y +
+        "-" +
+        m +
+        "-" +
+        d
+      );
+
+    }
+
+
+    function awalMinggu(date) {
+
+      const d =
+        new Date(date);
+
+      const hari =
+        d.getDay();
+
+      const selisih =
+        hari === 0
+          ? 6
+          : hari - 1;
+
+      d.setDate(
+        d.getDate() - selisih
+      );
+
+      return tanggalLocal(d);
+
+    }
+
+
+    function awalBulan(date) {
+
+      return (
+        date.getFullYear() +
+        "-" +
+        String(
+          date.getMonth() + 1
+        ).padStart(2, "0") +
+        "-01"
+      );
+
+    }
+
+
+    const awalMingguIni =
+      awalMinggu(
+        sekarang
+      );
+
+
+    const awalBulanIni =
+      awalBulan(
+        sekarang
+      );
+
+
+    function masukPeriode(
+      tanggal
+    ) {
+
+      const t =
+        String(
+          tanggal || ""
+        ).slice(0, 10);
+
+
+      if (periode === "hariIni") {
+
+        return t ===
+          tanggalHariIni;
+
+      }
+
+
+      if (periode === "kemarin") {
+
+        return t ===
+          tanggalKemarin;
+
+      }
+
+
+      if (periode === "mingguIni") {
+
+        return t >=
+          awalMingguIni &&
+          t <=
+          tanggalHariIni;
+
+      }
+
+
+      if (periode === "bulanIni") {
+
+        return t >=
+          awalBulanIni &&
+          t <=
+          tanggalHariIni;
+
+      }
+
+
+      return false;
+
+    }
+
+
+    /* -----------------------------------------
+       HITUNG UANG
+       ----------------------------------------- */
+
+    let uangMasuk = 0;
+    let uangKeluar = 0;
+
+
+    semuaTransaksi.forEach(
+      function(item) {
+
+        if (
+          !masukPeriode(
+            item.tanggal
+          )
+        ) {
+
+          return;
+
+        }
+
+
+        const jumlah =
+          Number(
+            item.jumlah
+          ) || 0;
+
+
+        if (
+          item.jenis === "masuk"
+        ) {
+
+          uangMasuk +=
+            jumlah;
+
+        }
+
+
+        if (
+          item.jenis === "keluar"
+        ) {
+
+          uangKeluar +=
+            jumlah;
+
+        }
+
+      }
+    );
+
+
+    /* -----------------------------------------
+       HITUNG PENJUALAN
+       ----------------------------------------- */
+
+    let omzet = 0;
+    let untung = 0;
+
+
+    semuaPenjualan.forEach(
+      function(item) {
+
+        if (
+          !masukPeriode(
+            item.tanggal
+          )
+        ) {
+
+          return;
+
+        }
+
+
+        omzet +=
+          Number(
+            item.omzet
+          ) || 0;
+
+
+        untung +=
+          Number(
+            item.untung
+          ) || 0;
+
+      }
+    );
+
+
+    /* -----------------------------------------
+       TAMPILKAN
+       ----------------------------------------- */
+
+    setRingkasanValue(
+      "ringkasanUangMasuk",
+      uangMasuk
+    );
+
+    setRingkasanValue(
+      "ringkasanUangKeluar",
+      uangKeluar
+    );
+
+    setRingkasanValue(
+      "ringkasanOmzet",
+      omzet
+    );
+
+    setRingkasanValue(
+      "ringkasanUntung",
+      untung
+    );
+
+
+    /* -----------------------------------------
+       DATA STOK
+       ----------------------------------------- */
+
+    const barang =
+      await dbGetAll(
+        STORES.barang
+      );
+
+
+    let jumlahStok = 0;
+    let nilaiStok = 0;
+
+
+    barang.forEach(
+      function(item) {
+
+        const stok =
+          Number(
+            item.stok
+          ) || 0;
+
+        const modal =
+          Number(
+            item.hargaModal
+          ) || 0;
+
+
+        jumlahStok +=
+          stok;
+
+        nilaiStok +=
+          stok * modal;
+
+      }
+    );
+
+
+    setRingkasanValue(
+      "ringkasanNilaiStok",
+      nilaiStok
+    );
+
+
+    setRingkasanNumber(
+      "ringkasanJumlahBarang",
+      barang.length
+    );
+
+
+    setRingkasanNumber(
+      "ringkasanJumlahStok",
+      jumlahStok
+    );
+
+
+    /* -----------------------------------------
+       HUTANG
+       ----------------------------------------- */
+
+    let totalHutang = 0;
+
+
+    try {
+
+      const hutang =
+        await dbGetAll(
+          STORES.hutang
+        );
+
+
+      hutang.forEach(
+        function(item) {
+
+          const total =
+            Number(
+              item.total ||
+              item.jumlah ||
+              item.nominal
+            ) || 0;
+
+
+          const bayar =
+            Number(
+              item.dibayar ||
+              item.bayar
+            ) || 0;
+
+
+          totalHutang +=
+            Math.max(
+              0,
+              total - bayar
+            );
+
+        }
+      );
+
+    }
+    catch (e) {
+
+      console.warn(
+        "Data hutang belum tersedia",
+        e
+      );
+
+    }
+
+
+    setRingkasanValue(
+      "ringkasanHutang",
+      totalHutang
+    );
+
+  }
+  catch (error) {
+
+    console.error(
+      "Ringkasan:",
+      error
+    );
+
+  }
+
+};
+
+
+/* =========================================================
+   HELPER RINGKASAN
+   ========================================================= */
+
+function setRingkasanValue(
+  id,
+  value
+) {
+
+  const element =
+    document.getElementById(id);
+
+
+  if (!element) {
+
+    return;
+
+  }
+
+
+  element.textContent =
+    formatRupiah(
+      Number(value) || 0
+    );
+
+}
+
+
+function setRingkasanNumber(
+  id,
+  value
+) {
+
+  const element =
+    document.getElementById(id);
+
+
+  if (!element) {
+
+    return;
+
+  }
+
+
+  element.textContent =
+    Number(value) || 0;
+
+}
