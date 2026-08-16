@@ -3967,55 +3967,180 @@ async function renderPenjualan(
    CETAK NOTA PENJUALAN
    ========================================================= */
 
+/* =========================================================
+   CETAK NOTA PENJUALAN
+   VERSI AMAN INDEXEDDB
+   ========================================================= */
+
 async function cetakNota(penjualanId) {
 
   try {
 
-    if (!penjualanId) {
-      showToast("ID penjualan tidak ditemukan");
+    /* =====================================================
+       VALIDASI ID
+       ===================================================== */
+
+    if (
+      penjualanId === undefined ||
+      penjualanId === null
+    ) {
+
+      showToast(
+        "ID penjualan tidak ditemukan"
+      );
+
       return;
+
     }
 
-    const penjualan = await dbGet(
-      STORES.penjualan,
-      penjualanId
+
+    /* =====================================================
+       PASTIKAN ID MENJADI STRING
+       ===================================================== */
+
+    penjualanId =
+      String(
+        penjualanId
+      ).trim();
+
+
+    if (!penjualanId) {
+
+      showToast(
+        "ID penjualan kosong"
+      );
+
+      return;
+
+    }
+
+
+    console.log(
+      "CETAK NOTA ID:",
+      penjualanId,
+      "TYPE:",
+      typeof penjualanId
     );
 
+
+    /* =====================================================
+       AMBIL DATA PENJUALAN DARI INDEXEDDB
+       ===================================================== */
+
+    const penjualan =
+      await dbGet(
+        STORES.penjualan,
+        penjualanId
+      );
+
+
     if (!penjualan) {
-      showToast("Data penjualan tidak ditemukan");
+
+      showToast(
+        "Data penjualan tidak ditemukan"
+      );
+
+      console.warn(
+        "Penjualan tidak ditemukan:",
+        penjualanId
+      );
+
       return;
+
     }
 
+
+    /* =====================================================
+       DATA NOTA
+       ===================================================== */
+
     const qty =
-      number(penjualan.qty);
+      number(
+        penjualan.qty
+      );
+
 
     const hargaJual =
-      number(penjualan.hargaJual);
+      number(
+        penjualan.hargaJual
+      );
+
 
     const omzet =
-      number(penjualan.omzet);
+      number(
+        penjualan.omzet
+      );
+
 
     const untung =
-      number(penjualan.untung);
+      number(
+        penjualan.untung
+      );
+
 
     const modal =
-      number(penjualan.modal);
+      number(
+        penjualan.modal
+      );
+
 
     const nomorNota =
-      penjualan.id || uid("NOTA");
+      String(
+        penjualan.id ||
+        uid("NOTA")
+      );
+
 
     const tanggal =
-      penjualan.tanggal || today();
+      penjualan.tanggal ||
+      today();
 
-    const waktu =
+
+    let waktu =
+      tanggal;
+
+
+    if (
       penjualan.createdAt
-        ? new Date(
-            penjualan.createdAt
-          ).toLocaleString(
-            "id-ID"
-          )
-        : tanggal;
+    ) {
 
+      try {
+
+        const tanggalWaktu =
+          new Date(
+            penjualan.createdAt
+          );
+
+        if (
+          !isNaN(
+            tanggalWaktu.getTime()
+          )
+        ) {
+
+          waktu =
+            tanggalWaktu.toLocaleString(
+              "id-ID"
+            );
+
+        }
+
+      }
+
+      catch (error) {
+
+        console.warn(
+          "Waktu nota tidak valid:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       HTML NOTA
+       ===================================================== */
 
     const html = `
 
@@ -4032,7 +4157,9 @@ async function cetakNota(penjualanId) {
   content="width=device-width,initial-scale=1"
 >
 
-<title>Nota ${escapeHTML(nomorNota)}</title>
+<title>
+  Nota ${escapeHTML(nomorNota)}
+</title>
 
 <style>
 
@@ -4239,15 +4366,18 @@ button {
   <div class="info">
 
     <div>
-      No: ${escapeHTML(nomorNota)}
+      No:
+      ${escapeHTML(nomorNota)}
     </div>
 
     <div>
-      Tanggal: ${escapeHTML(tanggal)}
+      Tanggal:
+      ${escapeHTML(tanggal)}
     </div>
 
     <div>
-      Waktu: ${escapeHTML(waktu)}
+      Waktu:
+      ${escapeHTML(waktu)}
     </div>
 
   </div>
@@ -4316,6 +4446,7 @@ button {
   <div class="tombol">
 
     <button
+      type="button"
       onclick="window.print()"
     >
       🖨 Cetak Nota
@@ -4336,7 +4467,7 @@ window.onload = function() {
       window.print();
 
     },
-    300
+    500
   );
 
 };
@@ -4349,6 +4480,10 @@ window.onload = function() {
 
 `;
 
+
+    /* =====================================================
+       BUKA JENDELA CETAK
+       ===================================================== */
 
     const printWindow =
       window.open(
@@ -4395,7 +4530,6 @@ window.onload = function() {
   }
 
 }
-
 /* =========================================================
    TOAST
    ========================================================= */
