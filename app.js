@@ -2697,165 +2697,327 @@ async function downloadData() {
    DASHBOARD LOKAL
    ========================================================= */
 
+/* =========================================================
+   LOCAL DASHBOARD
+   SUMBER DATA UTAMA DARI INDEXEDDB
+   ========================================================= */
+
 async function getLocalDashboard() {
 
-  const transaksi =
-    await dbGetAll(
-      STORES.transaksi
+  try {
+
+    /* ===============================
+       AMBIL DATA
+       =============================== */
+
+    const transaksi =
+      await dbGetAll(
+        STORES.transaksi
+      ) || [];
+
+
+    const barang =
+      await dbGetAll(
+        STORES.barang
+      ) || [];
+
+
+    const penjualan =
+      await dbGetAll(
+        STORES.penjualan
+      ) || [];
+
+
+    /* ===============================
+       VARIABEL
+       =============================== */
+
+    let uangMasuk = 0;
+
+    let uangKeluar = 0;
+
+    let omzet = 0;
+
+    let modal = 0;
+
+    let untung = 0;
+
+    let jumlahStok = 0;
+
+    let nilaiStok = 0;
+
+
+    /* ===============================
+       TRANSAKSI
+       =============================== */
+
+    transaksi.forEach(
+      function(item) {
+
+        const jumlah =
+          number(
+            item.jumlah ??
+            item.nominal ??
+            item.nilai ??
+            item.total ??
+            0
+          );
+
+
+        const jenis =
+          String(
+            item.jenis ||
+            ""
+          ).toLowerCase();
+
+
+        if (
+          jenis === "masuk" ||
+          jenis === "pemasukan"
+        ) {
+
+          uangMasuk +=
+            jumlah;
+
+        }
+
+
+        if (
+          jenis === "keluar" ||
+          jenis === "pengeluaran"
+        ) {
+
+          uangKeluar +=
+            jumlah;
+
+        }
+
+      }
     );
 
 
-  const barang =
-    await dbGetAll(
-      STORES.barang
+    /* ===============================
+       PENJUALAN
+       =============================== */
+
+    penjualan.forEach(
+      function(item) {
+
+        const nilaiOmzet =
+          number(
+            item.omzet ??
+            item.subtotal ??
+            item.total ??
+            0
+          );
+
+
+        const nilaiModal =
+          number(
+            item.modal ??
+            (
+              number(
+                item.qty
+              ) *
+              number(
+                item.hargaModal
+              )
+            ) ??
+            0
+          );
+
+
+        const nilaiUntung =
+          number(
+            item.untung ??
+            (
+              nilaiOmzet -
+              nilaiModal
+            )
+          );
+
+
+        omzet +=
+          nilaiOmzet;
+
+
+        modal +=
+          nilaiModal;
+
+
+        untung +=
+          nilaiUntung;
+
+      }
     );
 
 
-  const penjualan =
-    await dbGetAll(
-      STORES.penjualan
+    /* ===============================
+       BARANG / STOK
+       =============================== */
+
+    barang.forEach(
+      function(item) {
+
+        const stok =
+          number(
+            item.stok
+          );
+
+
+        const hargaModal =
+          number(
+            item.hargaModal ??
+            item.modal ??
+            item.hargaBeli ??
+            0
+          );
+
+
+        jumlahStok +=
+          stok;
+
+
+        nilaiStok +=
+          stok *
+          hargaModal;
+
+      }
     );
 
 
-  let uangMasuk =
-    0;
+    /* ===============================
+       HUTANG
+       =============================== */
 
-  let uangKeluar =
-    0;
-
-  let omzet =
-    0;
-
-  let modal =
-    0;
-
-  let untung =
-    0;
-
-  let jumlahStok =
-    0;
-
-  let nilaiStok =
-    0;
+    let totalHutang = 0;
 
 
-  transaksi.forEach(
-    function(item) {
+    if (
+      STORES.hutang
+    ) {
 
-      const jumlah =
-        number(
-          item.jumlah
+      try {
+
+        const hutang =
+          await dbGetAll(
+            STORES.hutang
+          ) || [];
+
+
+        hutang.forEach(
+          function(item) {
+
+            totalHutang +=
+              number(
+                item.sisa ??
+                item.sisaHutang ??
+                item.totalSisa ??
+                item.jumlahSisa ??
+                0
+              );
+
+          }
         );
-
-
-      if (
-        item.jenis ===
-        "masuk"
-      ) {
-
-        uangMasuk +=
-          jumlah;
 
       }
 
+      catch (error) {
 
-      if (
-        item.jenis ===
-        "keluar"
-      ) {
-
-        uangKeluar +=
-          jumlah;
+        console.warn(
+          "Data hutang tidak dapat dibaca:",
+          error
+        );
 
       }
 
     }
-  );
 
 
-  penjualan.forEach(
-    function(item) {
+    /* ===============================
+       SALDO
+       =============================== */
 
-      omzet +=
-        number(
-          item.omzet
-        );
-
-      modal +=
-        number(
-          item.modal
-        );
-
-      untung +=
-        number(
-          item.untung
-        );
-
-    }
-  );
-
-
-  barang.forEach(
-    function(item) {
-
-      const stok =
-        number(
-          item.stok
-        );
-
-
-      const hargaModal =
-        number(
-          item.hargaModal
-        );
-
-
-      jumlahStok +=
-        stok;
-
-
-      nilaiStok +=
-        stok *
-        hargaModal;
-
-    }
-  );
-
-
-  return {
-
-    uangMasuk:
-      uangMasuk,
-
-    uangKeluar:
-      uangKeluar,
-
-    saldo:
+    const saldo =
       uangMasuk -
-      uangKeluar,
+      uangKeluar;
 
-    omzet:
-      omzet,
 
-    modal:
-      modal,
+    /* ===============================
+       HASIL
+       =============================== */
 
-    untung:
-      untung,
+    return {
 
-    jumlahBarang:
-      barang.length,
+      uangMasuk:
+        uangMasuk,
 
-    jumlahStok:
-      jumlahStok,
+      uangKeluar:
+        uangKeluar,
 
-    nilaiStok:
-      nilaiStok
+      saldo:
+        saldo,
 
-  };
+      omzet:
+        omzet,
+
+      modal:
+        modal,
+
+      untung:
+        untung,
+
+      jumlahBarang:
+        barang.length,
+
+      jumlahStok:
+        jumlahStok,
+
+      nilaiStok:
+        nilaiStok,
+
+      totalHutang:
+        totalHutang
+
+    };
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Gagal menghitung dashboard lokal:",
+      error
+    );
+
+
+    return {
+
+      uangMasuk: 0,
+
+      uangKeluar: 0,
+
+      saldo: 0,
+
+      omzet: 0,
+
+      modal: 0,
+
+      untung: 0,
+
+      jumlahBarang: 0,
+
+      jumlahStok: 0,
+
+      nilaiStok: 0,
+
+      totalHutang: 0
+
+    };
+
+  }
 
 }
-
 
 /* =========================================================
    LOAD DASHBOARD
