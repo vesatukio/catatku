@@ -39,7 +39,7 @@ const DB_NAME =
   "CATATKU_DB";
 
 const DB_VERSION =
-  3;
+  4;
 
 
 /* =========================================================
@@ -56,6 +56,12 @@ const STORES = {
 
   penjualan:
     "penjualan",
+
+  nota:
+    "nota",
+
+  notaDetail:
+    "nota_detail",
 
   queue:
     "sync_queue"
@@ -307,7 +313,78 @@ function openDB() {
 
             const database =
               event.target.result;
+/* ---------------------------------------------
+   NOTA
+   --------------------------------------------- */
 
+if (
+  !database.objectStoreNames.contains(
+    STORES.nota
+  )
+) {
+
+  const store =
+    database.createObjectStore(
+      STORES.nota,
+      {
+        keyPath:
+          "id"
+      }
+    );
+
+
+  store.createIndex(
+    "tanggal",
+    "tanggal",
+    {
+      unique:
+        false
+    }
+  );
+
+
+  store.createIndex(
+    "nomorNota",
+    "nomorNota",
+    {
+      unique:
+        false
+    }
+  );
+
+}
+
+
+/* ---------------------------------------------
+   NOTA DETAIL
+   --------------------------------------------- */
+
+if (
+  !database.objectStoreNames.contains(
+    STORES.notaDetail
+  )
+) {
+
+  const store =
+    database.createObjectStore(
+      STORES.notaDetail,
+      {
+        keyPath:
+          "id"
+      }
+    );
+
+
+  store.createIndex(
+    "notaId",
+    "notaId",
+    {
+      unique:
+        false
+    }
+  );
+
+}
 
             /* ---------------------------------------------
                TRANSAKSI
@@ -2150,41 +2227,57 @@ async function syncQueueItem(
 
 
   switch (
-    item.type
-  ) {
+  item.type
+) {
 
-    case "transaksi":
+  case "transaksi":
 
-      action =
-        "tambahTransaksi";
+    action =
+      "tambahTransaksi";
 
-      break;
-
-
-    case "barang":
-
-      action =
-        "tambahBarang";
-
-      break;
+    break;
 
 
-    case "penjualan":
+  case "barang":
 
-      action =
-        "tambahPenjualan";
+    action =
+      "tambahBarang";
 
-      break;
+    break;
 
 
-    default:
+  case "penjualan":
 
-      throw new Error(
-        "Tipe queue tidak dikenal: " +
-        item.type
-      );
+    action =
+      "tambahPenjualan";
 
-  }
+    break;
+
+
+  case "nota":
+
+    action =
+      "buatNota";
+
+    break;
+
+
+  case "hapusNota":
+
+    action =
+      "hapusNota";
+
+    break;
+
+
+  default:
+
+    throw new Error(
+      "Tipe queue tidak dikenal: " +
+      item.type
+    );
+
+}
 
 
   const result =
@@ -2994,7 +3087,1043 @@ async function loadPenjualan() {
   );
 
 }
+/* =========================================================
+   NOTA
+   ========================================================= */
 
+const NOTA_STATE = {
+
+  selected:
+    new Set(),
+
+  current:
+    null
+
+};
+
+
+/* =========================================================
+   GENERATE NOMOR NOTA
+   ========================================================= */
+
+async function generateNomorNota() {
+
+  const data =
+    await dbGetAll(
+      STORES.nota
+    );
+
+
+  const tanggal =
+    today()
+      .replaceAll(
+        "-",
+        ""
+      );
+
+
+  let nomorTerbesar =
+    0;
+
+
+  data.forEach(
+    function(item) {
+
+      const nomor =
+        String(
+          item.nomorNota ||
+          ""
+        );
+
+
+      const match =
+        nomor.match(
+          new RegExp(
+            "^NOTA-" +
+            tanggal +
+            "-(\\d+)$"
+          )
+        );
+
+
+      if (match) {
+
+        const angka =
+          Number(
+            match[1]
+          );
+
+
+        if (
+          angka >
+          nomorTerbesar
+        ) {
+
+          nomorTerbesar =
+            angka;
+
+        }
+
+      }
+
+    }
+  );
+
+
+  return (
+    "NOTA-" +
+    tanggal +
+    "-" +
+    String(
+      nomorTerbesar + 1
+    ).padStart(
+      3,
+      "0"
+    )
+  );
+
+}
+
+
+/* =========================================================
+   PILIH PENJUALAN UNTUK NOTA
+   ========================================================= */
+
+function toggleNotaItem(
+  penjualanId,
+  checked
+) {
+
+  const id =
+    String(
+      penjualanId ||
+      ""
+    );
+
+
+  if (!id) {
+
+    return;
+
+  }
+
+
+  if (checked) {
+
+    NOTA_STATE.selected.add(
+      id
+    );
+
+  }
+
+  else {
+
+    NOTA_STATE.selected.delete(
+      id
+    );
+
+  }
+
+
+  updateNotaSummary();
+
+}
+
+
+/* =========================================================
+   PILIH / BATAL SEMUA
+   ========================================================= */
+
+async function toggleSemuaNota(
+  checked
+) {
+
+  const data =
+    await loadPenjualan();
+
+
+  if (checked) {
+
+    data.forEach(
+      function(item) {
+
+        if (item.id) {
+
+          NOTA_STATE.selected.add(
+            String(
+              item.id
+            )
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+  else {
+
+    NOTA_STATE.selected.clear();
+
+  }
+
+
+  updateNotaSummary();
+
+}
+
+
+/* =========================================================
+   AMBIL PENJUALAN TERPILIH
+   ========================================================= */
+
+async function getPenjualanTerpilihUntukNota() {
+
+  const data =
+    await loadPenjualan();
+
+
+  return data.filter(
+    function(item) {
+
+      return NOTA_STATE.selected.has(
+        String(
+          item.id
+        )
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   HITUNG TOTAL PILIHAN
+   ========================================================= */
+
+async function updateNotaSummary() {
+
+  const data =
+    await getPenjualanTerpilihUntukNota();
+
+
+  let total =
+    0;
+
+
+  let qty =
+    0;
+
+
+  data.forEach(
+    function(item) {
+
+      total +=
+        number(
+          item.omzet
+        );
+
+
+      qty +=
+        number(
+          item.qty
+        );
+
+    }
+  );
+
+
+  setText(
+    "notaSelectedCount",
+    data.length
+  );
+
+
+  setText(
+    "notaSelectedQty",
+    qty
+  );
+
+
+  setText(
+    "notaSelectedTotal",
+    rupiah(
+      total
+    )
+  );
+
+
+  const button =
+    document.getElementById(
+      "btnBuatNota"
+    );
+
+
+  if (button) {
+
+    button.disabled =
+      data.length === 0;
+
+  }
+
+
+  return {
+
+    data:
+      data,
+
+    count:
+      data.length,
+
+    qty:
+      qty,
+
+    total:
+      total
+
+  };
+
+}
+
+
+/* =========================================================
+   BUAT NOTA
+   ========================================================= */
+
+async function buatNota() {
+
+  const selected =
+    await getPenjualanTerpilihUntukNota();
+
+
+  if (
+    selected.length === 0
+  ) {
+
+    showToast(
+      "Pilih minimal 1 penjualan"
+    );
+
+    return null;
+
+  }
+
+
+  const nomorNota =
+    await generateNomorNota();
+
+
+  const notaId =
+    uid(
+      "NOTA"
+    );
+
+
+  let total =
+    0;
+
+
+  let totalQty =
+    0;
+
+
+  selected.forEach(
+    function(item) {
+
+      total +=
+        number(
+          item.omzet
+        );
+
+
+      totalQty +=
+        number(
+          item.qty
+        );
+
+    }
+  );
+
+
+  const nota = {
+
+    id:
+      notaId,
+
+    nomorNota:
+      nomorNota,
+
+    tanggal:
+      today(),
+
+    total:
+      total,
+
+    totalQty:
+      totalQty,
+
+    jumlahItem:
+      selected.length,
+
+    createdAt:
+      nowISO()
+
+  };
+
+
+  /*
+   * SIMPAN KEPALA NOTA
+   */
+
+  await dbPut(
+    STORES.nota,
+    nota
+  );
+
+
+  /*
+   * SIMPAN DETAIL
+   */
+
+  for (
+    const item
+    of selected
+  ) {
+
+    const detail = {
+
+      id:
+        uid(
+          "NDET"
+        ),
+
+      notaId:
+        notaId,
+
+      penjualanId:
+        item.id,
+
+      barangId:
+        item.barangId,
+
+      namaBarang:
+        item.namaBarang,
+
+      qty:
+        number(
+          item.qty
+        ),
+
+      hargaModal:
+        number(
+          item.hargaModal
+        ),
+
+      hargaJual:
+        number(
+          item.hargaJual
+        ),
+
+      omzet:
+        number(
+          item.omzet
+        ),
+
+      modal:
+        number(
+          item.modal
+        ),
+
+      untung:
+        number(
+          item.untung
+        ),
+
+      subtotal:
+        number(
+          item.omzet
+        ),
+
+      createdAt:
+        nowISO()
+
+    };
+
+
+    await dbPut(
+      STORES.notaDetail,
+      detail
+    );
+
+  }
+
+
+  /*
+   * MASUK QUEUE UNTUK DIKIRIM KE GAS
+   */
+
+  await queueAdd(
+    "nota",
+    {
+
+      nota:
+        nota,
+
+      detail:
+        selected.map(
+          function(item) {
+
+            return {
+
+              id:
+                uid(
+                  "NDET"
+                ),
+
+              notaId:
+                notaId,
+
+              penjualanId:
+                item.id,
+
+              barangId:
+                item.barangId,
+
+              namaBarang:
+                item.namaBarang,
+
+              qty:
+                number(
+                  item.qty
+                ),
+
+              hargaModal:
+                number(
+                  item.hargaModal
+                ),
+
+              hargaJual:
+                number(
+                  item.hargaJual
+                ),
+
+              omzet:
+                number(
+                  item.omzet
+                ),
+
+              modal:
+                number(
+                  item.modal
+                ),
+
+              untung:
+                number(
+                  item.untung
+                ),
+
+              subtotal:
+                number(
+                  item.omzet
+                )
+
+            };
+
+          }
+        )
+
+    }
+  );
+
+
+  /*
+   * HAPUS PILIHAN
+   */
+
+  NOTA_STATE.selected.clear();
+
+
+  await updateNotaSummary();
+
+
+  /*
+   * SYNC JIKA ONLINE
+   */
+
+  if (
+    navigator.onLine
+  ) {
+
+    await syncQueue();
+
+  }
+
+
+  showToast(
+    "Nota " +
+    nomorNota +
+    " tersimpan"
+  );
+
+
+  /*
+   * REFRESH DAFTAR NOTA
+   */
+
+  if (
+    typeof renderDaftarNota ===
+    "function"
+  ) {
+
+    await renderDaftarNota();
+
+  }
+
+
+  return nota;
+
+}
+
+
+/* =========================================================
+   LOAD DAFTAR NOTA
+   ========================================================= */
+
+async function loadNota() {
+
+  const data =
+    await dbGetAll(
+      STORES.nota
+    );
+
+
+  return data.sort(
+    function(a, b) {
+
+      return String(
+        b.createdAt ||
+        b.tanggal ||
+        ""
+      ).localeCompare(
+        String(
+          a.createdAt ||
+          a.tanggal ||
+          ""
+        )
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   LOAD DETAIL NOTA
+   ========================================================= */
+
+async function loadNotaDetail(
+  notaId
+) {
+
+  const semua =
+    await dbGetAll(
+      STORES.notaDetail
+    );
+
+
+  return semua.filter(
+    function(item) {
+
+      return String(
+        item.notaId
+      ) ===
+      String(
+        notaId
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   BUKA NOTA
+   ========================================================= */
+
+async function bukaNota(
+  notaId
+) {
+
+  const nota =
+    await dbGet(
+      STORES.nota,
+      notaId
+    );
+
+
+  if (!nota) {
+
+    showToast(
+      "Nota tidak ditemukan"
+    );
+
+    return null;
+
+  }
+
+
+  const detail =
+    await loadNotaDetail(
+      notaId
+    );
+
+
+  NOTA_STATE.current = {
+
+    nota:
+      nota,
+
+    detail:
+      detail
+
+  };
+
+
+  /*
+   * Jika index.html nanti memiliki
+   * #detailNota, tampilkan di sana.
+   */
+
+  const container =
+    document.getElementById(
+      "detailNota"
+    );
+
+
+  if (container) {
+
+    container.innerHTML = `
+
+      <div class="nota-detail">
+
+        <h3>
+          ${escapeHTML(
+            nota.nomorNota
+          )}
+        </h3>
+
+        <small>
+          ${escapeHTML(
+            nota.tanggal
+          )}
+        </small>
+
+        <div class="nota-detail-list">
+
+          ${
+            detail.map(
+              function(item) {
+
+                return `
+
+                  <div class="nota-detail-row">
+
+                    <span>
+                      ${escapeHTML(
+                        item.namaBarang
+                      )}
+                    </span>
+
+                    <span>
+                      ${number(
+                        item.qty
+                      )} ×
+                      ${rupiah(
+                        item.hargaJual
+                      )}
+                    </span>
+
+                    <strong>
+                      ${rupiah(
+                        item.subtotal
+                      )}
+                    </strong>
+
+                  </div>
+
+                `;
+
+              }
+            ).join("")
+          }
+
+        </div>
+
+        <div class="nota-total">
+
+          <strong>
+            TOTAL
+          </strong>
+
+          <strong>
+            ${rupiah(
+              nota.total
+            )}
+          </strong>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  return NOTA_STATE.current;
+
+}
+
+
+/* =========================================================
+   HAPUS NOTA
+   ========================================================= */
+
+async function hapusNota(
+  notaId
+) {
+
+  if (!notaId) {
+
+    return false;
+
+  }
+
+
+  const nota =
+    await dbGet(
+      STORES.nota,
+      notaId
+    );
+
+
+  if (!nota) {
+
+    showToast(
+      "Nota tidak ditemukan"
+    );
+
+    return false;
+
+  }
+
+
+  const yakin =
+    confirm(
+      "Hapus " +
+      nota.nomorNota +
+      "?\n\n" +
+      "Data penjualan tetap aman dan tidak akan ikut terhapus."
+    );
+
+
+  if (!yakin) {
+
+    return false;
+
+  }
+
+
+  /*
+   * HAPUS DETAIL
+   */
+
+  const detail =
+    await loadNotaDetail(
+      notaId
+    );
+
+
+  for (
+    const item
+    of detail
+  ) {
+
+    await dbDelete(
+      STORES.notaDetail,
+      item.id
+    );
+
+  }
+
+
+  /*
+   * HAPUS NOTA
+   */
+
+  await dbDelete(
+    STORES.nota,
+    notaId
+  );
+
+
+  /*
+   * QUEUE PENGHAPUSAN
+   */
+
+  await queueAdd(
+    "hapusNota",
+    {
+
+      notaId:
+        notaId
+
+    }
+  );
+
+
+  if (
+    navigator.onLine
+  ) {
+
+    await syncQueue();
+
+  }
+
+
+  showToast(
+    "Nota berhasil dihapus"
+  );
+
+
+  if (
+    typeof renderDaftarNota ===
+    "function"
+  ) {
+
+    await renderDaftarNota();
+
+  }
+
+
+  return true;
+
+}
+
+
+/* =========================================================
+   RENDER DAFTAR NOTA
+   ========================================================= */
+
+async function renderDaftarNota(
+  containerId = "daftarNota"
+) {
+
+  const container =
+    document.getElementById(
+      containerId
+    );
+
+
+  if (!container) {
+
+    return;
+
+  }
+
+
+  const data =
+    await loadNota();
+
+
+  if (
+    data.length === 0
+  ) {
+
+    container.innerHTML = `
+      <p>
+        Belum ada nota.
+      </p>
+    `;
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+    data.map(
+      function(item) {
+
+        return `
+
+          <div
+            class="nota-item"
+            data-nota-id="${escapeHTML(
+              item.id
+            )}"
+          >
+
+            <div>
+
+              <strong>
+                ${escapeHTML(
+                  item.nomorNota
+                )}
+              </strong>
+
+              <small>
+                ${escapeHTML(
+                  item.tanggal
+                )}
+              </small>
+
+              <span>
+                ${number(
+                  item.jumlahItem
+                )}
+                item ·
+                ${rupiah(
+                  item.total
+                )}
+              </span>
+
+            </div>
+
+            <div>
+
+              <button
+                type="button"
+                onclick="bukaNota('${escapeHTML(
+                  item.id
+                )}')"
+              >
+                Buka
+              </button>
+
+              <button
+                type="button"
+                onclick="hapusNota('${escapeHTML(
+                  item.id
+                )}')"
+              >
+                Hapus
+              </button>
+
+            </div>
+
+          </div>
+
+        `;
+
+      }
+    ).join("");
+
+}
 
 /* =========================================================
    RENDER BARANG
@@ -4552,6 +5681,33 @@ window.CatatKu = {
 
   savePenjualan:
     savePenjualan,
+
+  buatNota:
+    buatNota,
+
+  loadNota:
+    loadNota,
+
+  loadNotaDetail:
+    loadNotaDetail,
+
+  bukaNota:
+    bukaNota,
+
+  hapusNota:
+    hapusNota,
+
+  renderDaftarNota:
+    renderDaftarNota,
+
+  toggleNotaItem:
+    toggleNotaItem,
+
+  toggleSemuaNota:
+    toggleSemuaNota,
+
+  updateNotaSummary:
+    updateNotaSummary,
 
   loadBarang:
     loadBarang,
