@@ -2666,3 +2666,500 @@ select {
   }
 
 }
+/* =========================================================
+   DETAIL NOTA
+   ========================================================= */
+
+#detailNota {
+  width: 100%;
+  margin-top: 16px;
+}
+
+
+/* =========================================================
+   KERTAS NOTA
+   ========================================================= */
+
+.nota-print {
+
+  width: 100%;
+
+  padding: 18px;
+
+  background: #ffffff;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 5px 18px
+    rgba(15,23,42,.08);
+
+  overflow: hidden;
+
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.nota-header {
+
+  width: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  text-align: center;
+
+  gap: 3px;
+
+}
+
+
+.nota-title {
+
+  font-size: 18px;
+
+  font-weight: 900;
+
+  color: var(--text);
+
+}
+
+
+.nota-number {
+
+  font-size: 16px;
+
+  font-weight: 900;
+
+  color: #2563eb;
+
+}
+
+
+.nota-date {
+
+  font-size: 13px;
+
+  color: var(--text-soft);
+
+}
+
+
+/* =========================================================
+   GARIS
+   ========================================================= */
+
+.nota-line {
+
+  width: 100%;
+
+  height: 1px;
+
+  margin: 12px 0;
+
+  background:
+    #e2e8f0;
+
+}
+
+
+/* =========================================================
+   HEADER TABEL
+   ========================================================= */
+
+.nota-table-header {
+
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    45px
+    90px
+    100px;
+
+  gap: 7px;
+
+  align-items: center;
+
+  color: #64748b;
+
+  font-size: 11px;
+
+  font-weight: 850;
+
+  text-transform: uppercase;
+
+}
+
+
+.nota-table-header > div {
+
+  min-width: 0;
+
+}
+
+
+.nota-table-header > div:nth-child(n+2) {
+
+  text-align: right;
+
+}
+
+
+/* =========================================================
+   ITEM
+   ========================================================= */
+
+.nota-items {
+
+  width: 100%;
+
+}
+
+
+.nota-row {
+
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    45px
+    90px
+    100px;
+
+  gap: 7px;
+
+  align-items: center;
+
+  padding: 11px 0;
+
+  border-bottom:
+    1px solid #f1f5f9;
+
+}
+
+
+.nota-row:last-child {
+
+  border-bottom: 0;
+
+}
+
+
+/* =========================================================
+   NAMA BARANG
+   ========================================================= */
+
+.nota-name {
+
+  min-width: 0;
+
+  color: var(--text);
+
+  font-size: 14px;
+
+  font-weight: 750;
+
+  overflow-wrap: anywhere;
+
+}
+
+
+/* =========================================================
+   QTY
+   ========================================================= */
+
+.nota-qty {
+
+  text-align: right;
+
+  color: #475569;
+
+  font-size: 13px;
+
+  font-weight: 750;
+
+}
+
+
+/* =========================================================
+   HARGA
+   ========================================================= */
+
+.nota-price {
+
+  text-align: right;
+
+  color: #475569;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+
+}
+
+
+/* =========================================================
+   SUBTOTAL
+   ========================================================= */
+
+.nota-subtotal {
+
+  text-align: right;
+
+  color: var(--text);
+
+  font-size: 13px;
+
+  font-weight: 850;
+
+  white-space: nowrap;
+
+}
+
+
+/* =========================================================
+   KOSONG
+   ========================================================= */
+
+.nota-empty {
+
+  padding: 20px 0;
+
+  text-align: center;
+
+  color: var(--text-soft);
+
+  font-size: 13px;
+
+}
+
+
+/* =========================================================
+   TOTAL
+   ========================================================= */
+
+.nota-total {
+
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  padding: 14px 0 4px;
+
+}
+
+
+.nota-total span {
+
+  color: #334155;
+
+  font-size: 15px;
+
+  font-weight: 850;
+
+}
+
+
+.nota-total strong {
+
+  color: #166534;
+
+  font-size: 21px;
+
+  font-weight: 900;
+
+  white-space: nowrap;
+
+}
+
+
+/* =========================================================
+   TOMBOL NOTA
+   ========================================================= */
+
+.nota-actions {
+
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap: 10px;
+
+  margin-top: 12px;
+
+}
+
+
+.nota-actions button {
+
+  min-height: 48px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  font-size: 14px;
+
+  font-weight: 850;
+
+}
+
+
+.btn-cetak-nota {
+
+  background: #2563eb;
+
+  color: white;
+
+}
+
+
+.btn-tutup-nota {
+
+  background: #f1f5f9;
+
+  color: #334155;
+
+}
+
+
+/* =========================================================
+   HP KECIL
+   ========================================================= */
+
+@media (max-width: 500px) {
+
+  .nota-print {
+
+    padding: 14px;
+
+    border-radius: 14px;
+
+  }
+
+
+  .nota-table-header,
+  .nota-row {
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      35px
+      75px
+      85px;
+
+    gap: 5px;
+
+  }
+
+
+  .nota-name {
+
+    font-size: 13px;
+
+  }
+
+
+  .nota-price,
+  .nota-subtotal {
+
+    font-size: 11px;
+
+  }
+
+
+  .nota-qty {
+
+    font-size: 12px;
+
+  }
+
+}
+
+
+/* =========================================================
+   HP SANGAT KECIL
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+  .nota-print {
+
+    padding: 12px;
+
+  }
+
+
+  .nota-table-header,
+  .nota-row {
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      30px
+      68px
+      78px;
+
+    gap: 4px;
+
+  }
+
+
+  .nota-table-header {
+
+    font-size: 9px;
+
+  }
+
+
+  .nota-name {
+
+    font-size: 12px;
+
+  }
+
+
+  .nota-price,
+  .nota-subtotal {
+
+    font-size: 10px;
+
+  }
+
+
+  .nota-total strong {
+
+    font-size: 18px;
+
+  }
+
+
+  .nota-actions {
+
+    grid-template-columns: 1fr;
+
+  }
+
+}
