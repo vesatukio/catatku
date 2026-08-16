@@ -5764,3 +5764,432 @@ else {
   initApp();
 
 }
+/* =========================================================
+   DASHBOARD PERIODE
+   HARI INI / KEMARIN / MINGGU INI
+   ========================================================= */
+
+CatatKu.dashboardPeriod =
+  "hariIni";
+
+
+CatatKu.setDashboardPeriod =
+  async function(period) {
+
+    CatatKu.dashboardPeriod =
+      period;
+
+
+    /*
+     * Tombol aktif
+     */
+
+    document
+      .querySelectorAll(
+        ".period-btn"
+      )
+      .forEach(
+        function(button) {
+
+          button.classList.toggle(
+            "active",
+            button.dataset.period === period
+          );
+
+        }
+      );
+
+
+    /*
+     * Hitung ulang dashboard
+     */
+
+    await CatatKu.renderDashboardPeriod();
+
+  };
+
+
+CatatKu.renderDashboardPeriod =
+  async function() {
+
+    try {
+
+      /*
+       * Ambil transaksi
+       */
+
+      const transaksi =
+        await dbGetAll(
+          STORES.transaksi
+        );
+
+
+      const penjualan =
+        await dbGetAll(
+          STORES.penjualan
+        );
+
+
+      /*
+       * Tentukan tanggal
+       */
+
+      const sekarang =
+        new Date();
+
+
+      const hariIni =
+        new Date(
+          sekarang.getFullYear(),
+          sekarang.getMonth(),
+          sekarang.getDate()
+        );
+
+
+      const kemarin =
+        new Date(
+          hariIni
+        );
+
+      kemarin.setDate(
+        kemarin.getDate() - 1
+      );
+
+
+      /*
+       * Awal minggu
+       * Senin
+       */
+
+      const awalMinggu =
+        new Date(
+          hariIni
+        );
+
+
+      const hari =
+        awalMinggu.getDay();
+
+
+      const selisih =
+        hari === 0
+          ? 6
+          : hari - 1;
+
+
+      awalMinggu.setDate(
+        awalMinggu.getDate() - selisih
+      );
+
+
+      /*
+       * Akhir minggu
+       */
+
+      const akhirMinggu =
+        new Date(
+          awalMinggu
+        );
+
+      akhirMinggu.setDate(
+        akhirMinggu.getDate() + 7
+      );
+
+
+      /*
+       * Fungsi tanggal
+       */
+
+      function tanggalObj(
+        value
+      ) {
+
+        if (!value) {
+
+          return null;
+
+        }
+
+
+        const d =
+          new Date(
+            value
+          );
+
+
+        if (
+          Number.isNaN(
+            d.getTime()
+          )
+        ) {
+
+          return null;
+
+        }
+
+
+        return new Date(
+          d.getFullYear(),
+          d.getMonth(),
+          d.getDate()
+        );
+
+      }
+
+
+      /*
+       * Filter transaksi
+       */
+
+      function masukPeriode(
+        value
+      ) {
+
+        const tanggal =
+          tanggalObj(
+            value
+          );
+
+
+        if (!tanggal) {
+
+          return false;
+
+        }
+
+
+        if (
+          CatatKu.dashboardPeriod ===
+          "hariIni"
+        ) {
+
+          return (
+            tanggal.getTime() ===
+            hariIni.getTime()
+          );
+
+        }
+
+
+        if (
+          CatatKu.dashboardPeriod ===
+          "kemarin"
+        ) {
+
+          return (
+            tanggal.getTime() ===
+            kemarin.getTime()
+          );
+
+        }
+
+
+        if (
+          CatatKu.dashboardPeriod ===
+          "mingguIni"
+        ) {
+
+          return (
+            tanggal >= awalMinggu &&
+            tanggal < akhirMinggu
+          );
+
+        }
+
+
+        return false;
+
+      }
+
+
+      /*
+       * Hitung uang masuk
+       */
+
+      let pemasukan =
+        0;
+
+
+      let pengeluaran =
+        0;
+
+
+      transaksi
+        .filter(
+          function(item) {
+
+            return masukPeriode(
+              item.tanggal
+            );
+
+          }
+        )
+        .forEach(
+          function(item) {
+
+            const jumlah =
+              Number(
+                item.jumlah
+              ) || 0;
+
+
+            if (
+              String(
+                item.jenis
+              ).toLowerCase() ===
+              "masuk"
+            ) {
+
+              pemasukan +=
+                jumlah;
+
+            }
+
+
+            if (
+              String(
+                item.jenis
+              ).toLowerCase() ===
+              "keluar"
+            ) {
+
+              pengeluaran +=
+                jumlah;
+
+            }
+
+          }
+        );
+
+
+      /*
+       * Hitung omzet
+       */
+
+      let omzet =
+        0;
+
+
+      let untung =
+        0;
+
+
+      penjualan
+        .filter(
+          function(item) {
+
+            return masukPeriode(
+              item.tanggal
+            );
+
+          }
+        )
+        .forEach(
+          function(item) {
+
+            const total =
+              Number(
+                item.omzet
+              ) ||
+              Number(
+                item.total
+              ) ||
+              0;
+
+
+            const modal =
+              Number(
+                item.totalModal
+              ) ||
+              (
+                Number(
+                  item.hargaModal
+                ) || 0
+              ) *
+              (
+                Number(
+                  item.qty
+                ) || 0
+              );
+
+
+            omzet +=
+              total;
+
+
+            untung +=
+              total - modal;
+
+          }
+        );
+
+
+      /*
+       * Tampilkan
+       */
+
+      setDashboardValue(
+        "summaryPemasukan",
+        pemasukan
+      );
+
+
+      setDashboardValue(
+        "summaryPengeluaran",
+        pengeluaran
+      );
+
+
+      setDashboardValue(
+        "omzet",
+        omzet
+      );
+
+
+      setDashboardValue(
+        "untung",
+        untung
+      );
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Dashboard periode:",
+        error
+      );
+
+    }
+
+  };
+
+
+/* =========================================================
+   FORMAT DASHBOARD
+   ========================================================= */
+
+function setDashboardValue(
+  id,
+  value
+) {
+
+  const element =
+    document.getElementById(
+      id
+    );
+
+
+  if (!element) {
+
+    return;
+
+  }
+
+
+  element.textContent =
+    formatRupiah(
+      Number(value) || 0
+    );
+
+}
