@@ -5914,7 +5914,9 @@ window.CatatKu = {
 
   loadDashboard:
     loadDashboard,
-
+  pilihPeriodeRingkasan:
+    pilihPeriodeRingkasan,
+   
   sync:
     manualSync,
 
@@ -6902,5 +6904,74 @@ function setRingkasanNumber(
 
   element.textContent =
     Number(value) || 0;
+
+}
+let periodeRingkasanAktif = "hariIni";
+
+
+function pilihPeriodeRingkasan(periode) {
+
+  periodeRingkasanAktif = periode;
+
+
+  /* ===============================
+     UPDATE TOMBOL
+     =============================== */
+
+  document
+    .querySelectorAll(".periode-btn")
+    .forEach(btn => {
+
+      btn.classList.toggle(
+        "active",
+        btn.dataset.periode === periode
+      );
+
+    });
+
+
+  /* ===============================
+     LABEL PERIODE
+     =============================== */
+
+  const label = {
+
+    hariIni:
+      "Hari Ini",
+
+    kemarin:
+      "Kemarin",
+
+    mingguIni:
+      "Minggu Ini",
+
+    bulanIni:
+      "Bulan Ini"
+
+  };
+
+
+  const labelElement =
+    document.getElementById(
+      "ringkasanPeriode"
+    );
+
+
+  if (labelElement) {
+
+    labelElement.textContent =
+      label[periode] ||
+      "Hari Ini";
+
+  }
+
+
+  /* ===============================
+     RENDER DATA
+     =============================== */
+
+  renderRingkasanPeriode(
+    periode
+  );
 
 }
