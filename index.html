@@ -116,141 +116,166 @@
     <!-- =================================================
          DASHBOARD
          ================================================= -->
+<section
+  id="page-dashboard"
+  class="page active"
+>
 
-    <section
-      id="page-dashboard"
-      class="page active"
-    >
+  <div class="page-title">
 
-      <div class="page-title">
+    <h2>
+      Dashboard
+    </h2>
 
-        <h2>
-          Dashboard
-        </h2>
+    <p>
+      Ringkasan keuangan dan toko
+    </p>
 
-        <p>
-          Ringkasan keuangan dan toko
-        </p>
-
-      </div>
+  </div>
 
 
-      <!-- SALDO -->
+  <!-- =================================================
+       SALDO
+       ================================================= -->
 
-      <div class="card primary-card">
+  <div class="card saldo-card">
 
-        <small>
-          Saldo
-        </small>
+    <span>
+      Saldo
+    </span>
 
-        <h2 id="saldo">
+    <strong id="saldo">
+      Rp0
+    </strong>
+
+  </div>
+
+
+  <!-- =================================================
+       RINGKASAN
+       ================================================= -->
+
+  <div class="dashboard-section">
+
+    <div class="dashboard-section-title">
+
+      <h3>
+        Ringkasan
+      </h3>
+
+    </div>
+
+
+    <!-- PERIODE -->
+
+    <div class="summary-period">
+
+      <button
+        type="button"
+        class="period-btn active"
+        data-period="hariIni"
+        onclick="CatatKu.setDashboardPeriod('hariIni')"
+      >
+        Hari Ini
+      </button>
+
+
+      <button
+        type="button"
+        class="period-btn"
+        data-period="kemarin"
+        onclick="CatatKu.setDashboardPeriod('kemarin')"
+      >
+        Kemarin
+      </button>
+
+
+      <button
+        type="button"
+        class="period-btn"
+        data-period="mingguIni"
+        onclick="CatatKu.setDashboardPeriod('mingguIni')"
+      >
+        Minggu Ini
+      </button>
+
+    </div>
+
+
+    <!-- =================================================
+         RINGKASAN KEUANGAN
+         ================================================= -->
+
+    <div class="summary-grid">
+
+
+      <!-- UANG MASUK -->
+
+      <div class="card summary-income">
+
+        <span>
+          Uang Masuk
+        </span>
+
+        <strong id="summaryPemasukan">
           Rp0
-        </h2>
+        </strong>
 
       </div>
 
 
-      <!-- KEUANGAN -->
+      <!-- UANG KELUAR -->
 
-      <div class="grid-2">
+      <div class="card summary-expense">
 
-        <div class="card">
+        <span>
+          Uang Keluar
+        </span>
 
-          <small>
-            Uang Masuk
-          </small>
-
-          <strong id="pemasukan">
-            Rp0
-          </strong>
-
-        </div>
-
-
-        <div class="card">
-
-          <small>
-            Uang Keluar
-          </small>
-
-          <strong id="pengeluaran">
-            Rp0
-          </strong>
-
-        </div>
+        <strong id="summaryPengeluaran">
+          Rp0
+        </strong>
 
       </div>
 
 
-      <!-- TOKO -->
+      <!-- OMZET -->
 
-      <div class="grid-2">
+      <div class="card summary-omzet">
 
-        <div class="card">
+        <span>
+          Omzet
+        </span>
 
-          <small>
-            Omzet
-          </small>
-
-          <strong id="omzet">
-            Rp0
-          </strong>
-
-        </div>
-
-
-        <div class="card">
-
-          <small>
-            Untung
-          </small>
-
-          <strong id="untung">
-            Rp0
-          </strong>
-
-        </div>
+        <strong id="omzet">
+          Rp0
+        </strong>
 
       </div>
 
 
-      <!-- STOK -->
+      <!-- UNTUNG -->
 
-      <div class="grid-2">
+      <div class="card summary-profit">
 
-        <div class="card">
+        <span>
+          Untung
+        </span>
 
-          <small>
-            Jumlah Barang
-          </small>
-
-          <strong id="jumlahBarang">
-            0
-          </strong>
-
-        </div>
-
-
-        <div class="card">
-
-          <small>
-            Jumlah Stok
-          </small>
-
-          <strong id="jumlahStok">
-            0
-          </strong>
-
-        </div>
+        <strong id="untung">
+          Rp0
+        </strong>
 
       </div>
 
 
-      <div class="card">
+      <!-- NILAI STOK -->
 
-        <small>
+      <div class="card summary-stock-value">
+
+        <span>
           Nilai Stok
-        </small>
+        </span>
 
         <strong id="nilaiStok">
           Rp0
@@ -259,11 +284,43 @@
       </div>
 
 
-      <div class="card">
+      <!-- JENIS BARANG -->
 
-        <small>
+      <div class="card summary-products">
+
+        <span>
+          Jenis Barang
+        </span>
+
+        <strong id="jumlahBarang">
+          0
+        </strong>
+
+      </div>
+
+
+      <!-- TOTAL STOK -->
+
+      <div class="card summary-stock-total">
+
+        <span>
+          Total Stok
+        </span>
+
+        <strong id="jumlahStok">
+          0
+        </strong>
+
+      </div>
+
+
+      <!-- HUTANG -->
+
+      <div class="card summary-debt">
+
+        <span>
           Hutang
-        </small>
+        </span>
 
         <strong id="totalHutang">
           Rp0
@@ -271,9 +328,12 @@
 
       </div>
 
-    </section>
 
+    </div>
 
+  </div>
+
+</section>
 
     <!-- =================================================
          KEUANGAN
