@@ -2365,3 +2365,304 @@ select {
   }
 
 }
+/* =========================================================
+   DAFTAR NOTA
+   ========================================================= */
+
+.nota-item {
+
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding: 15px 0;
+
+  border-bottom:
+    1px solid #edf0f4;
+
+}
+
+.nota-item:last-child {
+  border-bottom: 0;
+}
+
+
+.nota-item-info {
+
+  flex: 1;
+
+  min-width: 0;
+
+  cursor: pointer;
+
+}
+
+
+.nota-item-nomor {
+
+  display: block;
+
+  color: var(--text);
+
+  font-size: 15px;
+
+  font-weight: 900;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+}
+
+
+.nota-item-tanggal {
+
+  display: block;
+
+  margin-top: 3px;
+
+  color: var(--text-soft);
+
+  font-size: 12px;
+
+}
+
+
+.nota-item-meta {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 7px;
+
+  flex-wrap: wrap;
+
+}
+
+
+.nota-item-meta span {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  min-height: 25px;
+
+  padding: 3px 8px;
+
+  border-radius: 8px;
+
+  background: #f1f5f9;
+
+  color: #475569;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+}
+
+
+.nota-item-meta span:last-child {
+
+  background: #eff6ff;
+
+  color: #1d4ed8;
+
+}
+
+
+/* =========================================================
+   TOMBOL NOTA
+   ========================================================= */
+
+.nota-item-actions {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  flex-shrink: 0;
+
+}
+
+
+.nota-item-actions button {
+
+  min-height: 36px;
+
+  padding: 0 10px;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+}
+
+
+.btn-nota-buka {
+
+  background: #eff6ff;
+
+  color: #2563eb;
+
+}
+
+
+.btn-nota-hapus {
+
+  background: #fef2f2;
+
+  color: #dc2626;
+
+}
+
+
+/* =========================================================
+   KOSONG
+   ========================================================= */
+
+.nota-empty {
+
+  padding: 30px 15px;
+
+  text-align: center;
+
+}
+
+
+.nota-empty-icon {
+
+  margin-bottom: 8px;
+
+  font-size: 32px;
+
+}
+
+
+.nota-empty strong {
+
+  display: block;
+
+  color: var(--text);
+
+  font-size: 15px;
+
+}
+
+
+.nota-empty small {
+
+  display: block;
+
+  margin-top: 4px;
+
+  color: var(--text-soft);
+
+  font-size: 12px;
+
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.nota-error {
+
+  padding: 20px;
+
+  text-align: center;
+
+  background: #fef2f2;
+
+  border: 1px solid #fecaca;
+
+  border-radius: 13px;
+
+}
+
+
+.nota-error strong {
+
+  display: block;
+
+  color: #991b1b;
+
+}
+
+
+.nota-error small {
+
+  display: block;
+
+  margin: 5px 0 12px;
+
+  color: #7f1d1d;
+
+}
+
+
+.nota-error button {
+
+  min-height: 38px;
+
+  padding: 0 14px;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  background: #dc2626;
+
+  color: white;
+
+  font-weight: 800;
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 599px) {
+
+  .nota-item {
+
+    align-items: flex-start;
+
+    gap: 9px;
+
+  }
+
+  .nota-item-actions {
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+  }
+
+  .nota-item-actions button {
+
+    min-width: 54px;
+
+  }
+
+}
