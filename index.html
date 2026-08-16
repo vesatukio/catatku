@@ -135,64 +135,130 @@
 
   <div class="summary-grid">
 
-  <!-- SALDO -->
-  <div class="card saldo-card">
-    <span>💳 Saldo</span>
-    <strong id="saldo">Rp0</strong>
+
+    <!-- SALDO -->
+
+    <div class="card saldo-card">
+
+      <span>
+        💳 Saldo
+      </span>
+
+      <strong id="saldo">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- UANG MASUK -->
+
+    <div class="card summary-income">
+
+      <span>
+        💰 Uang Masuk
+      </span>
+
+      <strong id="pemasukan">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- UANG KELUAR -->
+
+    <div class="card summary-expense">
+
+      <span>
+        💸 Uang Keluar
+      </span>
+
+      <strong id="pengeluaran">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- OMZET -->
+
+    <div class="card summary-omzet">
+
+      <span>
+        📈 Omzet
+      </span>
+
+      <strong id="omzet">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- UNTUNG -->
+
+    <div class="card summary-profit">
+
+      <span>
+        💵 Untung
+      </span>
+
+      <strong id="untung">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- NILAI STOK -->
+
+    <div class="card summary-stock-value">
+
+      <span>
+        📦 Nilai Stok
+      </span>
+
+      <strong id="nilaiStok">
+        Rp0
+      </strong>
+
+    </div>
+
+
+    <!-- JENIS BARANG -->
+
+    <div class="card summary-products">
+
+      <span>
+        🏷️ Jenis Barang
+      </span>
+
+      <strong id="jumlahBarang">
+        0
+      </strong>
+
+    </div>
+
+
+    <!-- TOTAL STOK -->
+
+    <div class="card summary-stock-total">
+
+      <span>
+        📊 Total Stok
+      </span>
+
+      <strong id="jumlahStok">
+        0
+      </strong>
+
+    </div>
+
   </div>
 
+</section>
 
-  <!-- UANG MASUK -->
-  <div class="card summary-income">
-    <span>💰 Uang Masuk</span>
-    <strong id="pemasukan">Rp0</strong>
-  </div>
-
-
-  <!-- UANG KELUAR -->
-  <div class="card summary-expense">
-    <span>💸 Uang Keluar</span>
-    <strong id="pengeluaran">Rp0</strong>
-  </div>
-
-
-  <!-- OMZET -->
-  <div class="card summary-omzet">
-    <span>📈 Omzet</span>
-    <strong id="omzet">Rp0</strong>
-  </div>
-
-
-  <!-- UNTUNG -->
-  <div class="card summary-profit">
-    <span>💵 Untung</span>
-    <strong id="untung">Rp0</strong>
-  </div>
-
-
-  <!-- NILAI STOK -->
-  <div class="card summary-stock-value">
-    <span>📦 Nilai Stok</span>
-    <strong id="nilaiStok">Rp0</strong>
-  </div>
-
-
-  <!-- JENIS BARANG -->
-  <div class="card summary-products">
-    <span>🏷️ Jenis Barang</span>
-    <strong id="jumlahBarang">0</strong>
-  </div>
-
-
-  <!-- TOTAL STOK -->
-  <div class="card summary-stock-total">
-    <span>📊 Total Stok</span>
-    <strong id="jumlahStok">0</strong>
-  </div>
-
-</div>
-
-  
 
 <!-- =====================================================
      KEUANGAN
@@ -218,11 +284,15 @@
   </div>
 
 
+  <!-- FORM TRANSAKSI -->
+
   <form
     id="transaksiForm"
     class="form-card"
   >
 
+
+    <!-- TANGGAL -->
 
     <label>
 
@@ -236,91 +306,115 @@
 
     </label>
 
-<label class="jenis-transaksi-label">
 
-  Jenis Transaksi
+    <!-- JENIS TRANSAKSI -->
 
-  <div class="jenis-transaksi">
+    <label class="jenis-transaksi-label">
 
-    <button
-      type="button"
-      class="jenis-btn masuk selected"
-      data-jenis="masuk"
-    >
-      <span>💰</span>
-      <b>Uang Masuk</b>
-    </button>
+      Jenis Transaksi
 
-    <button
-      type="button"
-      class="jenis-btn keluar"
-      data-jenis="keluar"
-    >
-      <span>💸</span>
-      <b>Uang Keluar</b>
-    </button>
+      <div class="jenis-transaksi">
 
-  </div>
+        <button
+          type="button"
+          class="jenis-btn masuk selected"
+          data-jenis="masuk"
+        >
 
-  <input
-    type="hidden"
-    name="jenis"
-    id="jenisTransaksi"
-    value="masuk"
-  >
+          <span>
+            💰
+          </span>
 
-</label>
+          <b>
+            Uang Masuk
+          </b>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="jenis-btn keluar"
+          data-jenis="keluar"
+        >
+
+          <span>
+            💸
+          </span>
+
+          <b>
+            Uang Keluar
+          </b>
+
+        </button>
+
+      </div>
+
+
+      <input
+        type="hidden"
+        name="jenis"
+        id="jenisTransaksi"
+        value="masuk"
+      >
+
+    </label>
+
+
+    <!-- KATEGORI -->
+
     <label>
-  Kategori
 
-  <select
-    name="kategori"
-    id="kategoriTransaksi"
-    required
-  >
+      Kategori
 
-    <option value="">
-      Pilih kategori
-    </option>
+      <select
+        name="kategori"
+        id="kategoriTransaksi"
+        required
+      >
 
-    <option value="Penjualan">
-      Penjualan
-    </option>
+        <option value="">
+          Pilih kategori
+        </option>
 
-    <option value="Modal">
-      Tambahan Modal
-    </option>
+        <option value="Penjualan">
+          Penjualan
+        </option>
 
-    <option value="Piutang">
-      Pembayaran Piutang
-    </option>
+        <option value="Modal">
+          Tambahan Modal
+        </option>
 
-    <option value="Belanja Barang">
-      Belanja Barang
-    </option>
+        <option value="Piutang">
+          Pembayaran Piutang
+        </option>
 
-    <option value="Operasional">
-      Operasional
-    </option>
+        <option value="Belanja Barang">
+          Belanja Barang
+        </option>
 
-    <option value="Bayar Hutang">
-      Bayar Hutang
-    </option>
+        <option value="Operasional">
+          Operasional
+        </option>
 
-    <option value="Pribadi">
-      Pengeluaran Pribadi
-    </option>
+        <option value="Bayar Hutang">
+          Bayar Hutang
+        </option>
 
-    <option value="Lainnya">
-      Lainnya
-    </option>
+        <option value="Pribadi">
+          Pengeluaran Pribadi
+        </option>
 
-  </select>
+        <option value="Lainnya">
+          Lainnya
+        </option>
 
-</label>
+      </select>
+
+    </label>
 
 
-
+    <!-- KETERANGAN -->
 
     <label>
 
@@ -335,6 +429,8 @@
 
     </label>
 
+
+    <!-- JUMLAH -->
 
     <label>
 
@@ -351,6 +447,8 @@
 
     </label>
 
+
+    <!-- SUMBER -->
 
     <label>
 
@@ -371,6 +469,8 @@
     </label>
 
 
+    <!-- SIMPAN -->
+
     <button
       type="submit"
       class="btn-primary"
@@ -381,7 +481,9 @@
   </form>
 
 
-  <!-- RIWAYAT -->
+  <!-- ===================================================
+       RIWAYAT TRANSAKSI
+       =================================================== -->
 
   <div class="panel">
 
@@ -403,7 +505,6 @@
   </div>
 
 </section>
-
 
 
 <!-- =====================================================
@@ -430,11 +531,15 @@
   </div>
 
 
+  <!-- FORM BARANG -->
+
   <form
     id="barangForm"
     class="form-card"
   >
 
+
+    <!-- KODE -->
 
     <label>
 
@@ -449,6 +554,8 @@
 
     </label>
 
+
+    <!-- NAMA -->
 
     <label>
 
@@ -465,6 +572,8 @@
     </label>
 
 
+    <!-- STOK -->
+
     <label>
 
       Stok Awal
@@ -479,6 +588,8 @@
 
     </label>
 
+
+    <!-- HARGA MODAL -->
 
     <label>
 
@@ -495,6 +606,8 @@
     </label>
 
 
+    <!-- HARGA JUAL -->
+
     <label>
 
       Harga Jual
@@ -509,6 +622,8 @@
 
     </label>
 
+
+    <!-- STOK MINIMUM -->
 
     <label>
 
@@ -525,6 +640,8 @@
     </label>
 
 
+    <!-- SIMPAN -->
+
     <button
       type="submit"
       class="btn-primary"
@@ -535,7 +652,9 @@
   </form>
 
 
-  <!-- DAFTAR BARANG -->
+  <!-- ===================================================
+       DAFTAR BARANG
+       =================================================== -->
 
   <div class="panel">
 
@@ -559,10 +678,10 @@
 </section>
 
 
-
 <!-- =====================================================
      PENJUALAN
      ===================================================== -->
+
 <section
   id="penjualan"
   class="page"
@@ -583,10 +702,17 @@
   </div>
 
 
+  <!-- ===================================================
+       FORM PENJUALAN
+       =================================================== -->
+
   <form
     id="penjualanForm"
     class="form-card"
   >
+
+
+    <!-- TANGGAL -->
 
     <label>
 
@@ -600,6 +726,8 @@
 
     </label>
 
+
+    <!-- BARANG -->
 
     <label>
 
@@ -630,7 +758,9 @@
 
       <div>
 
-        <small>Nama Barang</small>
+        <small>
+          Nama Barang
+        </small>
 
         <strong
           id="namaBarangPenjualan"
@@ -643,7 +773,9 @@
 
       <div>
 
-        <small>Harga Jual</small>
+        <small>
+          Harga Jual
+        </small>
 
         <strong
           id="hargaBarangPenjualan"
@@ -656,7 +788,9 @@
 
       <div>
 
-        <small>Stok</small>
+        <small>
+          Stok
+        </small>
 
         <strong
           id="stokBarangPenjualan"
@@ -668,6 +802,8 @@
 
     </div>
 
+
+    <!-- JUMLAH -->
 
     <label>
 
@@ -704,6 +840,8 @@
     </div>
 
 
+    <!-- SIMPAN PENJUALAN -->
+
     <button
       type="submit"
       class="btn-primary"
@@ -738,6 +876,7 @@
   </div>
 
 </section>
+
 
 <!-- =====================================================
      LAPORAN
@@ -1036,8 +1175,9 @@
 
 
 </section>
-</main>
 
+
+</main>
 
 
 <!-- =====================================================
@@ -1058,7 +1198,9 @@
     data-page="dashboard"
   >
 
-    <span>🏠</span>
+    <span>
+      🏠
+    </span>
 
     <small>
       Beranda
@@ -1066,7 +1208,7 @@
 
   </button>
 
- 
+
   <!-- KEUANGAN -->
 
   <button
@@ -1075,7 +1217,9 @@
     data-page="keuangan"
   >
 
-    <span>💰</span>
+    <span>
+      💰
+    </span>
 
     <small>
       Keuangan
@@ -1092,7 +1236,9 @@
     data-page="barang"
   >
 
-    <span>📦</span>
+    <span>
+      📦
+    </span>
 
     <small>
       Barang
@@ -1101,7 +1247,7 @@
   </button>
 
 
-  <!-- PENJUALAN -->
+  <!-- JUAL -->
 
   <button
     type="button"
@@ -1109,20 +1255,33 @@
     data-page="penjualan"
   >
 
-    <span>🛒</span>
+    <span>
+      🛒
+    </span>
 
     <small>
       Jual
     </small>
 
   </button>
-<button
+
+
+  <!-- LAPORAN -->
+
+  <button
     type="button"
     class="nav-item"
     data-page="laporan"
   >
-    <span>📊</span>
-    <small>Laporan</small>
+
+    <span>
+      📊
+    </span>
+
+    <small>
+      Laporan
+    </small>
+
   </button>
 
 </nav>
@@ -1140,7 +1299,6 @@
 ></div>
 
 
-
 <!-- =====================================================
      APP.JS
      ===================================================== -->
@@ -1148,10 +1306,10 @@
 <script src="app.js"></script>
 
 
-
 <!-- =====================================================
      INDEX CONTROLLER
      ===================================================== -->
+
 <script>
 
 "use strict";
@@ -1220,6 +1378,51 @@
             behavior: "smooth"
           });
 
+
+          /* =========================================
+             LOAD LAPORAN SAAT MENU DIBUKA
+             ========================================= */
+
+          if (
+            page === "laporan" &&
+            typeof loadLaporan ===
+              "function"
+          ) {
+
+            setTimeout(
+              function () {
+
+                loadLaporan();
+
+              },
+              100
+            );
+
+          }
+
+
+          /* =========================================
+             LOAD PENJUALAN SAAT MENU JUAL DIBUKA
+             ========================================= */
+
+          if (
+            page === "penjualan" &&
+            window.CatatKu &&
+            typeof CatatKu.renderPenjualan ===
+              "function"
+          ) {
+
+            setTimeout(
+              function () {
+
+                CatatKu.renderPenjualan();
+
+              },
+              100
+            );
+
+          }
+
         }
       );
 
@@ -1227,7 +1430,6 @@
   );
 
 })();
-
 
 
 /* =====================================================
@@ -1293,7 +1495,6 @@ function setDefaultDates() {
 setDefaultDates();
 
 
-
 /* =====================================================
    FORMAT RUPIAH
    ===================================================== */
@@ -1337,8 +1538,10 @@ if (laporanTanggal) {
   const sekarang =
     new Date();
 
+
   const tahun =
     sekarang.getFullYear();
+
 
   const bulan =
     String(
@@ -1348,6 +1551,7 @@ if (laporanTanggal) {
       "0"
     );
 
+
   const hari =
     String(
       sekarang.getDate()
@@ -1355,6 +1559,7 @@ if (laporanTanggal) {
       2,
       "0"
     );
+
 
   laporanTanggal.value =
     tahun +
@@ -1444,6 +1649,20 @@ if (btnLoadLaporan) {
 
 async function loadLaporan() {
 
+  if (
+    typeof GAS_URL ===
+    "undefined"
+  ) {
+
+    console.error(
+      "GAS_URL belum tersedia."
+    );
+
+    return;
+
+  }
+
+
   const tanggal =
     laporanTanggal
       ? laporanTanggal.value
@@ -1514,9 +1733,16 @@ async function loadLaporan() {
     );
 
 
-    showToast(
-      "Laporan gagal dimuat"
-    );
+    if (
+      typeof showToast ===
+      "function"
+    ) {
+
+      showToast(
+        "Laporan gagal dimuat"
+      );
+
+    }
 
   }
 
@@ -1912,35 +2138,6 @@ function formatTanggalIndonesia(
 
 
 /* =====================================================
-   LOAD SAAT MENU LAPORAN DIBUKA
-   ===================================================== */
-
-document
-  .querySelectorAll(
-    '.nav-item[data-page="laporan"]'
-  )
-  .forEach(
-    function(button) {
-
-      button.addEventListener(
-        "click",
-        function() {
-
-          setTimeout(
-            function() {
-
-              loadLaporan();
-
-            },
-            100
-          );
-
-        }
-      );
-
-    }
-  );
-/* =====================================================
    ESCAPE HTML
    ===================================================== */
 
@@ -1973,8 +2170,6 @@ function escapeHtml(value) {
 }
 
 
-
-
 /* =====================================================
    LOAD AWAL
    ===================================================== */
@@ -1985,8 +2180,31 @@ window.addEventListener(
 
     setDefaultDates();
 
+    /* -----------------------------------------------
+       LOAD PENJUALAN
+       ----------------------------------------------- */
+
+    setTimeout(
+      function () {
+
+        if (
+          window.CatatKu &&
+          typeof CatatKu.renderPenjualan ===
+            "function"
+        ) {
+
+          CatatKu.renderPenjualan();
+
+        }
+
+      },
+      800
+    );
+
   }
 );
+
+
 /* =====================================================
    REFRESH BERKALA
    ===================================================== */
@@ -2019,11 +2237,11 @@ setInterval(
 
     }
 
-
-    
   },
   60000
 );
+
+
 /* =====================================================
    PILIH UANG MASUK / UANG KELUAR
    ===================================================== */
@@ -2037,14 +2255,20 @@ setInterval(
         ".jenis-btn"
       );
 
+
     const input =
       document.getElementById(
         "jenisTransaksi"
       );
 
 
-    if (!buttons.length || !input) {
+    if (
+      !buttons.length ||
+      !input
+    ) {
+
       return;
+
     }
 
 
@@ -2062,16 +2286,20 @@ setInterval(
 
 
             if (!jenis) {
+
               return;
+
             }
 
 
-            /* simpan nilai */
+            /* SIMPAN NILAI */
+
             input.value =
               jenis;
 
 
-            /* hapus pilihan */
+            /* HAPUS PILIHAN */
+
             buttons.forEach(
               function (item) {
 
@@ -2083,7 +2311,8 @@ setInterval(
             );
 
 
-            /* tombol yang dipilih */
+            /* TOMBOL TERPILIH */
+
             button.classList.add(
               "selected"
             );
@@ -2095,8 +2324,10 @@ setInterval(
     );
 
 
-    /* default UANG MASUK */
-    input.value = "masuk";
+    /* DEFAULT UANG MASUK */
+
+    input.value =
+      "masuk";
 
 
     buttons.forEach(
@@ -2104,7 +2335,8 @@ setInterval(
 
         button.classList.toggle(
           "selected",
-          button.dataset.jenis === "masuk"
+          button.dataset.jenis ===
+            "masuk"
         );
 
       }
@@ -2123,13 +2355,15 @@ setInterval(
       initJenisTransaksi
     );
 
-  } else {
+  }
+  else {
 
     initJenisTransaksi();
 
   }
 
 })();
+
 </script>
 
 
