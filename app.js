@@ -3793,10 +3793,273 @@ async function bukaNota(
   };
 
 
+  const container =
+    document.getElementById(
+      "detailNota"
+    );
+
+
+  if (!container) {
+
+    console.warn(
+      "Element #detailNota tidak ditemukan"
+    );
+
+    showToast(
+      "Tampilan detail nota belum tersedia"
+    );
+
+    return NOTA_STATE.current;
+
+  }
+
+
+  const total =
+    detail.reduce(
+      function(sum, item) {
+
+        return (
+          sum +
+          number(
+            item.subtotal ||
+            item.omzet
+          )
+        );
+
+      },
+      0
+    );
+
+
+  container.innerHTML = `
+
+    <div class="nota-print">
+
+      <!-- =========================================
+           HEADER NOTA
+           ========================================= -->
+
+      <div class="nota-header">
+
+        <div class="nota-title">
+          DETAIL NOTA
+        </div>
+
+        <div class="nota-number">
+          ${escapeHTML(
+            nota.nomorNota
+          )}
+        </div>
+
+        <div class="nota-date">
+          ${escapeHTML(
+            nota.tanggal
+          )}
+        </div>
+
+      </div>
+
+
+      <div class="nota-line"></div>
+
+
+      <!-- =========================================
+           HEADER KOLOM
+           ========================================= -->
+
+      <div class="nota-table-header">
+
+        <span>Barang</span>
+
+        <span>Qty</span>
+
+        <span>Harga</span>
+
+        <span>Jumlah</span>
+
+      </div>
+
+
+      <div class="nota-line"></div>
+
+
+      <!-- =========================================
+           DETAIL BARANG
+           ========================================= -->
+
+      <div class="nota-items">
+
+        ${
+          detail.map(
+            function(item) {
+
+              const qty =
+                number(
+                  item.qty
+                );
+
+
+              const harga =
+                number(
+                  item.hargaJual
+                );
+
+
+              const subtotal =
+                number(
+                  item.subtotal ||
+                  item.omzet
+                );
+
+
+              return `
+
+                <div class="nota-row">
+
+                  <div class="nota-name">
+
+                    ${escapeHTML(
+                      item.namaBarang ||
+                      "-"
+                    )}
+
+                  </div>
+
+
+                  <div class="nota-qty">
+
+                    ${qty}
+
+                  </div>
+
+
+                  <div class="nota-price">
+
+                    ${rupiah(
+                      harga
+                    )}
+
+                  </div>
+
+
+                  <div class="nota-subtotal">
+
+                    ${rupiah(
+                      subtotal
+                    )}
+
+                  </div>
+
+                </div>
+
+              `;
+
+            }
+          ).join("")
+
+        }
+
+      </div>
+
+
+      <div class="nota-line"></div>
+
+
+      <!-- =========================================
+           TOTAL
+           ========================================= -->
+
+      <div class="nota-total">
+
+        <span>
+          TOTAL
+        </span>
+
+        <strong>
+          ${rupiah(
+            total
+          )}
+        </strong>
+
+      </div>
+
+
+    </div>
+
+
+    <!-- =========================================
+         TOMBOL
+         ========================================= -->
+
+    <div class="nota-actions no-print">
+
+      <button
+        type="button"
+        class="btn-cetak-nota"
+        onclick="printNota()"
+      >
+        🖨️ Cetak Nota
+      </button>
+
+      <button
+        type="button"
+        class="btn-tutup-nota"
+        onclick="tutupDetailNota()"
+      >
+        Tutup
+      </button>
+
+    </div>
+
+  `;
+
+
   /*
-   * Jika index.html nanti memiliki
-   * #detailNota, tampilkan di sana.
+   * Scroll ke detail nota
    */
+
+  container.scrollIntoView({
+    behavior:
+      "smooth",
+
+    block:
+      "start"
+  });
+
+
+  return NOTA_STATE.current;
+
+}
+/* =========================================================
+   CETAK NOTA
+   ========================================================= */
+
+function printNota() {
+
+  if (
+    !NOTA_STATE.current ||
+    !NOTA_STATE.current.nota
+  ) {
+
+    showToast(
+      "Belum ada nota yang dibuka"
+    );
+
+    return;
+
+  }
+
+
+  window.print();
+
+}
+
+
+/* =========================================================
+   TUTUP DETAIL NOTA
+   ========================================================= */
+
+function tutupDetailNota() {
 
   const container =
     document.getElementById(
@@ -3804,91 +4067,17 @@ async function bukaNota(
     );
 
 
-  if (container) {
+  if (!container) {
 
-    container.innerHTML = `
-
-      <div class="nota-detail">
-
-        <h3>
-          ${escapeHTML(
-            nota.nomorNota
-          )}
-        </h3>
-
-        <small>
-          ${escapeHTML(
-            nota.tanggal
-          )}
-        </small>
-
-        <div class="nota-detail-list">
-
-          ${
-            detail.map(
-              function(item) {
-
-                return `
-
-                  <div class="nota-detail-row">
-
-                    <span>
-                      ${escapeHTML(
-                        item.namaBarang
-                      )}
-                    </span>
-
-                    <span>
-                      ${number(
-                        item.qty
-                      )} ×
-                      ${rupiah(
-                        item.hargaJual
-                      )}
-                    </span>
-
-                    <strong>
-                      ${rupiah(
-                        item.subtotal
-                      )}
-                    </strong>
-
-                  </div>
-
-                `;
-
-              }
-            ).join("")
-          }
-
-        </div>
-
-        <div class="nota-total">
-
-          <strong>
-            TOTAL
-          </strong>
-
-          <strong>
-            ${rupiah(
-              nota.total
-            )}
-          </strong>
-
-        </div>
-
-      </div>
-
-    `;
+    return;
 
   }
 
 
-  return NOTA_STATE.current;
+  container.innerHTML =
+    "";
 
 }
-
-
 /* =========================================================
    HAPUS NOTA
    ========================================================= */
@@ -5693,7 +5882,12 @@ window.CatatKu = {
 
   bukaNota:
     bukaNota,
+  printNota:
+    printNota,
 
+  tutupDetailNota:
+    tutupDetailNota,
+   
   hapusNota:
     hapusNota,
 
