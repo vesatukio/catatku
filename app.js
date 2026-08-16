@@ -68,7 +68,6 @@ const STORES = {
 
 };
 
-
 /* =========================================================
    DATABASE GLOBAL
    ========================================================= */
@@ -3064,10 +3063,11 @@ async function loadDashboard() {
 
 
     setText(
-      "totalHutang",
-      "Rp0"
-    );
-
+  "totalHutang",
+  rupiah(
+    data.totalHutang
+  )
+);
 
     setText(
       "jumlahBarang",
@@ -3578,32 +3578,105 @@ async function buatNota() {
 
 
   const notaId =
-    uid(
-      "NOTA"
-    );
+    uid("NOTA");
 
 
-  let total =
-    0;
+  let total = 0;
+
+  let totalQty = 0;
 
 
-  let totalQty =
-    0;
+  const detailList = [];
 
 
   selected.forEach(
     function(item) {
 
-      total +=
-        number(
-          item.omzet
-        );
-
-
-      totalQty +=
+      const qty =
         number(
           item.qty
         );
+
+
+      const omzet =
+        number(
+          item.omzet ??
+          item.subtotal ??
+          (
+            qty *
+            number(
+              item.hargaJual
+            )
+          )
+        );
+
+
+      total +=
+        omzet;
+
+
+      totalQty +=
+        qty;
+
+
+      const detail = {
+
+        id:
+          uid("NDET"),
+
+        notaId:
+          notaId,
+
+        penjualanId:
+          item.id,
+
+        barangId:
+          item.barangId,
+
+        namaBarang:
+          item.namaBarang,
+
+        qty:
+          qty,
+
+        hargaModal:
+          number(
+            item.hargaModal
+          ),
+
+        hargaJual:
+          number(
+            item.hargaJual
+          ),
+
+        omzet:
+          omzet,
+
+        modal:
+          number(
+            item.modal
+          ),
+
+        untung:
+          number(
+            item.untung
+          ),
+
+        subtotal:
+          omzet,
+
+        createdAt:
+          nowISO(),
+
+        urutan:
+          detailList.length + 1
+
+      };
+
+
+      detailList.push(
+        detail
+      );
 
     }
   );
@@ -3627,7 +3700,7 @@ async function buatNota() {
       totalQty,
 
     jumlahItem:
-      selected.length,
+      detailList.length,
 
     createdAt:
       nowISO()
@@ -3635,9 +3708,9 @@ async function buatNota() {
   };
 
 
-  /*
-   * SIMPAN KEPALA NOTA
-   */
+  /* ===============================
+     SIMPAN NOTA
+     =============================== */
 
   await dbPut(
     STORES.nota,
@@ -3645,74 +3718,14 @@ async function buatNota() {
   );
 
 
-  /*
-   * SIMPAN DETAIL
-   */
+  /* ===============================
+     SIMPAN DETAIL
+     =============================== */
 
   for (
-    const item
-    of selected
+    const detail
+    of detailList
   ) {
-
-    const detail = {
-
-      id:
-        uid(
-          "NDET"
-        ),
-
-      notaId:
-        notaId,
-
-      penjualanId:
-        item.id,
-
-      barangId:
-        item.barangId,
-
-      namaBarang:
-        item.namaBarang,
-
-      qty:
-        number(
-          item.qty
-        ),
-
-      hargaModal:
-        number(
-          item.hargaModal
-        ),
-
-      hargaJual:
-        number(
-          item.hargaJual
-        ),
-
-      omzet:
-        number(
-          item.omzet
-        ),
-
-      modal:
-        number(
-          item.modal
-        ),
-
-      untung:
-        number(
-          item.untung
-        ),
-
-      subtotal:
-        number(
-          item.omzet
-        ),
-
-      createdAt:
-        nowISO()
-
-    };
-
 
     await dbPut(
       STORES.notaDetail,
@@ -3722,9 +3735,9 @@ async function buatNota() {
   }
 
 
-  /*
-   * MASUK QUEUE UNTUK DIKIRIM KE GAS
-   */
+  /* ===============================
+     QUEUE
+     =============================== */
 
   await queueAdd(
     "nota",
@@ -3734,75 +3747,15 @@ async function buatNota() {
         nota,
 
       detail:
-        selected.map(
-          function(item) {
-
-            return {
-
-              id:
-                uid(
-                  "NDET"
-                ),
-
-              notaId:
-                notaId,
-
-              penjualanId:
-                item.id,
-
-              barangId:
-                item.barangId,
-
-              namaBarang:
-                item.namaBarang,
-
-              qty:
-                number(
-                  item.qty
-                ),
-
-              hargaModal:
-                number(
-                  item.hargaModal
-                ),
-
-              hargaJual:
-                number(
-                  item.hargaJual
-                ),
-
-              omzet:
-                number(
-                  item.omzet
-                ),
-
-              modal:
-                number(
-                  item.modal
-                ),
-
-              untung:
-                number(
-                  item.untung
-                ),
-
-              subtotal:
-                number(
-                  item.omzet
-                )
-
-            };
-
-          }
-        )
+        detailList
 
     }
   );
 
 
-  /*
-   * HAPUS PILIHAN
-   */
+  /* ===============================
+     BERSIHKAN PILIHAN
+     =============================== */
 
   NOTA_STATE.selected.clear();
 
@@ -3810,9 +3763,9 @@ async function buatNota() {
   await updateNotaSummary();
 
 
-  /*
-   * SYNC JIKA ONLINE
-   */
+  /* ===============================
+     SYNC
+     =============================== */
 
   if (
     navigator.onLine
@@ -3830,10 +3783,6 @@ async function buatNota() {
   );
 
 
-  /*
-   * REFRESH DAFTAR NOTA
-   */
-
   if (
     typeof renderDaftarNota ===
     "function"
@@ -3847,8 +3796,6 @@ async function buatNota() {
   return nota;
 
 }
-
-
 /* =========================================================
    LOAD DAFTAR NOTA
    ========================================================= */
@@ -4313,10 +4260,48 @@ function printNota() {
   }
 
 
-  window.print();
+  const container =
+    document.getElementById(
+      "detailNota"
+    );
+
+
+  if (!container) {
+
+    showToast(
+      "Detail nota tidak ditemukan"
+    );
+
+    return;
+
+  }
+
+
+  document.body.classList.add(
+    "printing-nota"
+  );
+
+
+  setTimeout(
+    function() {
+
+      window.print();
+
+    },
+    100
+  );
 
 }
+window.addEventListener(
+  "afterprint",
+  function() {
 
+    document.body.classList.remove(
+      "printing-nota"
+    );
+
+  }
+);
 
 /* =========================================================
    TUTUP DETAIL NOTA
@@ -7369,6 +7354,13 @@ function pilihPeriodeRingkasan(periode) {
 
   renderRingkasanPeriode(
     periode
+  );
+
+}
+function prepareNotaPrint() {
+
+  document.body.classList.add(
+    "printing-nota"
   );
 
 }
