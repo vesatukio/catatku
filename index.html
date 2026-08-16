@@ -116,6 +116,10 @@
     <!-- =================================================
          DASHBOARD
          ================================================= -->
+<!-- =================================================
+     RINGKASAN
+     ================================================= -->
+
 <section
   id="page-dashboard"
   class="page active"
@@ -124,7 +128,7 @@
   <div class="page-title">
 
     <h2>
-      Dashboard
+      Ringkasan
     </h2>
 
     <p>
@@ -134,15 +138,15 @@
   </div>
 
 
-  <!-- =================================================
+  <!-- ===============================
        SALDO
-       ================================================= -->
+       =============================== -->
 
-  <div class="card saldo-card">
+  <div class="summary-saldo">
 
-    <span>
+    <small>
       Saldo
-    </span>
+    </small>
 
     <strong id="saldo">
       Rp0
@@ -151,190 +155,225 @@
   </div>
 
 
-  <!-- =================================================
+  <!-- ===============================
+       PERIODE
+       =============================== -->
+
+  <div class="periode-box">
+
+    <button
+      type="button"
+      class="periode-btn active"
+      data-periode="hariIni"
+      onclick="CatatKu.pilihPeriodeRingkasan('hariIni')"
+    >
+      Hari Ini
+    </button>
+
+    <button
+      type="button"
+      class="periode-btn"
+      data-periode="kemarin"
+      onclick="CatatKu.pilihPeriodeRingkasan('kemarin')"
+    >
+      Kemarin
+    </button>
+
+    <button
+      type="button"
+      class="periode-btn"
+      data-periode="mingguIni"
+      onclick="CatatKu.pilihPeriodeRingkasan('mingguIni')"
+    >
+      Minggu Ini
+    </button>
+
+    <button
+      type="button"
+      class="periode-btn"
+      data-periode="bulanIni"
+      onclick="CatatKu.pilihPeriodeRingkasan('bulanIni')"
+    >
+      Bulan Ini
+    </button>
+
+  </div>
+
+
+  <!-- ===============================
        RINGKASAN
-       ================================================= -->
+       =============================== -->
 
-  <div class="dashboard-section">
+  <div class="ringkasan-title">
 
-    <div class="dashboard-section-title">
+    <h3>
+      Ringkasan
+    </h3>
 
-      <h3>
-        Ringkasan
-      </h3>
+    <small id="ringkasanPeriode">
+      Hari Ini
+    </small>
 
-    </div>
-
-
-    <!-- PERIODE -->
-
-    <div class="summary-period">
-
-      <button
-        type="button"
-        class="period-btn active"
-        data-period="hariIni"
-        onclick="CatatKu.setDashboardPeriod('hariIni')"
-      >
-        Hari Ini
-      </button>
+  </div>
 
 
-      <button
-        type="button"
-        class="period-btn"
-        data-period="kemarin"
-        onclick="CatatKu.setDashboardPeriod('kemarin')"
-      >
-        Kemarin
-      </button>
+  <div class="ringkasan-grid">
 
 
-      <button
-        type="button"
-        class="period-btn"
-        data-period="mingguIni"
-        onclick="CatatKu.setDashboardPeriod('mingguIni')"
-      >
-        Minggu Ini
-      </button>
+    <!-- UANG MASUK -->
+
+    <div class="ringkasan-card ringkasan-masuk">
+
+      <span class="ringkasan-icon">
+        ↑
+      </span>
+
+      <small>
+        Uang Masuk
+      </small>
+
+      <strong id="ringkasanUangMasuk">
+        Rp0
+      </strong>
 
     </div>
 
 
-    <!-- =================================================
-         RINGKASAN KEUANGAN
-         ================================================= -->
+    <!-- UANG KELUAR -->
 
-    <div class="summary-grid">
+    <div class="ringkasan-card ringkasan-keluar">
 
+      <span class="ringkasan-icon">
+        ↓
+      </span>
 
-      <!-- UANG MASUK -->
+      <small>
+        Uang Keluar
+      </small>
 
-      <div class="card summary-income">
+      <strong id="ringkasanUangKeluar">
+        Rp0
+      </strong>
 
-        <span>
-          Uang Masuk
-        </span>
-
-        <strong id="summaryPemasukan">
-          Rp0
-        </strong>
-
-      </div>
+    </div>
 
 
-      <!-- UANG KELUAR -->
+    <!-- OMZET -->
 
-      <div class="card summary-expense">
+    <div class="ringkasan-card ringkasan-omzet">
 
-        <span>
-          Uang Keluar
-        </span>
+      <span class="ringkasan-icon">
+        🛒
+      </span>
 
-        <strong id="summaryPengeluaran">
-          Rp0
-        </strong>
+      <small>
+        Omzet
+      </small>
 
-      </div>
+      <strong id="ringkasanOmzet">
+        Rp0
+      </strong>
 
-
-      <!-- OMZET -->
-
-      <div class="card summary-omzet">
-
-        <span>
-          Omzet
-        </span>
-
-        <strong id="omzet">
-          Rp0
-        </strong>
-
-      </div>
+    </div>
 
 
-      <!-- UNTUNG -->
+    <!-- UNTUNG -->
 
-      <div class="card summary-profit">
+    <div class="ringkasan-card ringkasan-untung">
 
-        <span>
-          Untung
-        </span>
+      <span class="ringkasan-icon">
+        ✓
+      </span>
 
-        <strong id="untung">
-          Rp0
-        </strong>
+      <small>
+        Untung
+      </small>
 
-      </div>
+      <strong id="ringkasanUntung">
+        Rp0
+      </strong>
 
-
-      <!-- NILAI STOK -->
-
-      <div class="card summary-stock-value">
-
-        <span>
-          Nilai Stok
-        </span>
-
-        <strong id="nilaiStok">
-          Rp0
-        </strong>
-
-      </div>
+    </div>
 
 
-      <!-- JENIS BARANG -->
+    <!-- NILAI STOK -->
 
-      <div class="card summary-products">
+    <div class="ringkasan-card ringkasan-stok">
 
-        <span>
-          Jenis Barang
-        </span>
+      <span class="ringkasan-icon">
+        📦
+      </span>
 
-        <strong id="jumlahBarang">
-          0
-        </strong>
+      <small>
+        Nilai Stok
+      </small>
 
-      </div>
+      <strong id="ringkasanNilaiStok">
+        Rp0
+      </strong>
 
-
-      <!-- TOTAL STOK -->
-
-      <div class="card summary-stock-total">
-
-        <span>
-          Total Stok
-        </span>
-
-        <strong id="jumlahStok">
-          0
-        </strong>
-
-      </div>
+    </div>
 
 
-      <!-- HUTANG -->
+    <!-- JENIS BARANG -->
 
-      <div class="card summary-debt">
+    <div class="ringkasan-card ringkasan-barang">
 
-        <span>
-          Hutang
-        </span>
+      <span class="ringkasan-icon">
+        🏷️
+      </span>
 
-        <strong id="totalHutang">
-          Rp0
-        </strong>
+      <small>
+        Jenis Barang
+      </small>
 
-      </div>
+      <strong id="ringkasanJumlahBarang">
+        0
+      </strong>
 
+    </div>
+
+
+    <!-- TOTAL STOK -->
+
+    <div class="ringkasan-card ringkasan-total-stok">
+
+      <span class="ringkasan-icon">
+        📊
+      </span>
+
+      <small>
+        Total Stok
+      </small>
+
+      <strong id="ringkasanJumlahStok">
+        0
+      </strong>
+
+    </div>
+
+
+    <!-- HUTANG -->
+
+    <div class="ringkasan-card ringkasan-hutang">
+
+      <span class="ringkasan-icon">
+        !
+      </span>
+
+      <small>
+        Hutang
+      </small>
+
+      <strong id="ringkasanHutang">
+        Rp0
+      </strong>
 
     </div>
 
   </div>
 
 </section>
-
     <!-- =================================================
          KEUANGAN
          ================================================= -->
