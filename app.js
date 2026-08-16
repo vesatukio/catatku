@@ -3728,28 +3728,75 @@ async function loadNotaDetail(
   notaId
 ) {
 
-  const semua =
-    await dbGetAll(
-      STORES.notaDetail
-    );
+  if (
+    notaId ===
+    undefined ||
+    notaId ===
+    null ||
+    notaId === ""
+  ) {
+
+    return [];
+
+  }
 
 
-  return semua.filter(
-    function(item) {
+  try {
 
-      return String(
-        item.notaId
-      ) ===
-      String(
-        notaId
+    const semua =
+      await dbGetAll(
+        STORES.notaDetail
       );
 
+
+    if (!Array.isArray(semua)) {
+
+      return [];
+
     }
-  );
+
+
+    const id =
+      String(notaId);
+
+
+    return semua
+      .filter(
+        function(item) {
+
+          return String(
+            item.notaId
+          ) === id;
+
+        }
+      )
+      .sort(
+        function(a, b) {
+
+          return (
+            Number(
+              a.urutan || 0
+            ) -
+            Number(
+              b.urutan || 0
+            )
+          );
+
+        }
+      );
+
+  } catch (error) {
+
+    console.error(
+      "Gagal mengambil detail nota:",
+      error
+    );
+
+    return [];
+
+  }
 
 }
-
-
 /* =========================================================
    BUKA NOTA
    ========================================================= */
@@ -4207,110 +4254,244 @@ async function hapusNota(
 /* =========================================================
    RENDER DAFTAR NOTA
    ========================================================= */
-
 async function renderDaftarNota(
   containerId = "daftarNota"
 ) {
 
   const container =
-    document.getElementById(
-      containerId
-    );
-
+    document.getElementById(containerId);
 
   if (!container) {
-
     return;
-
   }
 
+  try {
 
-  const data =
-    await loadNota();
-
-
-  if (
-    data.length === 0
-  ) {
+    /* ===============================
+       TAMPILKAN LOADING
+       =============================== */
 
     container.innerHTML = `
-      <p>
-        Belum ada nota.
+      <p class="nota-loading">
+        Memuat nota...
       </p>
     `;
 
-    return;
 
-  }
+    /* ===============================
+       AMBIL DATA
+       =============================== */
+
+    let data =
+      await loadNota();
 
 
-  container.innerHTML =
-    data.map(
-      function(item) {
+    if (!Array.isArray(data)) {
+      data = [];
+    }
 
-        return `
 
-          <div
-            class="nota-item"
-            data-nota-id="${escapeHTML(
-              item.id
-            )}"
-          >
+    /* ===============================
+       URUTKAN TERBARU
+       =============================== */
 
-            <div>
+    data.sort(
+      function(a, b) {
 
-              <strong>
-                ${escapeHTML(
-                  item.nomorNota
-                )}
-              </strong>
+        const da =
+          new Date(
+            a.createdAt ||
+            a.tanggal ||
+            0
+          ).getTime();
 
-              <small>
-                ${escapeHTML(
-                  item.tanggal
-                )}
-              </small>
+        const db =
+          new Date(
+            b.createdAt ||
+            b.tanggal ||
+            0
+          ).getTime();
 
-              <span>
-                ${number(
-                  item.jumlahItem
-                )}
-                item ·
-                ${rupiah(
-                  item.total
-                )}
-              </span>
-
-            </div>
-
-            <div>
-
-              <button
-                type="button"
-                onclick="bukaNota('${escapeHTML(
-                  item.id
-                )}')"
-              >
-                Buka
-              </button>
-
-              <button
-                type="button"
-                onclick="hapusNota('${escapeHTML(
-                  item.id
-                )}')"
-              >
-                Hapus
-              </button>
-
-            </div>
-
-          </div>
-
-        `;
+        return db - da;
 
       }
-    ).join("");
+    );
+
+
+    /* ===============================
+       KOSONG
+       =============================== */
+
+    if (data.length === 0) {
+
+      container.innerHTML = `
+        <div class="nota-empty">
+
+          <div class="nota-empty-icon">
+            🧾
+          </div>
+
+          <strong>
+            Belum ada nota
+          </strong>
+
+          <small>
+            Nota yang dibuat akan muncul di sini.
+          </small>
+
+        </div>
+      `;
+
+      return;
+    }
+
+
+    /* ===============================
+       RENDER
+       =============================== */
+
+    container.innerHTML =
+      data.map(
+        function(item) {
+
+          const id =
+            escapeHTML(
+              String(
+                item.id ?? ""
+              )
+            );
+
+          const nomorNota =
+            escapeHTML(
+              String(
+                item.nomorNota ||
+                "Tanpa Nomor"
+              )
+            );
+
+          const tanggal =
+            escapeHTML(
+              String(
+                item.tanggal ||
+                item.createdAt ||
+                "-"
+              )
+            );
+
+          const jumlahItem =
+            Number(
+              item.jumlahItem || 0
+            );
+
+          const total =
+            Number(
+              item.total || 0
+            );
+
+
+          return `
+
+            <div
+              class="nota-item"
+              data-nota-id="${id}"
+            >
+
+              <div
+                class="nota-item-info"
+                onclick="bukaNota('${id}')"
+              >
+
+                <strong
+                  class="nota-item-nomor"
+                >
+                  ${nomorNota}
+                </strong>
+
+                <small
+                  class="nota-item-tanggal"
+                >
+                  ${tanggal}
+                </small>
+
+                <div
+                  class="nota-item-meta"
+                >
+
+                  <span>
+                    ${jumlahItem} item
+                  </span>
+
+                  <span>
+                    ${rupiah(total)}
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div
+                class="nota-item-actions"
+              >
+
+                <button
+                  type="button"
+                  class="btn-nota-buka"
+                  onclick="bukaNota('${id}')"
+                >
+                  Buka
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-nota-hapus"
+                  onclick="hapusNota('${id}')"
+                >
+                  Hapus
+                </button>
+
+              </div>
+
+            </div>
+
+          `;
+
+        }
+      ).join("");
+
+
+  } catch (error) {
+
+    console.error(
+      "Gagal render daftar nota:",
+      error
+    );
+
+    container.innerHTML = `
+      <div class="nota-error">
+
+        <strong>
+          Gagal memuat nota
+        </strong>
+
+        <small>
+          ${escapeHTML(
+            error.message ||
+            "Terjadi kesalahan."
+          )}
+        </small>
+
+        <button
+          type="button"
+          onclick="renderDaftarNota('${containerId}')"
+        >
+          Coba Lagi
+        </button>
+
+      </div>
+    `;
+
+  }
 
 }
 
