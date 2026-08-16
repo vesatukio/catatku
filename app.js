@@ -3800,283 +3800,337 @@ async function loadNotaDetail(
 /* =========================================================
    BUKA NOTA
    ========================================================= */
+/* =========================================================
+   BUKA NOTA
+   ========================================================= */
 
-async function bukaNota(
-  notaId
-) {
+async function bukaNota(notaId) {
 
-  const nota =
-    await dbGet(
-      STORES.nota,
-      notaId
+  try {
+
+    if (
+      notaId === undefined ||
+      notaId === null ||
+      notaId === ""
+    ) {
+
+      showToast("ID nota tidak valid");
+      return null;
+
+    }
+
+
+    const nota =
+      await dbGet(
+        STORES.nota,
+        notaId
+      );
+
+
+    if (!nota) {
+
+      showToast(
+        "Nota tidak ditemukan"
+      );
+
+      return null;
+
+    }
+
+
+    const detail =
+      await loadNotaDetail(
+        notaId
+      );
+
+
+    NOTA_STATE.current = {
+
+      nota: nota,
+
+      detail: detail
+
+    };
+
+
+    const container =
+      document.getElementById(
+        "detailNota"
+      );
+
+
+    if (!container) {
+
+      console.warn(
+        "Element #detailNota tidak ditemukan"
+      );
+
+      showToast(
+        "Tampilan detail nota belum tersedia"
+      );
+
+      return NOTA_STATE.current;
+
+    }
+
+
+    /* =====================================================
+       HITUNG TOTAL
+       ===================================================== */
+
+    const total =
+      detail.reduce(
+        function(sum, item) {
+
+          const subtotal =
+            number(
+              item.subtotal ??
+              item.omzet ??
+              (
+                number(item.qty) *
+                number(item.hargaJual)
+              )
+            );
+
+          return sum + subtotal;
+
+        },
+        0
+      );
+
+
+    /* =====================================================
+       RENDER DETAIL
+       ===================================================== */
+
+    container.innerHTML = `
+
+      <div class="nota-print">
+
+        <!-- HEADER -->
+
+        <div class="nota-header">
+
+          <div class="nota-title">
+            DETAIL NOTA
+          </div>
+
+          <strong class="nota-number">
+            ${escapeHTML(
+              nota.nomorNota || "-"
+            )}
+          </strong>
+
+          <small class="nota-date">
+            ${escapeHTML(
+              nota.tanggal || "-"
+            )}
+          </small>
+
+        </div>
+
+
+        <div class="nota-line"></div>
+
+
+        <!-- HEADER TABEL -->
+
+        <div class="nota-table-header">
+
+          <div>Barang</div>
+
+          <div>Qty</div>
+
+          <div>Harga</div>
+
+          <div>Jumlah</div>
+
+        </div>
+
+
+        <div class="nota-line"></div>
+
+
+        <!-- ITEM -->
+
+        <div class="nota-items">
+
+          ${
+            detail.length === 0
+
+              ? `
+
+                <div class="nota-empty">
+                  Tidak ada barang dalam nota.
+                </div>
+
+              `
+
+              :
+
+            detail.map(
+              function(item) {
+
+                const qty =
+                  number(
+                    item.qty
+                  );
+
+
+                const harga =
+                  number(
+                    item.hargaJual
+                  );
+
+
+                const subtotal =
+                  number(
+                    item.subtotal ??
+                    item.omzet ??
+                    (
+                      qty * harga
+                    )
+                  );
+
+
+                return `
+
+                  <div class="nota-row">
+
+                    <div class="nota-name">
+
+                      ${escapeHTML(
+                        item.namaBarang ||
+                        item.nama ||
+                        "-"
+                      )}
+
+                    </div>
+
+
+                    <div class="nota-qty">
+
+                      ${qty}
+
+                    </div>
+
+
+                    <div class="nota-price">
+
+                      ${rupiah(
+                        harga
+                      )}
+
+                    </div>
+
+
+                    <div class="nota-subtotal">
+
+                      ${rupiah(
+                        subtotal
+                      )}
+
+                    </div>
+
+                  </div>
+
+                `;
+
+              }
+            ).join("")
+
+          }
+
+        </div>
+
+
+        <div class="nota-line"></div>
+
+
+        <!-- TOTAL -->
+
+        <div class="nota-total">
+
+          <span>
+            TOTAL
+          </span>
+
+          <strong>
+            ${rupiah(total)}
+          </strong>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- AKSI -->
+
+      <div class="nota-actions no-print">
+
+        <button
+          type="button"
+          class="btn-cetak-nota"
+          onclick="CatatKu.printNota()"
+        >
+          🖨️ Cetak Nota
+        </button>
+
+
+        <button
+          type="button"
+          class="btn-tutup-nota"
+          onclick="CatatKu.tutupDetailNota()"
+        >
+          Tutup
+        </button>
+
+      </div>
+
+    `;
+
+
+    /* =====================================================
+       TAMPILKAN DETAIL
+       ===================================================== */
+
+    container.style.display =
+      "block";
+
+
+    requestAnimationFrame(
+      function() {
+
+        container.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+
+      }
     );
 
 
-  if (!nota) {
+    return NOTA_STATE.current;
+
+
+  } catch (error) {
+
+    console.error(
+      "Gagal membuka nota:",
+      error
+    );
 
     showToast(
-      "Nota tidak ditemukan"
+      "Gagal membuka detail nota"
     );
 
     return null;
 
   }
 
-
-  const detail =
-    await loadNotaDetail(
-      notaId
-    );
-
-
-  NOTA_STATE.current = {
-
-    nota:
-      nota,
-
-    detail:
-      detail
-
-  };
-
-
-  const container =
-    document.getElementById(
-      "detailNota"
-    );
-
-
-  if (!container) {
-
-    console.warn(
-      "Element #detailNota tidak ditemukan"
-    );
-
-    showToast(
-      "Tampilan detail nota belum tersedia"
-    );
-
-    return NOTA_STATE.current;
-
-  }
-
-
-  const total =
-    detail.reduce(
-      function(sum, item) {
-
-        return (
-          sum +
-          number(
-            item.subtotal ||
-            item.omzet
-          )
-        );
-
-      },
-      0
-    );
-
-
-  container.innerHTML = `
-
-    <div class="nota-print">
-
-      <!-- =========================================
-           HEADER NOTA
-           ========================================= -->
-
-      <div class="nota-header">
-
-        <div class="nota-title">
-          DETAIL NOTA
-        </div>
-
-        <div class="nota-number">
-          ${escapeHTML(
-            nota.nomorNota
-          )}
-        </div>
-
-        <div class="nota-date">
-          ${escapeHTML(
-            nota.tanggal
-          )}
-        </div>
-
-      </div>
-
-
-      <div class="nota-line"></div>
-
-
-      <!-- =========================================
-           HEADER KOLOM
-           ========================================= -->
-
-      <div class="nota-table-header">
-
-        <span>Barang</span>
-
-        <span>Qty</span>
-
-        <span>Harga</span>
-
-        <span>Jumlah</span>
-
-      </div>
-
-
-      <div class="nota-line"></div>
-
-
-      <!-- =========================================
-           DETAIL BARANG
-           ========================================= -->
-
-      <div class="nota-items">
-
-        ${
-          detail.map(
-            function(item) {
-
-              const qty =
-                number(
-                  item.qty
-                );
-
-
-              const harga =
-                number(
-                  item.hargaJual
-                );
-
-
-              const subtotal =
-                number(
-                  item.subtotal ||
-                  item.omzet
-                );
-
-
-              return `
-
-                <div class="nota-row">
-
-                  <div class="nota-name">
-
-                    ${escapeHTML(
-                      item.namaBarang ||
-                      "-"
-                    )}
-
-                  </div>
-
-
-                  <div class="nota-qty">
-
-                    ${qty}
-
-                  </div>
-
-
-                  <div class="nota-price">
-
-                    ${rupiah(
-                      harga
-                    )}
-
-                  </div>
-
-
-                  <div class="nota-subtotal">
-
-                    ${rupiah(
-                      subtotal
-                    )}
-
-                  </div>
-
-                </div>
-
-              `;
-
-            }
-          ).join("")
-
-        }
-
-      </div>
-
-
-      <div class="nota-line"></div>
-
-
-      <!-- =========================================
-           TOTAL
-           ========================================= -->
-
-      <div class="nota-total">
-
-        <span>
-          TOTAL
-        </span>
-
-        <strong>
-          ${rupiah(
-            total
-          )}
-        </strong>
-
-      </div>
-
-
-    </div>
-
-
-    <!-- =========================================
-         TOMBOL
-         ========================================= -->
-
-    <div class="nota-actions no-print">
-
-      <button
-        type="button"
-        class="btn-cetak-nota"
-        onclick="printNota()"
-      >
-        🖨️ Cetak Nota
-      </button>
-
-      <button
-        type="button"
-        class="btn-tutup-nota"
-        onclick="tutupDetailNota()"
-      >
-        Tutup
-      </button>
-
-    </div>
-
-  `;
-
-
-  /*
-   * Scroll ke detail nota
-   */
-
-  container.scrollIntoView({
-    behavior:
-      "smooth",
-
-    block:
-      "start"
-  });
-
-
-  return NOTA_STATE.current;
-
 }
+
 /* =========================================================
    CETAK NOTA
    ========================================================= */
