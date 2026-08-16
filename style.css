@@ -3163,3 +3163,62 @@ select {
   }
 
 }
+/* =========================================================
+   CETAK HANYA DETAIL NOTA
+   ========================================================= */
+
+@media print {
+
+  body.printing-nota * {
+    visibility: hidden !important;
+  }
+
+
+  body.printing-nota #detailNota,
+  body.printing-nota #detailNota * {
+    visibility: visible !important;
+  }
+
+
+  body.printing-nota #detailNota {
+    display: block !important;
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    background: #fff;
+  }
+
+
+  body.printing-nota .no-print {
+    display: none !important;
+  }
+
+
+  body.printing-nota .nota-print {
+    width: 100%;
+
+    max-width: 80mm;
+
+    margin: 0 auto;
+
+    padding: 5mm;
+
+    background: #fff;
+
+    color: #000;
+  }
+
+
+  @page {
+    margin: 5mm;
+  }
+
+}
