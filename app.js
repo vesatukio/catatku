@@ -3963,18 +3963,20 @@ async function renderPenjualan(containerId) {
 /* =========================================================
    CETAK NOTA PENJUALAN
    ========================================================= */
+/* =========================================================
+   CETAK NOTA PENJUALAN
+   ========================================================= */
 
 async function cetakNota(penjualanId) {
 
   try {
 
-    /* -----------------------------------------------------
-       VALIDASI ID
-       ----------------------------------------------------- */
+    console.log("CETAK NOTA ID:", penjualanId);
 
     if (
       penjualanId === undefined ||
-      penjualanId === null
+      penjualanId === null ||
+      penjualanId === ""
     ) {
 
       showToast(
@@ -3982,47 +3984,82 @@ async function cetakNota(penjualanId) {
       );
 
       return;
-
-    }
-
-    penjualanId =
-      String(
-        penjualanId
-      ).trim();
-
-
-    if (!penjualanId) {
-
-      showToast(
-        "ID penjualan kosong"
-      );
-
-      return;
-
     }
 
 
-    console.log(
-      "CETAK NOTA ID:",
-      penjualanId
-    );
+    let penjualan = null;
 
 
     /* -----------------------------------------------------
-       AMBIL DATA DARI INDEXEDDB
+       1. COBA AMBIL BERDASARKAN ID
        ----------------------------------------------------- */
 
-    const penjualan =
-      await dbGet(
-        STORES.penjualan,
-        penjualanId
+    try {
+
+      penjualan =
+        await dbGet(
+          STORES.penjualan,
+          penjualanId
+        );
+
+    }
+
+    catch (err) {
+
+      console.warn(
+        "dbGet berdasarkan ID gagal:",
+        err
       );
 
+    }
+
+
+    /* -----------------------------------------------------
+       2. JIKA TIDAK KETEMU, CARI DI SEMUA DATA
+       ----------------------------------------------------- */
+
+    if (!penjualan) {
+
+      try {
+
+        const semua =
+          await dbGetAll(
+            STORES.penjualan
+          );
+
+
+        penjualan =
+          semua.find(
+            function(item) {
+
+              return String(item.id) ===
+                String(penjualanId);
+
+            }
+          );
+
+      }
+
+      catch (err) {
+
+        console.warn(
+          "Pencarian penjualan gagal:",
+          err
+        );
+
+      }
+
+    }
+
+
+    /* -----------------------------------------------------
+       3. DATA BENAR-BENAR TIDAK ADA
+       ----------------------------------------------------- */
 
     if (!penjualan) {
 
       console.error(
-        "DATA PENJUALAN TIDAK DITEMUKAN:",
+        "Data penjualan tidak ditemukan:",
         penjualanId
       );
 
@@ -4035,6 +4072,12 @@ async function cetakNota(penjualanId) {
     }
 
 
+    console.log(
+      "DATA PENJUALAN:",
+      penjualan
+    );
+
+
     /* -----------------------------------------------------
        DATA NOTA
        ----------------------------------------------------- */
@@ -4044,52 +4087,43 @@ async function cetakNota(penjualanId) {
         penjualan.qty
       );
 
+
     const hargaJual =
       number(
         penjualan.hargaJual
       );
+
 
     const omzet =
       number(
         penjualan.omzet
       );
 
+
     const nomorNota =
-      String(
-        penjualan.id
-      );
+      penjualan.id ||
+      uid("NOTA");
+
 
     const tanggal =
       penjualan.tanggal ||
       today();
 
-    let waktu =
-      tanggal;
 
-
-    if (
+    const waktu =
       penjualan.createdAt
-    ) {
-
-      const d =
-        new Date(
-          penjualan.createdAt
-        );
-
-      if (
-        !isNaN(
-          d.getTime()
-        )
-      ) {
-
-        waktu =
-          d.toLocaleString(
+        ? new Date(
+            penjualan.createdAt
+          ).toLocaleString(
             "id-ID"
-          );
+          )
+        : tanggal;
 
-      }
 
-    }
+    const namaBarang =
+      penjualan.namaBarang ||
+      penjualan.nama ||
+      "Barang";
 
 
     /* -----------------------------------------------------
@@ -4111,58 +4145,62 @@ async function cetakNota(penjualanId) {
   content="width=device-width,initial-scale=1"
 >
 
-<title>
-  Nota ${escapeHTML(nomorNota)}
-</title>
+<title>Nota ${escapeHTML(String(nomorNota))}</title>
 
 <style>
 
 * {
-  box-sizing:border-box;
+  box-sizing: border-box;
 }
 
 body {
 
-  margin:0;
+  margin: 0;
 
-  padding:15px;
+  padding: 15px;
 
   font-family:
     Arial,
     Helvetica,
     sans-serif;
 
+  background: #fff;
+
+  color: #111;
+
 }
 
 .nota {
 
-  width:80mm;
+  width: 80mm;
 
-  max-width:100%;
+  max-width: 100%;
 
-  margin:auto;
+  margin: 0 auto;
 
 }
 
 .header {
 
-  text-align:center;
+  text-align: center;
+
+  margin-bottom: 12px;
 
 }
 
 .nama-toko {
 
-  font-size:20px;
+  font-size: 20px;
 
-  font-weight:bold;
+  font-weight: 700;
 
 }
 
 .subjudul {
 
-  font-size:12px;
+  font-size: 12px;
 
-  margin-top:3px;
+  margin-top: 3px;
 
 }
 
@@ -4178,75 +4216,82 @@ body {
 
 .info {
 
-  font-size:12px;
+  font-size: 12px;
 
-  line-height:1.6;
+  line-height: 1.6;
 
 }
 
 .item {
 
-  margin-top:10px;
+  margin-top: 10px;
 
 }
 
 .nama-barang {
 
-  font-size:14px;
+  font-size: 14px;
 
-  font-weight:bold;
+  font-weight: 700;
 
 }
 
 .detail {
 
-  display:flex;
+  display: flex;
 
-  justify-content:space-between;
+  justify-content: space-between;
 
-  font-size:12px;
+  font-size: 12px;
 
-  margin-top:5px;
+  margin-top: 4px;
 
 }
 
 .total {
 
-  display:flex;
+  display: flex;
 
-  justify-content:space-between;
+  justify-content: space-between;
 
-  font-size:16px;
+  font-size: 16px;
 
-  font-weight:bold;
+  font-weight: 700;
+
+  margin-top: 8px;
 
 }
 
 .terima {
 
-  text-align:center;
+  text-align: center;
 
-  margin-top:15px;
+  margin-top: 15px;
 
-  font-size:12px;
+  font-size: 12px;
 
 }
 
 .tombol {
 
-  text-align:center;
+  text-align: center;
 
-  margin-top:20px;
+  margin-top: 20px;
 
 }
 
 button {
 
-  padding:10px 18px;
+  border: 0;
 
-  border:0;
+  padding:
+    10px 18px;
 
-  border-radius:8px;
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  cursor: pointer;
 
 }
 
@@ -4254,27 +4299,27 @@ button {
 
   @page {
 
-    size:80mm auto;
+    size: 80mm auto;
 
-    margin:3mm;
+    margin: 3mm;
 
   }
 
   body {
 
-    padding:0;
-
-  }
-
-  .tombol {
-
-    display:none;
+    padding: 0;
 
   }
 
   .nota {
 
-    width:100%;
+    width: 100%;
+
+  }
+
+  .tombol {
+
+    display: none;
 
   }
 
@@ -4300,55 +4345,73 @@ button {
 
   </div>
 
+
   <div class="garis"></div>
+
 
   <div class="info">
 
     <div>
       No:
-      ${escapeHTML(nomorNota)}
+      ${escapeHTML(
+        String(nomorNota)
+      )}
     </div>
 
     <div>
       Tanggal:
-      ${escapeHTML(tanggal)}
+      ${escapeHTML(
+        String(tanggal)
+      )}
     </div>
 
     <div>
       Waktu:
-      ${escapeHTML(waktu)}
+      ${escapeHTML(
+        String(waktu)
+      )}
     </div>
 
   </div>
 
+
   <div class="garis"></div>
+
 
   <div class="item">
 
     <div class="nama-barang">
 
       ${escapeHTML(
-        penjualan.namaBarang ||
-        "Barang"
+        String(namaBarang)
       )}
 
     </div>
 
+
     <div class="detail">
 
       <span>
-        ${qty} x ${rupiah(hargaJual)}
+
+        ${qty}
+        x
+        ${rupiah(hargaJual)}
+
       </span>
 
       <span>
+
         ${rupiah(omzet)}
+
       </span>
 
     </div>
 
   </div>
 
+
   <div class="garis"></div>
+
 
   <div class="total">
 
@@ -4362,7 +4425,9 @@ button {
 
   </div>
 
+
   <div class="garis"></div>
+
 
   <div class="terima">
 
@@ -4374,10 +4439,10 @@ button {
 
   </div>
 
+
   <div class="tombol">
 
     <button
-      type="button"
       onclick="window.print()"
     >
       🖨 Cetak Nota
@@ -4386,6 +4451,7 @@ button {
   </div>
 
 </div>
+
 
 <script>
 
@@ -4397,7 +4463,7 @@ window.onload = function() {
       window.print();
 
     },
-    500
+    300
   );
 
 };
@@ -4412,7 +4478,7 @@ window.onload = function() {
 
 
     /* -----------------------------------------------------
-       BUKA CETAK
+       BUKA JENDELA CETAK
        ----------------------------------------------------- */
 
     const printWindow =
@@ -4426,7 +4492,7 @@ window.onload = function() {
     if (!printWindow) {
 
       showToast(
-        "Popup diblokir Chrome"
+        "Popup diblokir Chrome. Izinkan popup untuk mencetak nota."
       );
 
       return;
@@ -4442,12 +4508,13 @@ window.onload = function() {
 
     printWindow.document.close();
 
+
   }
 
   catch (error) {
 
     console.error(
-      "Cetak nota:",
+      "CETAK NOTA ERROR:",
       error
     );
 
@@ -4459,6 +4526,7 @@ window.onload = function() {
   }
 
 }
+
 /* =========================================================
    TOAST
    ========================================================= */
