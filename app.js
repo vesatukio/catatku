@@ -314,25 +314,40 @@ window.addEventListener(
       "Internet kembali..."
     );
 
-    await sync();
+    /*
+     * Kirim data offline
+     */
+
+    const sukses =
+      await sync();
+
+    /*
+     * Setelah queue kosong,
+     * ambil data terbaru server
+     */
+
+    if (sukses) {
+
+      const queue =
+        await dbGetAll(
+          STORE.queue
+        );
+
+      if (queue.length === 0) {
+
+        await loadRemoteData();
+
+        await loadDashboard();
+        await loadTransaksi();
+        await loadBarang();
+        await renderPenjualanHistory();
+
+      }
+
+    }
 
   }
 );
-
-
-window.addEventListener(
-  "offline",
-  function() {
-
-    updateConnection();
-
-    setSyncStatus(
-      "Offline - data tersimpan di HP"
-    );
-
-  }
-);
-
 
 /* =========================================================
    INDEXED DB
@@ -1342,11 +1357,8 @@ async function savePenjualan(
 async function loadRemoteData() {
 
   if (!navigator.onLine) {
-
     return false;
-
   }
-
 
   try {
 
@@ -1354,12 +1366,38 @@ async function loadRemoteData() {
       "Mengambil data server..."
     );
 
+    /*
+     * =====================================================
+     * JANGAN AMBIL SERVER JIKA MASIH ADA QUEUE
+     * =====================================================
+     */
+
+    const pending =
+      await dbGetAll(
+        STORE.queue
+      );
+
+    if (pending.length > 0) {
+
+      console.log(
+        "loadRemoteData dibatalkan:",
+        pending.length,
+        "queue masih menunggu sync"
+      );
+
+      setSyncStatus(
+        pending.length +
+        " data menunggu sync"
+      );
+
+      return false;
+
+    }
 
     const result =
       await gasGet(
         "appData"
       );
-
 
     if (
       !result ||
@@ -1372,14 +1410,14 @@ async function loadRemoteData() {
 
     }
 
-
     const data =
       result.data;
 
-
-    /* -----------------------------------------------------
-       TRANSAKSI
-       ----------------------------------------------------- */
+    /*
+     * =====================================================
+     * TRANSAKSI
+     * =====================================================
+     */
 
     if (
       Array.isArray(
@@ -1411,10 +1449,11 @@ async function loadRemoteData() {
 
     }
 
-
-    /* -----------------------------------------------------
-       BARANG
-       ----------------------------------------------------- */
+    /*
+     * =====================================================
+     * BARANG
+     * =====================================================
+     */
 
     if (
       Array.isArray(
@@ -1446,10 +1485,11 @@ async function loadRemoteData() {
 
     }
 
-
-    /* -----------------------------------------------------
-       PENJUALAN
-       ----------------------------------------------------- */
+    /*
+     * =====================================================
+     * PENJUALAN
+     * =====================================================
+     */
 
     if (
       Array.isArray(
@@ -1481,11 +1521,13 @@ async function loadRemoteData() {
 
     }
 
-
     setDatabaseStatus(
       "Database tersambung"
     );
 
+    setSyncStatus(
+      "Data server diperbarui"
+    );
 
     return true;
 
@@ -1497,18 +1539,19 @@ async function loadRemoteData() {
       error
     );
 
-
     setDatabaseStatus(
       "Database lokal"
     );
 
+    setSyncStatus(
+      "Gagal mengambil server"
+    );
 
     return false;
 
   }
 
 }
-
 
 /* =========================================================
    DASHBOARD
@@ -2792,11 +2835,8 @@ async function handlePenjualan(
 async function sync() {
 
   if (syncRunning) {
-
-    return;
-
+    return false;
   }
-
 
   if (!navigator.onLine) {
 
@@ -2806,14 +2846,11 @@ async function sync() {
       "Offline - menunggu internet"
     );
 
-    return;
+    return false;
 
   }
 
-
-  syncRunning =
-    true;
-
+  syncRunning = true;
 
   try {
 
@@ -2822,6 +2859,9 @@ async function sync() {
         STORE.queue
       );
 
+    /*
+     * Tidak ada data yang perlu dikirim
+     */
 
     if (!queue.length) {
 
@@ -2829,10 +2869,27 @@ async function sync() {
         "Tersinkron"
       );
 
-      return;
+      return true;
 
     }
 
+    /*
+     * Urutkan berdasarkan waktu
+     */
+
+    queue.sort(
+      function(a, b) {
+
+        return String(
+          a.createdAt || ""
+        ).localeCompare(
+          String(
+            b.createdAt || ""
+          )
+        );
+
+      }
+    );
 
     setSyncStatus(
       "Mengirim " +
@@ -2840,21 +2897,28 @@ async function sync() {
       " data..."
     );
 
+    console.log(
+      "SYNC QUEUE:",
+      queue
+    );
 
-    const result =
+    const response =
       await gasPost(
         "sync",
         {
-          items:
-            queue
+          items: queue
         }
       );
 
+    console.log(
+      "SYNC RESPONSE:",
+      response
+    );
 
     if (
-      !result ||
+      !response ||
       !Array.isArray(
-        result.results
+        response.results
       )
     ) {
 
@@ -2864,29 +2928,42 @@ async function sync() {
 
     }
 
+    let berhasil = 0;
+    let gagal = 0;
 
-    let berhasil =
-      0;
-
-    let gagal =
-      0;
-
+    /*
+     * =====================================================
+     * PROSES HASIL SERVER
+     * =====================================================
+     */
 
     for (
       const resultItem
-      of result.results
+      of response.results
     ) {
 
       if (
         resultItem &&
-        resultItem.success &&
-        resultItem.id
+        resultItem.success
       ) {
 
-        await dbDelete(
-          STORE.queue,
+        /*
+         * resultItem.id adalah ID QUEUE
+         *
+         * Backend memang mengembalikan:
+         * item.id || data.id
+         */
+
+        if (
           resultItem.id
-        );
+        ) {
+
+          await dbDelete(
+            STORE.queue,
+            resultItem.id
+          );
+
+        }
 
         berhasil++;
 
@@ -2895,43 +2972,57 @@ async function sync() {
 
         gagal++;
 
+        console.error(
+          "SYNC ITEM GAGAL:",
+          resultItem
+        );
+
       }
 
     }
 
-
-    await updateSyncCount();
-
-
     /*
-     * PENTING:
-     *
-     * Jangan loadRemoteData()
-     * di sini.
-     *
-     * Data lokal yang baru dibuat
-     * jangan langsung ditimpa data server.
+     * =====================================================
+     * HITUNG ULANG QUEUE
+     * =====================================================
      */
 
+    const sisa =
+      await dbGetAll(
+        STORE.queue
+      );
 
-    await loadDashboard();
-
-    await loadTransaksi();
-
-    await loadBarang();
-
-    await renderPenjualanHistory();
-
-
-    if (
-      gagal > 0
-    ) {
+    if (sisa.length === 0) {
 
       setSyncStatus(
-        gagal +
+        "Tersinkron"
+      );
+
+    }
+    else {
+
+      setSyncStatus(
+        sisa.length +
         " data gagal sync"
       );
 
+    }
+
+    /*
+     * =====================================================
+     * RENDER DATA LOKAL
+     *
+     * Jangan loadRemoteData di sini.
+     * Data lokal sudah benar.
+     * =====================================================
+     */
+
+    await loadDashboard();
+    await loadTransaksi();
+    await loadBarang();
+    await renderPenjualanHistory();
+
+    if (gagal > 0) {
 
       toast(
         berhasil +
@@ -2941,25 +3032,20 @@ async function sync() {
       );
 
     }
-    else {
+    else if (
+      berhasil > 0
+    ) {
 
-      setSyncStatus(
-        "Tersinkron"
+      toast(
+        berhasil +
+        " data berhasil sync"
       );
 
-
-      if (
-        berhasil > 0
-      ) {
-
-        toast(
-          berhasil +
-          " data berhasil sync"
-        );
-
-      }
-
     }
+
+    return (
+      gagal === 0
+    );
 
   }
   catch(error) {
@@ -2969,21 +3055,20 @@ async function sync() {
       error
     );
 
-
     setSyncStatus(
       "Sync gagal - data tetap aman"
     );
 
+    return false;
+
   }
   finally {
 
-    syncRunning =
-      false;
+    syncRunning = false;
 
   }
 
 }
-
 
 /* =========================================================
    REFRESH SERVER
@@ -3196,80 +3281,90 @@ async function init() {
 
     updateConnection();
 
-
     setDateDefaults();
-
 
     await openDB();
 
-
     await updateSyncCount();
 
-
     /*
-     * Tampilkan data HP terlebih dahulu.
+     * =====================================================
+     * PENTING:
+     * SELALU TAMPILKAN DATA HP TERLEBIH DAHULU
+     * =====================================================
      */
 
     await loadDashboard();
-
     await loadTransaksi();
-
     await loadBarang();
-
     await renderPenjualanHistory();
-
 
     setupBarangSelect();
 
-
     /*
-     * ONLINE:
+     * =====================================================
+     * ONLINE
      *
-     * 1. Tes GAS
-     * 2. Ambil data server
-     * 3. Sync queue
+     * URUTAN BENAR:
+     *
+     * 1. Test GAS
+     * 2. Kirim queue lokal
+     * 3. Baru ambil database server
+     * 4. Render ulang
+     * =====================================================
      */
 
-    if (
-      navigator.onLine
-    ) {
+    if (navigator.onLine) {
 
       const connected =
         await testConnection();
 
-
       if (connected) {
 
         /*
-         * Ambil data server
-         * hanya pada awal aplikasi.
-         */
-
-        await loadRemoteData();
-
-
-        await loadDashboard();
-
-        await loadTransaksi();
-
-        await loadBarang();
-
-        await renderPenjualanHistory();
-
-
-        /*
-         * Kirim antrean lokal.
+         * -------------------------------------------------
+         * 1. SYNC DATA LOKAL TERLEBIH DAHULU
+         * -------------------------------------------------
          */
 
         await sync();
+
+        /*
+         * -------------------------------------------------
+         * 2. CEK APAKAH MASIH ADA QUEUE
+         * -------------------------------------------------
+         */
+
+        const queue =
+          await dbGetAll(
+            STORE.queue
+          );
+
+        /*
+         * -------------------------------------------------
+         * 3. JIKA QUEUE SUDAH HABIS,
+         *    AMBIL DATA TERBARU DARI SERVER
+         * -------------------------------------------------
+         */
+
+        if (queue.length === 0) {
+
+          await loadRemoteData();
+
+          await loadDashboard();
+          await loadTransaksi();
+          await loadBarang();
+          await renderPenjualanHistory();
+
+        }
 
       }
 
     }
 
+    await updateSyncCount();
 
     setDateDefaults();
-
 
   }
   catch(error) {
@@ -3279,21 +3374,18 @@ async function init() {
       error
     );
 
-
     setDatabaseStatus(
       "Database lokal gagal"
     );
 
-
     toast(
+      error.message ||
       "Database lokal belum siap"
     );
 
   }
 
 }
-
-
 /* =========================================================
    FORM EVENT
    ========================================================= */
