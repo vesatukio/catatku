@@ -2693,7 +2693,7 @@ async function downloadData() {
 
 
 /* =========================================================
-   DASHBOARD LOKAL
+   LOCAL DASHBOARD
    SUMBER DATA UTAMA DARI INDEXEDDB
    ========================================================= */
 
@@ -2702,7 +2702,7 @@ async function getLocalDashboard() {
   try {
 
     /* =====================================================
-       AMBIL DATA DARI INDEXEDDB
+       AMBIL DATA INDEXEDDB
        ===================================================== */
 
     const transaksi =
@@ -2710,10 +2710,12 @@ async function getLocalDashboard() {
         STORES.transaksi
       ) || [];
 
+
     const barang =
       await dbGetAll(
         STORES.barang
       ) || [];
+
 
     const penjualan =
       await dbGetAll(
@@ -2722,47 +2724,63 @@ async function getLocalDashboard() {
 
 
     /* =====================================================
-       HITUNG UANG MASUK & UANG KELUAR
+       VARIABEL
        ===================================================== */
 
     let uangMasuk = 0;
+
     let uangKeluar = 0;
 
+    let omzet = 0;
 
-    transaksi.forEach(t => {
+    let modal = 0;
+
+    let untung = 0;
+
+    let jumlahBarang = 0;
+
+    let jumlahStok = 0;
+
+    let nilaiStok = 0;
+
+    let jumlahPenjualan = 0;
+
+    let totalTerjual = 0;
+
+
+    /* =====================================================
+       UANG MASUK / KELUAR
+       ===================================================== */
+
+    transaksi.forEach(function(item) {
+
+      if (!item) {
+        return;
+      }
+
 
       const jumlah =
         Number(
-          t.jumlah ??
-          t.nominal ??
-          t.total ??
-          t.nilai ??
+          item.jumlah ||
+          item.nominal ||
+          item.total ||
           0
         ) || 0;
 
 
       const jenis =
         String(
-          t.jenis ??
-          t.tipe ??
-          t.type ??
-          t.kategori ??
+          item.jenis ||
           ""
         )
         .toLowerCase()
         .trim();
 
 
-      /*
-       * TERIMA BEBERAPA FORMAT
-       * MASUK / PEMASUKAN / INCOME
-       */
-
       if (
         jenis === "masuk" ||
-        jenis === "pemasukan" ||
-        jenis === "income" ||
-        jenis === "uang masuk"
+        jenis === "uang masuk" ||
+        jenis === "pemasukan"
       ) {
 
         uangMasuk += jumlah;
@@ -2770,15 +2788,10 @@ async function getLocalDashboard() {
       }
 
 
-      /*
-       * KELUAR / PENGELUARAN / EXPENSE
-       */
-
       else if (
         jenis === "keluar" ||
-        jenis === "pengeluaran" ||
-        jenis === "expense" ||
-        jenis === "uang keluar"
+        jenis === "uang keluar" ||
+        jenis === "pengeluaran"
       ) {
 
         uangKeluar += jumlah;
@@ -2789,71 +2802,166 @@ async function getLocalDashboard() {
 
 
     /* =====================================================
-       HITUNG PENJUALAN / OMZET
+       PENJUALAN
        ===================================================== */
 
-    let omzet = 0;
-    let modal = 0;
+    penjualan.forEach(function(item) {
+
+      if (!item) {
+        return;
+      }
 
 
-    penjualan.forEach(p => {
+      jumlahPenjualan++;
 
-      const total =
+
+      const qty =
         Number(
-          p.total ??
-          p.totalHarga ??
-          p.jumlah ??
-          p.nominal ??
+          item.qty ||
+          item.jumlah ||
           0
         ) || 0;
 
 
-      omzet += total;
+      const hargaJual =
+        Number(
+          item.hargaJual ||
+          0
+        ) || 0;
+
+
+      const hargaModal =
+        Number(
+          item.hargaModal ||
+          0
+        ) || 0;
+
+
+      let nilaiOmzet =
+        Number(
+          item.omzet ||
+          item.total ||
+          0
+        ) || 0;
+
+
+      let nilaiModal =
+        Number(
+          item.modal ||
+          0
+        ) || 0;
+
+
+      let nilaiUntung =
+        Number(
+          item.untung ||
+          0
+        ) || 0;
 
 
       /*
-       * MODAL PENJUALAN
+       * Jika data lama belum mempunyai
+       * omzet / modal / untung,
+       * hitung dari qty dan harga.
        */
 
       if (
-        p.modalTotal !== undefined
+        nilaiOmzet === 0 &&
+        qty > 0 &&
+        hargaJual > 0
       ) {
 
-        modal +=
-          Number(
-            p.modalTotal
-          ) || 0;
+        nilaiOmzet =
+          qty *
+          hargaJual;
 
       }
 
-      else {
 
-        const qty =
-          Number(
-            p.qty ??
-            p.jumlahQty ??
-            0
-          ) || 0;
+      if (
+        nilaiModal === 0 &&
+        qty > 0 &&
+        hargaModal > 0
+      ) {
 
-
-        const hargaModal =
-          Number(
-            p.hargaModal ??
-            p.modal ??
-            0
-          ) || 0;
-
-
-        modal +=
-          qty * hargaModal;
+        nilaiModal =
+          qty *
+          hargaModal;
 
       }
+
+
+      if (
+        nilaiUntung === 0 &&
+        nilaiOmzet > 0
+      ) {
+
+        nilaiUntung =
+          nilaiOmzet -
+          nilaiModal;
+
+      }
+
+
+      totalTerjual +=
+        qty;
+
+
+      omzet +=
+        nilaiOmzet;
+
+
+      modal +=
+        nilaiModal;
+
+
+      untung +=
+        nilaiUntung;
 
     });
 
 
     /* =====================================================
-       SALDO
+       BARANG
+       ===================================================== */
+
+    barang.forEach(function(item) {
+
+      if (!item) {
+        return;
+      }
+
+
+      jumlahBarang++;
+
+
+      const stok =
+        Number(
+          item.stok ||
+          0
+        ) || 0;
+
+
+      const hargaModal =
+        Number(
+          item.hargaModal ||
+          0
+        ) || 0;
+
+
+      jumlahStok +=
+        stok;
+
+
+      nilaiStok +=
+        stok *
+        hargaModal;
+
+    });
+
+
+    /* =====================================================
+       HASIL
        ===================================================== */
 
     const saldo =
@@ -2861,78 +2969,42 @@ async function getLocalDashboard() {
       uangKeluar;
 
 
-    /* =====================================================
-       NILAI STOK
-       ===================================================== */
-
-    let nilaiStok = 0;
-
-    barang.forEach(b => {
-
-      const stok =
-        Number(
-          b.stok ??
-          b.qty ??
-          b.jumlahStok ??
-          0
-        ) || 0;
-
-
-      const hargaModal =
-        Number(
-          b.hargaModal ??
-          b.modal ??
-          b.hargaBeli ??
-          0
-        ) || 0;
-
-
-      nilaiStok +=
-        stok * hargaModal;
-
-    });
-
-
-    /* =====================================================
-       JUMLAH BARANG
-       ===================================================== */
-
-    const jumlahBarang =
-      barang.length;
-
-
-    /* =====================================================
-       HASIL DASHBOARD
-       ===================================================== */
-
     return {
 
-      saldo,
+      success: true,
 
-      uangMasuk,
+      uangMasuk:
+        uangMasuk,
 
-      uangKeluar,
+      uangKeluar:
+        uangKeluar,
 
-      pemasukan: uangMasuk,
+      saldo:
+        saldo,
 
-      pengeluaran: uangKeluar,
+      omzet:
+        omzet,
 
-      omzet,
+      modal:
+        modal,
 
-      modal,
+      untung:
+        untung,
 
-      laba:
-        omzet - modal,
+      jumlahBarang:
+        jumlahBarang,
 
-      nilaiStok,
+      jumlahStok:
+        jumlahStok,
 
-      jumlahBarang,
+      nilaiStok:
+        nilaiStok,
 
-      totalTransaksi:
-        transaksi.length,
+      jumlahPenjualan:
+        jumlahPenjualan,
 
-      totalPenjualan:
-        penjualan.length
+      totalTerjual:
+        totalTerjual
 
     };
 
@@ -2941,36 +3013,42 @@ async function getLocalDashboard() {
   catch (error) {
 
     console.error(
-      "getLocalDashboard error:",
+      "getLocalDashboard:",
       error
     );
 
 
     return {
 
-      saldo: 0,
+      success: false,
 
       uangMasuk: 0,
 
       uangKeluar: 0,
 
-      pemasukan: 0,
-
-      pengeluaran: 0,
+      saldo: 0,
 
       omzet: 0,
 
       modal: 0,
 
-      laba: 0,
-
-      nilaiStok: 0,
+      untung: 0,
 
       jumlahBarang: 0,
 
-      totalTransaksi: 0,
+      jumlahStok: 0,
 
-      totalPenjualan: 0
+      nilaiStok: 0,
+
+      jumlahPenjualan: 0,
+
+      totalTerjual: 0,
+
+      error:
+        error &&
+        error.message
+          ? error.message
+          : String(error)
 
     };
 
