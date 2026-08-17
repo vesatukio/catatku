@@ -68,6 +68,7 @@ const STORES = {
 
 };
 
+
 /* =========================================================
    DATABASE GLOBAL
    ========================================================= */
@@ -2693,260 +2694,120 @@ async function downloadData() {
 
 
 /* =========================================================
-   LOCAL DASHBOARD
-   SUMBER DATA UTAMA DARI INDEXEDDB
+   DASHBOARD LOKAL
    ========================================================= */
 
 async function getLocalDashboard() {
 
-  try {
-
-    /* =====================================================
-       AMBIL DATA INDEXEDDB
-       ===================================================== */
-
-    const transaksi =
-      await dbGetAll(
-        STORES.transaksi
-      ) || [];
+  const transaksi =
+    await dbGetAll(
+      STORES.transaksi
+    );
 
 
-    const barang =
-      await dbGetAll(
-        STORES.barang
-      ) || [];
+  const barang =
+    await dbGetAll(
+      STORES.barang
+    );
 
 
-    const penjualan =
-      await dbGetAll(
-        STORES.penjualan
-      ) || [];
+  const penjualan =
+    await dbGetAll(
+      STORES.penjualan
+    );
 
 
-    /* =====================================================
-       VARIABEL
-       ===================================================== */
+  let uangMasuk =
+    0;
 
-    let uangMasuk = 0;
+  let uangKeluar =
+    0;
 
-    let uangKeluar = 0;
+  let omzet =
+    0;
 
-    let omzet = 0;
+  let modal =
+    0;
 
-    let modal = 0;
+  let untung =
+    0;
 
-    let untung = 0;
+  let jumlahStok =
+    0;
 
-    let jumlahBarang = 0;
-
-    let jumlahStok = 0;
-
-    let nilaiStok = 0;
-
-    let jumlahPenjualan = 0;
-
-    let totalTerjual = 0;
+  let nilaiStok =
+    0;
 
 
-    /* =====================================================
-       UANG MASUK / KELUAR
-       ===================================================== */
-
-    transaksi.forEach(function(item) {
-
-      if (!item) {
-        return;
-      }
-
+  transaksi.forEach(
+    function(item) {
 
       const jumlah =
-        Number(
-          item.jumlah ||
-          item.nominal ||
-          item.total ||
-          0
-        ) || 0;
-
-
-      const jenis =
-        String(
-          item.jenis ||
-          ""
-        )
-        .toLowerCase()
-        .trim();
+        number(
+          item.jumlah
+        );
 
 
       if (
-        jenis === "masuk" ||
-        jenis === "uang masuk" ||
-        jenis === "pemasukan"
+        item.jenis ===
+        "masuk"
       ) {
 
-        uangMasuk += jumlah;
-
-      }
-
-
-      else if (
-        jenis === "keluar" ||
-        jenis === "uang keluar" ||
-        jenis === "pengeluaran"
-      ) {
-
-        uangKeluar += jumlah;
-
-      }
-
-    });
-
-
-    /* =====================================================
-       PENJUALAN
-       ===================================================== */
-
-    penjualan.forEach(function(item) {
-
-      if (!item) {
-        return;
-      }
-
-
-      jumlahPenjualan++;
-
-
-      const qty =
-        Number(
-          item.qty ||
-          item.jumlah ||
-          0
-        ) || 0;
-
-
-      const hargaJual =
-        Number(
-          item.hargaJual ||
-          0
-        ) || 0;
-
-
-      const hargaModal =
-        Number(
-          item.hargaModal ||
-          0
-        ) || 0;
-
-
-      let nilaiOmzet =
-        Number(
-          item.omzet ||
-          item.total ||
-          0
-        ) || 0;
-
-
-      let nilaiModal =
-        Number(
-          item.modal ||
-          0
-        ) || 0;
-
-
-      let nilaiUntung =
-        Number(
-          item.untung ||
-          0
-        ) || 0;
-
-
-      /*
-       * Jika data lama belum mempunyai
-       * omzet / modal / untung,
-       * hitung dari qty dan harga.
-       */
-
-      if (
-        nilaiOmzet === 0 &&
-        qty > 0 &&
-        hargaJual > 0
-      ) {
-
-        nilaiOmzet =
-          qty *
-          hargaJual;
+        uangMasuk +=
+          jumlah;
 
       }
 
 
       if (
-        nilaiModal === 0 &&
-        qty > 0 &&
-        hargaModal > 0
+        item.jenis ===
+        "keluar"
       ) {
 
-        nilaiModal =
-          qty *
-          hargaModal;
+        uangKeluar +=
+          jumlah;
 
       }
 
-
-      if (
-        nilaiUntung === 0 &&
-        nilaiOmzet > 0
-      ) {
-
-        nilaiUntung =
-          nilaiOmzet -
-          nilaiModal;
-
-      }
+    }
+  );
 
 
-      totalTerjual +=
-        qty;
-
+  penjualan.forEach(
+    function(item) {
 
       omzet +=
-        nilaiOmzet;
-
+        number(
+          item.omzet
+        );
 
       modal +=
-        nilaiModal;
-
+        number(
+          item.modal
+        );
 
       untung +=
-        nilaiUntung;
+        number(
+          item.untung
+        );
 
-    });
-
-
-    /* =====================================================
-       BARANG
-       ===================================================== */
-
-    barang.forEach(function(item) {
-
-      if (!item) {
-        return;
-      }
+    }
+  );
 
 
-      jumlahBarang++;
-
+  barang.forEach(
+    function(item) {
 
       const stok =
-        Number(
-          item.stok ||
-          0
-        ) || 0;
+        number(
+          item.stok
+        );
 
 
       const hargaModal =
-        Number(
-          item.hargaModal ||
-          0
-        ) || 0;
+        number(
+          item.hargaModal
+        );
 
 
       jumlahStok +=
@@ -2957,104 +2818,45 @@ async function getLocalDashboard() {
         stok *
         hargaModal;
 
-    });
+    }
+  );
 
 
-    /* =====================================================
-       HASIL
-       ===================================================== */
+  return {
 
-    const saldo =
+    uangMasuk:
+      uangMasuk,
+
+    uangKeluar:
+      uangKeluar,
+
+    saldo:
       uangMasuk -
-      uangKeluar;
+      uangKeluar,
 
+    omzet:
+      omzet,
 
-    return {
+    modal:
+      modal,
 
-      success: true,
+    untung:
+      untung,
 
-      uangMasuk:
-        uangMasuk,
+    jumlahBarang:
+      barang.length,
 
-      uangKeluar:
-        uangKeluar,
+    jumlahStok:
+      jumlahStok,
 
-      saldo:
-        saldo,
+    nilaiStok:
+      nilaiStok
 
-      omzet:
-        omzet,
-
-      modal:
-        modal,
-
-      untung:
-        untung,
-
-      jumlahBarang:
-        jumlahBarang,
-
-      jumlahStok:
-        jumlahStok,
-
-      nilaiStok:
-        nilaiStok,
-
-      jumlahPenjualan:
-        jumlahPenjualan,
-
-      totalTerjual:
-        totalTerjual
-
-    };
-
-  }
-
-  catch (error) {
-
-    console.error(
-      "getLocalDashboard:",
-      error
-    );
-
-
-    return {
-
-      success: false,
-
-      uangMasuk: 0,
-
-      uangKeluar: 0,
-
-      saldo: 0,
-
-      omzet: 0,
-
-      modal: 0,
-
-      untung: 0,
-
-      jumlahBarang: 0,
-
-      jumlahStok: 0,
-
-      nilaiStok: 0,
-
-      jumlahPenjualan: 0,
-
-      totalTerjual: 0,
-
-      error:
-        error &&
-        error.message
-          ? error.message
-          : String(error)
-
-    };
-
-  }
+  };
 
 }
+
+
 /* =========================================================
    LOAD DASHBOARD
    ========================================================= */
@@ -3100,11 +2902,10 @@ async function loadDashboard() {
 
 
     setText(
-  "totalHutang",
-  rupiah(
-    data.totalHutang
-  )
-);
+      "totalHutang",
+      "Rp0"
+    );
+
 
     setText(
       "jumlahBarang",
@@ -3615,105 +3416,32 @@ async function buatNota() {
 
 
   const notaId =
-    uid("NOTA");
+    uid(
+      "NOTA"
+    );
 
 
-  let total = 0;
+  let total =
+    0;
 
-  let totalQty = 0;
 
-
-  const detailList = [];
+  let totalQty =
+    0;
 
 
   selected.forEach(
     function(item) {
 
-      const qty =
-        number(
-          item.qty
-        );
-
-
-      const omzet =
-        number(
-          item.omzet ??
-          item.subtotal ??
-          (
-            qty *
-            number(
-              item.hargaJual
-            )
-          )
-        );
-
-
       total +=
-        omzet;
+        number(
+          item.omzet
+        );
 
 
       totalQty +=
-        qty;
-
-
-      const detail = {
-
-        id:
-          uid("NDET"),
-
-        notaId:
-          notaId,
-
-        penjualanId:
-          item.id,
-
-        barangId:
-          item.barangId,
-
-        namaBarang:
-          item.namaBarang,
-
-        qty:
-          qty,
-
-        hargaModal:
-          number(
-            item.hargaModal
-          ),
-
-        hargaJual:
-          number(
-            item.hargaJual
-          ),
-
-        omzet:
-          omzet,
-
-        modal:
-          number(
-            item.modal
-          ),
-
-        untung:
-          number(
-            item.untung
-          ),
-
-        subtotal:
-          omzet,
-
-        createdAt:
-          nowISO(),
-
-        urutan:
-          detailList.length + 1
-
-      };
-
-
-      detailList.push(
-        detail
-      );
+        number(
+          item.qty
+        );
 
     }
   );
@@ -3737,7 +3465,7 @@ async function buatNota() {
       totalQty,
 
     jumlahItem:
-      detailList.length,
+      selected.length,
 
     createdAt:
       nowISO()
@@ -3745,9 +3473,9 @@ async function buatNota() {
   };
 
 
-  /* ===============================
-     SIMPAN NOTA
-     =============================== */
+  /*
+   * SIMPAN KEPALA NOTA
+   */
 
   await dbPut(
     STORES.nota,
@@ -3755,14 +3483,74 @@ async function buatNota() {
   );
 
 
-  /* ===============================
-     SIMPAN DETAIL
-     =============================== */
+  /*
+   * SIMPAN DETAIL
+   */
 
   for (
-    const detail
-    of detailList
+    const item
+    of selected
   ) {
+
+    const detail = {
+
+      id:
+        uid(
+          "NDET"
+        ),
+
+      notaId:
+        notaId,
+
+      penjualanId:
+        item.id,
+
+      barangId:
+        item.barangId,
+
+      namaBarang:
+        item.namaBarang,
+
+      qty:
+        number(
+          item.qty
+        ),
+
+      hargaModal:
+        number(
+          item.hargaModal
+        ),
+
+      hargaJual:
+        number(
+          item.hargaJual
+        ),
+
+      omzet:
+        number(
+          item.omzet
+        ),
+
+      modal:
+        number(
+          item.modal
+        ),
+
+      untung:
+        number(
+          item.untung
+        ),
+
+      subtotal:
+        number(
+          item.omzet
+        ),
+
+      createdAt:
+        nowISO()
+
+    };
+
 
     await dbPut(
       STORES.notaDetail,
@@ -3772,9 +3560,9 @@ async function buatNota() {
   }
 
 
-  /* ===============================
-     QUEUE
-     =============================== */
+  /*
+   * MASUK QUEUE UNTUK DIKIRIM KE GAS
+   */
 
   await queueAdd(
     "nota",
@@ -3784,15 +3572,75 @@ async function buatNota() {
         nota,
 
       detail:
-        detailList
+        selected.map(
+          function(item) {
+
+            return {
+
+              id:
+                uid(
+                  "NDET"
+                ),
+
+              notaId:
+                notaId,
+
+              penjualanId:
+                item.id,
+
+              barangId:
+                item.barangId,
+
+              namaBarang:
+                item.namaBarang,
+
+              qty:
+                number(
+                  item.qty
+                ),
+
+              hargaModal:
+                number(
+                  item.hargaModal
+                ),
+
+              hargaJual:
+                number(
+                  item.hargaJual
+                ),
+
+              omzet:
+                number(
+                  item.omzet
+                ),
+
+              modal:
+                number(
+                  item.modal
+                ),
+
+              untung:
+                number(
+                  item.untung
+                ),
+
+              subtotal:
+                number(
+                  item.omzet
+                )
+
+            };
+
+          }
+        )
 
     }
   );
 
 
-  /* ===============================
-     BERSIHKAN PILIHAN
-     =============================== */
+  /*
+   * HAPUS PILIHAN
+   */
 
   NOTA_STATE.selected.clear();
 
@@ -3800,9 +3648,9 @@ async function buatNota() {
   await updateNotaSummary();
 
 
-  /* ===============================
-     SYNC
-     =============================== */
+  /*
+   * SYNC JIKA ONLINE
+   */
 
   if (
     navigator.onLine
@@ -3820,6 +3668,10 @@ async function buatNota() {
   );
 
 
+  /*
+   * REFRESH DAFTAR NOTA
+   */
+
   if (
     typeof renderDaftarNota ===
     "function"
@@ -3833,6 +3685,8 @@ async function buatNota() {
   return nota;
 
 }
+
+
 /* =========================================================
    LOAD DAFTAR NOTA
    ========================================================= */
@@ -3874,309 +3728,130 @@ async function loadNotaDetail(
   notaId
 ) {
 
-  if (
-    notaId ===
-    undefined ||
-    notaId ===
-    null ||
-    notaId === ""
-  ) {
-
-    return [];
-
-  }
-
-
-  try {
-
-    const semua =
-      await dbGetAll(
-        STORES.notaDetail
-      );
-
-
-    if (!Array.isArray(semua)) {
-
-      return [];
-
-    }
-
-
-    const id =
-      String(notaId);
-
-
-    return semua
-      .filter(
-        function(item) {
-
-          return String(
-            item.notaId
-          ) === id;
-
-        }
-      )
-      .sort(
-        function(a, b) {
-
-          return (
-            Number(
-              a.urutan || 0
-            ) -
-            Number(
-              b.urutan || 0
-            )
-          );
-
-        }
-      );
-
-  } catch (error) {
-
-    console.error(
-      "Gagal mengambil detail nota:",
-      error
+  const semua =
+    await dbGetAll(
+      STORES.notaDetail
     );
 
-    return [];
+
+  return semua.filter(
+    function(item) {
+
+      return String(
+        item.notaId
+      ) ===
+      String(
+        notaId
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   BUKA NOTA
+   ========================================================= */
+
+async function bukaNota(
+  notaId
+) {
+
+  const nota =
+    await dbGet(
+      STORES.nota,
+      notaId
+    );
+
+
+  if (!nota) {
+
+    showToast(
+      "Nota tidak ditemukan"
+    );
+
+    return null;
 
   }
 
-}
-/* =========================================================
-   BUKA NOTA
-   ========================================================= */
-/* =========================================================
-   BUKA NOTA
-   ========================================================= */
 
-async function bukaNota(notaId) {
-
-  try {
-
-    if (
-      notaId === undefined ||
-      notaId === null ||
-      notaId === ""
-    ) {
-
-      showToast("ID nota tidak valid");
-      return null;
-
-    }
+  const detail =
+    await loadNotaDetail(
+      notaId
+    );
 
 
-    const nota =
-      await dbGet(
-        STORES.nota,
-        notaId
-      );
+  NOTA_STATE.current = {
+
+    nota:
+      nota,
+
+    detail:
+      detail
+
+  };
 
 
-    if (!nota) {
+  /*
+   * Jika index.html nanti memiliki
+   * #detailNota, tampilkan di sana.
+   */
 
-      showToast(
-        "Nota tidak ditemukan"
-      );
-
-      return null;
-
-    }
-
-
-    const detail =
-      await loadNotaDetail(
-        notaId
-      );
+  const container =
+    document.getElementById(
+      "detailNota"
+    );
 
 
-    NOTA_STATE.current = {
-
-      nota: nota,
-
-      detail: detail
-
-    };
-
-
-    const container =
-      document.getElementById(
-        "detailNota"
-      );
-
-
-    if (!container) {
-
-      console.warn(
-        "Element #detailNota tidak ditemukan"
-      );
-
-      showToast(
-        "Tampilan detail nota belum tersedia"
-      );
-
-      return NOTA_STATE.current;
-
-    }
-
-
-    /* =====================================================
-       HITUNG TOTAL
-       ===================================================== */
-
-    const total =
-      detail.reduce(
-        function(sum, item) {
-
-          const subtotal =
-            number(
-              item.subtotal ??
-              item.omzet ??
-              (
-                number(item.qty) *
-                number(item.hargaJual)
-              )
-            );
-
-          return sum + subtotal;
-
-        },
-        0
-      );
-
-
-    /* =====================================================
-       RENDER DETAIL
-       ===================================================== */
+  if (container) {
 
     container.innerHTML = `
 
-      <div class="nota-print">
+      <div class="nota-detail">
 
-        <!-- HEADER -->
+        <h3>
+          ${escapeHTML(
+            nota.nomorNota
+          )}
+        </h3>
 
-        <div class="nota-header">
+        <small>
+          ${escapeHTML(
+            nota.tanggal
+          )}
+        </small>
 
-          <div class="nota-title">
-            DETAIL NOTA
-          </div>
-
-          <strong class="nota-number">
-            ${escapeHTML(
-              nota.nomorNota || "-"
-            )}
-          </strong>
-
-          <small class="nota-date">
-            ${escapeHTML(
-              nota.tanggal || "-"
-            )}
-          </small>
-
-        </div>
-
-
-        <div class="nota-line"></div>
-
-
-        <!-- HEADER TABEL -->
-
-        <div class="nota-table-header">
-
-          <div>Barang</div>
-
-          <div>Qty</div>
-
-          <div>Harga</div>
-
-          <div>Jumlah</div>
-
-        </div>
-
-
-        <div class="nota-line"></div>
-
-
-        <!-- ITEM -->
-
-        <div class="nota-items">
+        <div class="nota-detail-list">
 
           ${
-            detail.length === 0
-
-              ? `
-
-                <div class="nota-empty">
-                  Tidak ada barang dalam nota.
-                </div>
-
-              `
-
-              :
-
             detail.map(
               function(item) {
 
-                const qty =
-                  number(
-                    item.qty
-                  );
-
-
-                const harga =
-                  number(
-                    item.hargaJual
-                  );
-
-
-                const subtotal =
-                  number(
-                    item.subtotal ??
-                    item.omzet ??
-                    (
-                      qty * harga
-                    )
-                  );
-
-
                 return `
 
-                  <div class="nota-row">
+                  <div class="nota-detail-row">
 
-                    <div class="nota-name">
-
+                    <span>
                       ${escapeHTML(
-                        item.namaBarang ||
-                        item.nama ||
-                        "-"
+                        item.namaBarang
                       )}
+                    </span>
 
-                    </div>
-
-
-                    <div class="nota-qty">
-
-                      ${qty}
-
-                    </div>
-
-
-                    <div class="nota-price">
-
+                    <span>
+                      ${number(
+                        item.qty
+                      )} ×
                       ${rupiah(
-                        harga
+                        item.hargaJual
                       )}
+                    </span>
 
-                    </div>
-
-
-                    <div class="nota-subtotal">
-
+                    <strong>
                       ${rupiah(
-                        subtotal
+                        item.subtotal
                       )}
-
-                    </div>
+                    </strong>
 
                   </div>
 
@@ -4184,185 +3859,36 @@ async function bukaNota(notaId) {
 
               }
             ).join("")
-
           }
 
         </div>
 
-
-        <div class="nota-line"></div>
-
-
-        <!-- TOTAL -->
-
         <div class="nota-total">
 
-          <span>
+          <strong>
             TOTAL
-          </span>
+          </strong>
 
           <strong>
-            ${rupiah(total)}
+            ${rupiah(
+              nota.total
+            )}
           </strong>
 
         </div>
-
-
-      </div>
-
-
-      <!-- AKSI -->
-
-      <div class="nota-actions no-print">
-
-        <button
-          type="button"
-          class="btn-cetak-nota"
-          onclick="CatatKu.printNota()"
-        >
-          🖨️ Cetak Nota
-        </button>
-
-
-        <button
-          type="button"
-          class="btn-tutup-nota"
-          onclick="CatatKu.tutupDetailNota()"
-        >
-          Tutup
-        </button>
 
       </div>
 
     `;
 
-
-    /* =====================================================
-       TAMPILKAN DETAIL
-       ===================================================== */
-
-    container.style.display =
-      "block";
-
-
-    requestAnimationFrame(
-      function() {
-
-        container.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-
-      }
-    );
-
-
-    return NOTA_STATE.current;
-
-
-  } catch (error) {
-
-    console.error(
-      "Gagal membuka nota:",
-      error
-    );
-
-    showToast(
-      "Gagal membuka detail nota"
-    );
-
-    return null;
-
   }
+
+
+  return NOTA_STATE.current;
 
 }
 
-/* =========================================================
-   CETAK NOTA
-   ========================================================= */
 
-function printNota() {
-
-  if (
-    !NOTA_STATE.current ||
-    !NOTA_STATE.current.nota
-  ) {
-
-    showToast(
-      "Belum ada nota yang dibuka"
-    );
-
-    return;
-
-  }
-
-
-  const container =
-    document.getElementById(
-      "detailNota"
-    );
-
-
-  if (!container) {
-
-    showToast(
-      "Detail nota tidak ditemukan"
-    );
-
-    return;
-
-  }
-
-
-  document.body.classList.add(
-    "printing-nota"
-  );
-
-
-  setTimeout(
-    function() {
-
-      window.print();
-
-    },
-    100
-  );
-
-}
-window.addEventListener(
-  "afterprint",
-  function() {
-
-    document.body.classList.remove(
-      "printing-nota"
-    );
-
-  }
-);
-
-/* =========================================================
-   TUTUP DETAIL NOTA
-   ========================================================= */
-
-function tutupDetailNota() {
-
-  const container =
-    document.getElementById(
-      "detailNota"
-    );
-
-
-  if (!container) {
-
-    return;
-
-  }
-
-
-  container.innerHTML =
-    "";
-
-}
 /* =========================================================
    HAPUS NOTA
    ========================================================= */
@@ -4492,244 +4018,110 @@ async function hapusNota(
 /* =========================================================
    RENDER DAFTAR NOTA
    ========================================================= */
+
 async function renderDaftarNota(
   containerId = "daftarNota"
 ) {
 
   const container =
-    document.getElementById(containerId);
+    document.getElementById(
+      containerId
+    );
+
 
   if (!container) {
+
     return;
+
   }
 
-  try {
 
-    /* ===============================
-       TAMPILKAN LOADING
-       =============================== */
+  const data =
+    await loadNota();
+
+
+  if (
+    data.length === 0
+  ) {
 
     container.innerHTML = `
-      <p class="nota-loading">
-        Memuat nota...
+      <p>
+        Belum ada nota.
       </p>
     `;
 
+    return;
 
-    /* ===============================
-       AMBIL DATA
-       =============================== */
-
-    let data =
-      await loadNota();
+  }
 
 
-    if (!Array.isArray(data)) {
-      data = [];
-    }
+  container.innerHTML =
+    data.map(
+      function(item) {
 
+        return `
 
-    /* ===============================
-       URUTKAN TERBARU
-       =============================== */
+          <div
+            class="nota-item"
+            data-nota-id="${escapeHTML(
+              item.id
+            )}"
+          >
 
-    data.sort(
-      function(a, b) {
+            <div>
 
-        const da =
-          new Date(
-            a.createdAt ||
-            a.tanggal ||
-            0
-          ).getTime();
+              <strong>
+                ${escapeHTML(
+                  item.nomorNota
+                )}
+              </strong>
 
-        const db =
-          new Date(
-            b.createdAt ||
-            b.tanggal ||
-            0
-          ).getTime();
+              <small>
+                ${escapeHTML(
+                  item.tanggal
+                )}
+              </small>
 
-        return db - da;
-
-      }
-    );
-
-
-    /* ===============================
-       KOSONG
-       =============================== */
-
-    if (data.length === 0) {
-
-      container.innerHTML = `
-        <div class="nota-empty">
-
-          <div class="nota-empty-icon">
-            🧾
-          </div>
-
-          <strong>
-            Belum ada nota
-          </strong>
-
-          <small>
-            Nota yang dibuat akan muncul di sini.
-          </small>
-
-        </div>
-      `;
-
-      return;
-    }
-
-
-    /* ===============================
-       RENDER
-       =============================== */
-
-    container.innerHTML =
-      data.map(
-        function(item) {
-
-          const id =
-            escapeHTML(
-              String(
-                item.id ?? ""
-              )
-            );
-
-          const nomorNota =
-            escapeHTML(
-              String(
-                item.nomorNota ||
-                "Tanpa Nomor"
-              )
-            );
-
-          const tanggal =
-            escapeHTML(
-              String(
-                item.tanggal ||
-                item.createdAt ||
-                "-"
-              )
-            );
-
-          const jumlahItem =
-            Number(
-              item.jumlahItem || 0
-            );
-
-          const total =
-            Number(
-              item.total || 0
-            );
-
-
-          return `
-
-            <div
-              class="nota-item"
-              data-nota-id="${id}"
-            >
-
-              <div
-                class="nota-item-info"
-                onclick="bukaNota('${id}')"
-              >
-
-                <strong
-                  class="nota-item-nomor"
-                >
-                  ${nomorNota}
-                </strong>
-
-                <small
-                  class="nota-item-tanggal"
-                >
-                  ${tanggal}
-                </small>
-
-                <div
-                  class="nota-item-meta"
-                >
-
-                  <span>
-                    ${jumlahItem} item
-                  </span>
-
-                  <span>
-                    ${rupiah(total)}
-                  </span>
-
-                </div>
-
-              </div>
-
-
-              <div
-                class="nota-item-actions"
-              >
-
-                <button
-                  type="button"
-                  class="btn-nota-buka"
-                  onclick="bukaNota('${id}')"
-                >
-                  Buka
-                </button>
-
-                <button
-                  type="button"
-                  class="btn-nota-hapus"
-                  onclick="hapusNota('${id}')"
-                >
-                  Hapus
-                </button>
-
-              </div>
+              <span>
+                ${number(
+                  item.jumlahItem
+                )}
+                item ·
+                ${rupiah(
+                  item.total
+                )}
+              </span>
 
             </div>
 
-          `;
+            <div>
 
-        }
-      ).join("");
+              <button
+                type="button"
+                onclick="bukaNota('${escapeHTML(
+                  item.id
+                )}')"
+              >
+                Buka
+              </button>
 
+              <button
+                type="button"
+                onclick="hapusNota('${escapeHTML(
+                  item.id
+                )}')"
+              >
+                Hapus
+              </button>
 
-  } catch (error) {
+            </div>
 
-    console.error(
-      "Gagal render daftar nota:",
-      error
-    );
+          </div>
 
-    container.innerHTML = `
-      <div class="nota-error">
+        `;
 
-        <strong>
-          Gagal memuat nota
-        </strong>
-
-        <small>
-          ${escapeHTML(
-            error.message ||
-            "Terjadi kesalahan."
-          )}
-        </small>
-
-        <button
-          type="button"
-          onclick="renderDaftarNota('${containerId}')"
-        >
-          Coba Lagi
-        </button>
-
-      </div>
-    `;
-
-  }
+      }
+    ).join("");
 
 }
 
@@ -6301,12 +5693,7 @@ window.CatatKu = {
 
   bukaNota:
     bukaNota,
-  printNota:
-    printNota,
 
-  tutupDetailNota:
-    tutupDetailNota,
-   
   hapusNota:
     hapusNota,
 
@@ -6333,9 +5720,7 @@ window.CatatKu = {
 
   loadDashboard:
     loadDashboard,
-  pilihPeriodeRingkasan:
-    pilihPeriodeRingkasan,
-   
+
   sync:
     manualSync,
 
@@ -6377,1091 +5762,5 @@ if (
 else {
 
   initApp();
-
-}
-/* =========================================================
-   DASHBOARD PERIODE
-   HARI INI / KEMARIN / MINGGU INI
-   ========================================================= */
-
-CatatKu.dashboardPeriod =
-  "hariIni";
-
-
-CatatKu.setDashboardPeriod =
-  async function(period) {
-
-    CatatKu.dashboardPeriod =
-      period;
-
-
-    /*
-     * Tombol aktif
-     */
-
-    document
-      .querySelectorAll(
-        ".period-btn"
-      )
-      .forEach(
-        function(button) {
-
-          button.classList.toggle(
-            "active",
-            button.dataset.period === period
-          );
-
-        }
-      );
-
-
-    /*
-     * Hitung ulang dashboard
-     */
-
-    await CatatKu.renderDashboardPeriod();
-
-  };
-
-
-CatatKu.renderDashboardPeriod =
-  async function() {
-
-    try {
-
-      /*
-       * Ambil transaksi
-       */
-
-      const transaksi =
-        await dbGetAll(
-          STORES.transaksi
-        );
-
-
-      const penjualan =
-        await dbGetAll(
-          STORES.penjualan
-        );
-
-
-      /*
-       * Tentukan tanggal
-       */
-
-      const sekarang =
-        new Date();
-
-
-      const hariIni =
-        new Date(
-          sekarang.getFullYear(),
-          sekarang.getMonth(),
-          sekarang.getDate()
-        );
-
-
-      const kemarin =
-        new Date(
-          hariIni
-        );
-
-      kemarin.setDate(
-        kemarin.getDate() - 1
-      );
-
-
-      /*
-       * Awal minggu
-       * Senin
-       */
-
-      const awalMinggu =
-        new Date(
-          hariIni
-        );
-
-
-      const hari =
-        awalMinggu.getDay();
-
-
-      const selisih =
-        hari === 0
-          ? 6
-          : hari - 1;
-
-
-      awalMinggu.setDate(
-        awalMinggu.getDate() - selisih
-      );
-
-
-      /*
-       * Akhir minggu
-       */
-
-      const akhirMinggu =
-        new Date(
-          awalMinggu
-        );
-
-      akhirMinggu.setDate(
-        akhirMinggu.getDate() + 7
-      );
-
-
-      /*
-       * Fungsi tanggal
-       */
-
-      function tanggalObj(
-        value
-      ) {
-
-        if (!value) {
-
-          return null;
-
-        }
-
-
-        const d =
-          new Date(
-            value
-          );
-
-
-        if (
-          Number.isNaN(
-            d.getTime()
-          )
-        ) {
-
-          return null;
-
-        }
-
-
-        return new Date(
-          d.getFullYear(),
-          d.getMonth(),
-          d.getDate()
-        );
-
-      }
-
-
-      /*
-       * Filter transaksi
-       */
-
-      function masukPeriode(
-        value
-      ) {
-
-        const tanggal =
-          tanggalObj(
-            value
-          );
-
-
-        if (!tanggal) {
-
-          return false;
-
-        }
-
-
-        if (
-          CatatKu.dashboardPeriod ===
-          "hariIni"
-        ) {
-
-          return (
-            tanggal.getTime() ===
-            hariIni.getTime()
-          );
-
-        }
-
-
-        if (
-          CatatKu.dashboardPeriod ===
-          "kemarin"
-        ) {
-
-          return (
-            tanggal.getTime() ===
-            kemarin.getTime()
-          );
-
-        }
-
-
-        if (
-          CatatKu.dashboardPeriod ===
-          "mingguIni"
-        ) {
-
-          return (
-            tanggal >= awalMinggu &&
-            tanggal < akhirMinggu
-          );
-
-        }
-
-
-        return false;
-
-      }
-
-
-      /*
-       * Hitung uang masuk
-       */
-
-      let pemasukan =
-        0;
-
-
-      let pengeluaran =
-        0;
-
-
-      transaksi
-        .filter(
-          function(item) {
-
-            return masukPeriode(
-              item.tanggal
-            );
-
-          }
-        )
-        .forEach(
-          function(item) {
-
-            const jumlah =
-              Number(
-                item.jumlah
-              ) || 0;
-
-
-            if (
-              String(
-                item.jenis
-              ).toLowerCase() ===
-              "masuk"
-            ) {
-
-              pemasukan +=
-                jumlah;
-
-            }
-
-
-            if (
-              String(
-                item.jenis
-              ).toLowerCase() ===
-              "keluar"
-            ) {
-
-              pengeluaran +=
-                jumlah;
-
-            }
-
-          }
-        );
-
-
-      /*
-       * Hitung omzet
-       */
-
-      let omzet =
-        0;
-
-
-      let untung =
-        0;
-
-
-      penjualan
-        .filter(
-          function(item) {
-
-            return masukPeriode(
-              item.tanggal
-            );
-
-          }
-        )
-        .forEach(
-          function(item) {
-
-            const total =
-              Number(
-                item.omzet
-              ) ||
-              Number(
-                item.total
-              ) ||
-              0;
-
-
-            const modal =
-              Number(
-                item.totalModal
-              ) ||
-              (
-                Number(
-                  item.hargaModal
-                ) || 0
-              ) *
-              (
-                Number(
-                  item.qty
-                ) || 0
-              );
-
-
-            omzet +=
-              total;
-
-
-            untung +=
-              total - modal;
-
-          }
-        );
-
-
-      /*
-       * Tampilkan
-       */
-
-      setDashboardValue(
-        "summaryPemasukan",
-        pemasukan
-      );
-
-
-      setDashboardValue(
-        "summaryPengeluaran",
-        pengeluaran
-      );
-
-
-      setDashboardValue(
-        "omzet",
-        omzet
-      );
-
-
-      setDashboardValue(
-        "untung",
-        untung
-      );
-
-    }
-
-    catch (error) {
-
-      console.error(
-        "Dashboard periode:",
-        error
-      );
-
-    }
-
-  };
-
-
-/* =========================================================
-   FORMAT DASHBOARD
-   ========================================================= */
-
-function setDashboardValue(
-  id,
-  value
-) {
-
-  const element =
-    document.getElementById(
-      id
-    );
-
-
-  if (!element) {
-
-    return;
-
-  }
-
-
-  element.textContent =
-    formatRupiah(
-      Number(value) || 0
-    );
-
-}
-/* =========================================================
-   RINGKASAN DASHBOARD
-   ========================================================= */
-
-CatatKu.pilihPeriodeRingkasan = async function (
-  periode
-) {
-
-  try {
-
-    /* -----------------------------------------
-       tombol aktif
-       ----------------------------------------- */
-
-    document
-      .querySelectorAll(
-        ".periode-btn"
-      )
-      .forEach(
-        function(button) {
-
-          button.classList.toggle(
-            "active",
-            button.dataset.periode === periode
-          );
-
-        }
-      );
-
-
-    /* -----------------------------------------
-       nama periode
-       ----------------------------------------- */
-
-    const namaPeriode = {
-
-      hariIni: "Hari Ini",
-
-      kemarin: "Kemarin",
-
-      mingguIni: "Minggu Ini",
-
-      bulanIni: "Bulan Ini"
-
-    };
-
-
-    const label =
-      document.getElementById(
-        "ringkasanPeriode"
-      );
-
-
-    if (label) {
-
-      label.textContent =
-        namaPeriode[periode] ||
-        "Hari Ini";
-
-    }
-
-
-    /* -----------------------------------------
-       ambil data
-       ----------------------------------------- */
-
-    const semuaTransaksi =
-      await dbGetAll(
-        STORES.transaksi
-      );
-
-
-    const semuaPenjualan =
-      await dbGetAll(
-        STORES.penjualan
-      );
-
-
-    const sekarang =
-      new Date();
-
-
-    const tanggalHariIni =
-      tanggalLocal(
-        sekarang
-      );
-
-
-    const kemarinDate =
-      new Date(
-        sekarang
-      );
-
-    kemarinDate.setDate(
-      kemarinDate.getDate() - 1
-    );
-
-
-    const tanggalKemarin =
-      tanggalLocal(
-        kemarinDate
-      );
-
-
-    function tanggalLocal(date) {
-
-      const y =
-        date.getFullYear();
-
-      const m =
-        String(
-          date.getMonth() + 1
-        ).padStart(2, "0");
-
-      const d =
-        String(
-          date.getDate()
-        ).padStart(2, "0");
-
-      return (
-        y +
-        "-" +
-        m +
-        "-" +
-        d
-      );
-
-    }
-
-
-    function awalMinggu(date) {
-
-      const d =
-        new Date(date);
-
-      const hari =
-        d.getDay();
-
-      const selisih =
-        hari === 0
-          ? 6
-          : hari - 1;
-
-      d.setDate(
-        d.getDate() - selisih
-      );
-
-      return tanggalLocal(d);
-
-    }
-
-
-    function awalBulan(date) {
-
-      return (
-        date.getFullYear() +
-        "-" +
-        String(
-          date.getMonth() + 1
-        ).padStart(2, "0") +
-        "-01"
-      );
-
-    }
-
-
-    const awalMingguIni =
-      awalMinggu(
-        sekarang
-      );
-
-
-    const awalBulanIni =
-      awalBulan(
-        sekarang
-      );
-
-
-    function masukPeriode(
-      tanggal
-    ) {
-
-      const t =
-        String(
-          tanggal || ""
-        ).slice(0, 10);
-
-
-      if (periode === "hariIni") {
-
-        return t ===
-          tanggalHariIni;
-
-      }
-
-
-      if (periode === "kemarin") {
-
-        return t ===
-          tanggalKemarin;
-
-      }
-
-
-      if (periode === "mingguIni") {
-
-        return t >=
-          awalMingguIni &&
-          t <=
-          tanggalHariIni;
-
-      }
-
-
-      if (periode === "bulanIni") {
-
-        return t >=
-          awalBulanIni &&
-          t <=
-          tanggalHariIni;
-
-      }
-
-
-      return false;
-
-    }
-
-
-    /* -----------------------------------------
-       HITUNG UANG
-       ----------------------------------------- */
-
-    let uangMasuk = 0;
-    let uangKeluar = 0;
-
-
-    semuaTransaksi.forEach(
-      function(item) {
-
-        if (
-          !masukPeriode(
-            item.tanggal
-          )
-        ) {
-
-          return;
-
-        }
-
-
-        const jumlah =
-          Number(
-            item.jumlah
-          ) || 0;
-
-
-        if (
-          item.jenis === "masuk"
-        ) {
-
-          uangMasuk +=
-            jumlah;
-
-        }
-
-
-        if (
-          item.jenis === "keluar"
-        ) {
-
-          uangKeluar +=
-            jumlah;
-
-        }
-
-      }
-    );
-
-
-    /* -----------------------------------------
-       HITUNG PENJUALAN
-       ----------------------------------------- */
-
-    let omzet = 0;
-    let untung = 0;
-
-
-    semuaPenjualan.forEach(
-      function(item) {
-
-        if (
-          !masukPeriode(
-            item.tanggal
-          )
-        ) {
-
-          return;
-
-        }
-
-
-        omzet +=
-          Number(
-            item.omzet
-          ) || 0;
-
-
-        untung +=
-          Number(
-            item.untung
-          ) || 0;
-
-      }
-    );
-
-
-    /* -----------------------------------------
-       TAMPILKAN
-       ----------------------------------------- */
-
-    setRingkasanValue(
-      "ringkasanUangMasuk",
-      uangMasuk
-    );
-
-    setRingkasanValue(
-      "ringkasanUangKeluar",
-      uangKeluar
-    );
-
-    setRingkasanValue(
-      "ringkasanOmzet",
-      omzet
-    );
-
-    setRingkasanValue(
-      "ringkasanUntung",
-      untung
-    );
-
-
-    /* -----------------------------------------
-       DATA STOK
-       ----------------------------------------- */
-
-    const barang =
-      await dbGetAll(
-        STORES.barang
-      );
-
-
-    let jumlahStok = 0;
-    let nilaiStok = 0;
-
-
-    barang.forEach(
-      function(item) {
-
-        const stok =
-          Number(
-            item.stok
-          ) || 0;
-
-        const modal =
-          Number(
-            item.hargaModal
-          ) || 0;
-
-
-        jumlahStok +=
-          stok;
-
-        nilaiStok +=
-          stok * modal;
-
-      }
-    );
-
-
-    setRingkasanValue(
-      "ringkasanNilaiStok",
-      nilaiStok
-    );
-
-
-    setRingkasanNumber(
-      "ringkasanJumlahBarang",
-      barang.length
-    );
-
-
-    setRingkasanNumber(
-      "ringkasanJumlahStok",
-      jumlahStok
-    );
-
-
-    /* -----------------------------------------
-       HUTANG
-       ----------------------------------------- */
-
-    let totalHutang = 0;
-
-
-    try {
-
-      const hutang =
-        await dbGetAll(
-          STORES.hutang
-        );
-
-
-      hutang.forEach(
-        function(item) {
-
-          const total =
-            Number(
-              item.total ||
-              item.jumlah ||
-              item.nominal
-            ) || 0;
-
-
-          const bayar =
-            Number(
-              item.dibayar ||
-              item.bayar
-            ) || 0;
-
-
-          totalHutang +=
-            Math.max(
-              0,
-              total - bayar
-            );
-
-        }
-      );
-
-    }
-    catch (e) {
-
-      console.warn(
-        "Data hutang belum tersedia",
-        e
-      );
-
-    }
-
-
-    setRingkasanValue(
-      "ringkasanHutang",
-      totalHutang
-    );
-
-  }
-  catch (error) {
-
-    console.error(
-      "Ringkasan:",
-      error
-    );
-
-  }
-
-};
-
-
-/* =========================================================
-   HELPER RINGKASAN
-   ========================================================= */
-
-function setRingkasanValue(
-  id,
-  value
-) {
-
-  const element =
-    document.getElementById(id);
-
-
-  if (!element) {
-
-    return;
-
-  }
-
-
-  element.textContent =
-    formatRupiah(
-      Number(value) || 0
-    );
-
-}
-
-
-function setRingkasanNumber(
-  id,
-  value
-) {
-
-  const element =
-    document.getElementById(id);
-
-
-  if (!element) {
-
-    return;
-
-  }
-
-
-  element.textContent =
-    Number(value) || 0;
-
-}
-let periodeRingkasanAktif = "hariIni";
-
-
-function pilihPeriodeRingkasan(periode) {
-
-  periodeRingkasanAktif = periode;
-
-
-  /* ===============================
-     UPDATE TOMBOL
-     =============================== */
-
-  document
-    .querySelectorAll(".periode-btn")
-    .forEach(btn => {
-
-      btn.classList.toggle(
-        "active",
-        btn.dataset.periode === periode
-      );
-
-    });
-
-
-  /* ===============================
-     LABEL PERIODE
-     =============================== */
-
-  const label = {
-
-    hariIni:
-      "Hari Ini",
-
-    kemarin:
-      "Kemarin",
-
-    mingguIni:
-      "Minggu Ini",
-
-    bulanIni:
-      "Bulan Ini"
-
-  };
-
-
-  const labelElement =
-    document.getElementById(
-      "ringkasanPeriode"
-    );
-
-
-  if (labelElement) {
-
-    labelElement.textContent =
-      label[periode] ||
-      "Hari Ini";
-
-  }
-
-
-  /* ===============================
-     RENDER DATA
-     =============================== */
-
-  renderRingkasanPeriode(
-    periode
-  );
-
-}
-function prepareNotaPrint() {
-
-  document.body.classList.add(
-    "printing-nota"
-  );
-
-}
-async function debugLocalData() {
-
-  console.log("===== DEBUG CATATKU =====");
-
-  try {
-
-    const transaksi =
-      await dbGetAll(STORES.transaksi) || [];
-
-    const barang =
-      await dbGetAll(STORES.barang) || [];
-
-    const penjualan =
-      await dbGetAll(STORES.penjualan) || [];
-
-    console.log(
-      "TRANSAKSI LOCAL:",
-      transaksi
-    );
-
-    console.log(
-      "BARANG LOCAL:",
-      barang
-    );
-
-    console.log(
-      "PENJUALAN LOCAL:",
-      penjualan
-    );
-
-    console.log(
-      "JUMLAH TRANSAKSI:",
-      transaksi.length
-    );
-
-    console.log(
-      "JUMLAH BARANG:",
-      barang.length
-    );
-
-    console.log(
-      "JUMLAH PENJUALAN:",
-      penjualan.length
-    );
-
-    const dashboard =
-      await getLocalDashboard();
-
-    console.log(
-      "HASIL LOCAL DASHBOARD:",
-      dashboard
-    );
-
-  }
-  catch (error) {
-
-    console.error(
-      "DEBUG LOCAL ERROR:",
-      error
-    );
-
-  }
 
 }
