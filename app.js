@@ -7401,3 +7401,67 @@ function prepareNotaPrint() {
   );
 
 }
+async function debugLocalData() {
+
+  console.log("===== DEBUG CATATKU =====");
+
+  try {
+
+    const transaksi =
+      await dbGetAll(STORES.transaksi) || [];
+
+    const barang =
+      await dbGetAll(STORES.barang) || [];
+
+    const penjualan =
+      await dbGetAll(STORES.penjualan) || [];
+
+    console.log(
+      "TRANSAKSI LOCAL:",
+      transaksi
+    );
+
+    console.log(
+      "BARANG LOCAL:",
+      barang
+    );
+
+    console.log(
+      "PENJUALAN LOCAL:",
+      penjualan
+    );
+
+    console.log(
+      "JUMLAH TRANSAKSI:",
+      transaksi.length
+    );
+
+    console.log(
+      "JUMLAH BARANG:",
+      barang.length
+    );
+
+    console.log(
+      "JUMLAH PENJUALAN:",
+      penjualan.length
+    );
+
+    const dashboard =
+      await getLocalDashboard();
+
+    console.log(
+      "HASIL LOCAL DASHBOARD:",
+      dashboard
+    );
+
+  }
+  catch (error) {
+
+    console.error(
+      "DEBUG LOCAL ERROR:",
+      error
+    );
+
+  }
+
+}
