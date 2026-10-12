@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#123c72">
+  <title>Laporan Penghasilan Pesanan — DUTA LED</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 md:p-6 font-sans">
+  <main class="max-w-7xl mx-auto space-y-5">
+    <header class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap justify-between items-center gap-4">
+      <div>
+        <h1 class="text-xl font-bold text-slate-900">Manajemen & Simulasi Penghasilan Pesanan</h1>
+        <p class="text-xs text-slate-500 mt-1">DUTA LED Store Manager · Edit potongan, simulasi penghasilan bersih, dan ekspor Excel.</p>
+        <p id="saveStatus" class="text-xs text-emerald-700 mt-2" role="status">Data contoh siap.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <a href="dutaled-manajemen-toko.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg">← DUTA LED Store Manager</a>
+        <label class="cursor-pointer bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm">
+          Upload File Excel
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" class="hidden">
+        </label>
+        <button id="addRowBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm">+ Tambah Baris</button>
+        <button id="exportBtn" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm">Ekspor Excel</button>
+      </div>
+    </header>
+
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-4" aria-label="Ringkasan keuangan">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><div class="text-xs text-slate-500 font-medium">Total Baris Pesanan</div><div id="statOrders" class="text-2xl font-bold mt-1">0</div></div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><div class="text-xs text-slate-500 font-medium">Total Omzet (Harga Produk)</div><div id="statGross" class="text-xl md:text-2xl font-bold text-blue-600 mt-1">Rp 0</div></div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><div class="text-xs text-slate-500 font-medium">Total Potongan (Biaya + Pajak)</div><div id="statFees" class="text-xl md:text-2xl font-bold text-rose-600 mt-1">Rp 0</div></div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><div class="text-xs text-slate-500 font-medium">Penghasilan Bersih</div><div id="statNet" class="text-xl md:text-2xl font-bold text-emerald-600 mt-1">Rp 0</div></div>
+    </section>
+
+    <section class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+      <label class="sr-only" for="searchInput">Cari data</label>
+      <input type="search" id="searchInput" placeholder="Cari No. Pesanan, Nama Produk, atau Pembeli..." class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+      <p id="resultStatus" class="text-xs text-slate-500 mt-2">Menampilkan semua data.</p>
+    </section>
+
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto max-h-[600px]">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="bg-slate-50 text-slate-600 uppercase font-semibold sticky top-0 border-b border-slate-200 z-10">
+            <tr>
+              <th class="p-3">Aksi</th><th class="p-3 min-w-[130px]">No. Pesanan</th><th class="p-3 min-w-[220px]">Nama Produk</th><th class="p-3 min-w-[120px]">Pembeli</th><th class="p-3 min-w-[110px]">Harga Produk</th><th class="p-3 min-w-[100px]">Biaya Admin</th><th class="p-3 min-w-[100px]">Biaya Proses</th><th class="p-3 min-w-[110px]">Gratis Ongkir</th><th class="p-3 min-w-[80px]">PPh 22</th><th class="p-3 min-w-[130px] text-right">Penghasilan Bersih</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-100 font-medium"></tbody>
+        </table>
+      </div>
+      <div class="p-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500">Klik atau fokus pada sel yang dapat diedit, ubah nilainya, lalu klik di luar sel untuk menyimpan. Penghasilan bersih dihitung otomatis.</div>
+    </section>
+    <section class="bg-amber-50 border border-amber-200 text-amber-950 p-4 rounded-xl text-xs leading-relaxed">
+      <strong>Informasi penyimpanan:</strong> data disimpan pada penyimpanan lokal browser/perangkat ini. Data tidak otomatis tersinkron ke perangkat lain. Unduh ekspor Excel secara berkala sebagai cadangan. Pastikan kolom dan nilai dari laporan Shopee benar sebelum digunakan untuk pencatatan final.
+    </section>
+    <footer class="text-xs text-slate-500 px-1">DUTA LED Store Manager · Modul Penghasilan Pesanan</footer>
+  </main>
+
+<script>
+'use strict';
+const STORAGE_KEY = 'dutaled_order_income_v2';
+const initialData = [
+  {orderId:'26100726W23RWD',product:'Stop Kontak/Terminal 2 Lubang + Kabel Rakitan',buyer:'raswvklvol',price:14220,adminFee:1422,processFee:1250,extraOngkir:924,pph:71},
+  {orderId:'261006W1UH8PYT',product:'Stop Kontak/Terminal 2 Lubang + Kabel Rakitan',buyer:'unserzaki',price:21100,adminFee:2110,processFee:1250,extraOngkir:1372,pph:106},
+  {orderId:'261006VSN27TDR',product:'Stop Kontak/Terminal 2 Lubang + Kabel Rakitan',buyer:'rohilahilah008',price:14220,adminFee:1422,processFee:1250,extraOngkir:924,pph:71}
+];
+const fields = [
+  ['orderId','text'],['product','text'],['buyer','text'],
+  ['price','number'],['adminFee','number'],['processFee','number'],['extraOngkir','number'],['pph','number']
+];
+let orderData = loadData();
+
+function makeId() {
+  return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'row-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+}
+function normalizeItem(item) {
+  return {
+    id: String(item.id || makeId()),
+    orderId: String(item.orderId ?? '-'),
+    product: String(item.product ?? 'Produk Pesanan'),
+    buyer: String(item.buyer ?? '-'),
+    price: toNumber(item.price),
+    adminFee: toNumber(item.adminFee),
+    processFee: toNumber(item.processFee),
+    extraOngkir: toNumber(item.extraOngkir),
+    pph: toNumber(item.pph)
+  };
+}
+function loadData() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    if (Array.isArray(parsed)) return parsed.map(normalizeItem);
+  } catch (error) {
+    console.warn('Data lokal tidak dapat dibaca:', error);
+  }
+  return initialData.map(item => normalizeItem(item));
+}
+function persist(message = 'Perubahan tersimpan di browser ini.') {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(orderData));
+    document.getElementById('saveStatus').textContent = message;
+  } catch (error) {
+    document.getElementById('saveStatus').textContent = 'Tidak dapat menyimpan ke penyimpanan browser. Ekspor cadangan segera.';
+    console.error(error);
+  }
+}
+function toNumber(value) {
+  if (typeof value === 'number') return Number.isFinite(value) ? Math.abs(value) : 0;
+  const digits = String(value ?? '').replace(/[^0-9]/g, '');
+  return digits ? Number(digits) : 0;
+}
+function formatRupiah(value) {
+  return 'Rp ' + Math.round(Number(value) || 0).toLocaleString('id-ID');
+}
+function calculateNet(item) {
+  return item.price - (item.adminFee + item.processFee + item.extraOngkir + item.pph);
+}
+function feeTotal(item) {
+  return item.adminFee + item.processFee + item.extraOngkir + item.pph;
+}
+function makeCell(text, className = '') {
+  const cell = document.createElement('td');
+  cell.className = 'p-3 ' + className;
+  cell.textContent = text;
+  return cell;
+}
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  const query = document.getElementById('searchInput').value.trim().toLocaleLowerCase('id-ID');
+  tbody.replaceChildren();
+  let totalGross = 0, totalFees = 0, totalNet = 0;
+  const visible = orderData.filter(item =>
+    [item.orderId, item.product, item.buyer].some(value => String(value).toLocaleLowerCase('id-ID').includes(query))
+  );
+  orderData.forEach(item => {
+    totalGross += item.price;
+    totalFees += feeTotal(item);
+    totalNet += calculateNet(item);
+  });
+  visible.forEach(item => {
+    const row = document.createElement('tr');
+    row.className = 'hover:bg-slate-50 transition';
+    const action = makeCell('', 'text-center');
+    const del = document.createElement('button');
+    del.type = 'button'; del.textContent = '×';
+    del.title = 'Hapus baris'; del.setAttribute('aria-label', 'Hapus ' + item.orderId);
+    del.className = 'text-rose-500 hover:text-rose-700 font-bold text-lg';
+    del.dataset.deleteId = item.id;
+    action.appendChild(del); row.appendChild(action);
+    fields.forEach(([field, type]) => {
+      const cell = makeCell(type === 'number' ? String(item[field]) : item[field], (type === 'number' ? 'font-mono' : '') + (['adminFee','processFee','extraOngkir','pph'].includes(field) ? ' text-rose-600' : ''));
+      cell.contentEditable = 'true';
+      cell.spellcheck = false;
+      cell.dataset.editId = item.id;
+      cell.dataset.field = field;
+      cell.setAttribute('role', 'textbox');
+      cell.setAttribute('aria-label', field);
+      cell.classList.add('focus:outline-none','focus:ring-2','focus:ring-inset','focus:ring-blue-400');
+      row.appendChild(cell);
+    });
+    const netCell = makeCell(formatRupiah(calculateNet(item)), 'font-mono font-bold text-right text-emerald-600');
+    netCell.dataset.netFor = item.id;
+    row.appendChild(netCell);
+    tbody.appendChild(row);
+  });
+  document.getElementById('statOrders').textContent = orderData.length.toLocaleString('id-ID');
+  document.getElementById('statGross').textContent = formatRupiah(totalGross);
+  document.getElementById('statFees').textContent = formatRupiah(totalFees);
+  document.getElementById('statNet').textContent = formatRupiah(totalNet);
+  document.getElementById('resultStatus').textContent = query ? 'Menampilkan ' + visible.length + ' dari ' + orderData.length + ' baris; ringkasan mencakup semua data.' : 'Menampilkan semua ' + orderData.length + ' baris.';
+}
+document.getElementById('tableBody').addEventListener('focusout', event => {
+  const cell = event.target.closest('[data-edit-id][data-field]');
+  if (!cell) return;
+  const item = orderData.find(entry => entry.id === cell.dataset.editId);
+  if (!item) return;
+  const field = cell.dataset.field;
+  const raw = cell.textContent.trim();
+  const value = ['price','adminFee','processFee','extraOngkir','pph'].includes(field) ? toNumber(raw) : raw;
+  item[field] = value;
+  persist();
+  renderTable();
+});
+document.getElementById('tableBody').addEventListener('keydown', event => {
+  if (event.target.matches('[contenteditable="true"]') && event.key === 'Enter') {
+    event.preventDefault(); event.target.blur();
+  }
+});
+document.getElementById('tableBody').addEventListener('click', event => {
+  const button = event.target.closest('[data-delete-id]');
+  if (!button) return;
+  const item = orderData.find(entry => entry.id === button.dataset.deleteId);
+  if (!item || !confirm('Hapus baris pesanan ' + item.orderId + '?')) return;
+  orderData = orderData.filter(entry => entry.id !== item.id);
+  persist('Baris dihapus dan perubahan tersimpan.');
+  renderTable();
+});
+document.getElementById('addRowBtn').addEventListener('click', () => {
+  orderData.unshift(normalizeItem({
+    orderId: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
+    product: 'Nama Produk Baru', buyer: 'user', price: 15000, adminFee: 1500,
+    processFee: 1250, extraOngkir: 900, pph: 75
+  }));
+  persist('Baris baru ditambahkan.');
+  renderTable();
+});
+document.getElementById('searchInput').addEventListener('input', renderTable);
+
+function norm(value) {
+  return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+function findHeader(headers, candidate) {
+  const normalized = headers.map(norm);
+  for (const name of candidate) {
+    let index = normalized.findIndex(h => h === norm(name));
+    if (index >= 0) return index;
+    index = normalized.findIndex(h => h.includes(norm(name)));
+    if (index >= 0) return index;
+  }
+  return -1;
+}
+function cellValue(row, idx, fallback = '') { return idx >= 0 ? (row[idx] ?? fallback) : fallback; }
+function parseExcelNumber(value) {
+  if (typeof value === 'number') return Math.abs(value);
+  const cleaned = String(value ?? '').replace(/[^0-9]/g, '');
+  return cleaned ? Number(cleaned) : 0;
+}
+function createImportedRows(matrix) {
+  let headerRowIdx = -1, headers = [];
+  for (let r = 0; r < Math.min(20, matrix.length); r++) {
+    const candidate = matrix[r] || [];
+    if (findHeader(candidate, ['No. Pesanan']) !== -1) { headerRowIdx = r; headers = candidate; break; }
+  }
+  if (headerRowIdx < 0) throw new Error('Kolom "No. Pesanan" tidak ditemukan pada 20 baris pertama.');
+  const idxOrder = findHeader(headers, ['No. Pesanan']);
+  const idxType = findHeader(headers, ['Lihat berdasarkan']);
+  const idxProduct = findHeader(headers, ['Nama Produk']);
+  const idxBuyer = findHeader(headers, ['Username (Pembeli)', 'Username Pembeli']);
+  const idxPrice = findHeader(headers, ['Harga Produk']);
+  const idxAdmin = findHeader(headers, ['Biaya Administrasi', 'Biaya Admin']);
+  const idxProcess = findHeader(headers, ['Biaya Proses Pesanan', 'Biaya Proses']);
+  const idxOngkir = findHeader(headers, ['Biaya Gratis Ongkir XTRA', 'Biaya Gratis Ongkir']);
+  const idxPph = findHeader(headers, ['PPh 22', 'PPH 22']);
+  if (idxPrice < 0) throw new Error('Kolom "Harga Produk" tidak ditemukan.');
+  const rows = [];
+  for (let i = headerRowIdx + 1; i < matrix.length; i++) {
+    const row = matrix[i] || [];
+    const order = cellValue(row, idxOrder, '');
+    if (String(order).trim() === '') continue;
+    if (idxType >= 0 && norm(cellValue(row, idxType, '')) === 'sku') continue;
+    rows.push(normalizeItem({
+      orderId: String(order).trim(),
+      product: String(cellValue(row, idxProduct, 'Produk Pesanan') || 'Produk Pesanan'),
+      buyer: String(cellValue(row, idxBuyer, '-') || '-'),
+      price: parseExcelNumber(cellValue(row, idxPrice, 0)),
+      adminFee: parseExcelNumber(cellValue(row, idxAdmin, 0)),
+      processFee: parseExcelNumber(cellValue(row, idxProcess, 0)),
+      extraOngkir: parseExcelNumber(cellValue(row, idxOngkir, 0)),
+      pph: parseExcelNumber(cellValue(row, idxPph, 0))
+    }));
+  }
+  return rows;
+}
+document.getElementById('fileInput').addEventListener('change', async event => {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  try {
+    if (!window.XLSX) throw new Error('Pustaka Excel tidak tersedia. Periksa koneksi internet dan muat ulang halaman.');
+    const bytes = await file.arrayBuffer();
+    const workbook = XLSX.read(bytes, {type:'array'});
+    const sheet = workbook.Sheets['Penghasilan'] || workbook.Sheets[workbook.SheetNames[0]];
+    if (!sheet) throw new Error('Sheet kosong atau tidak ditemukan.');
+    const matrix = XLSX.utils.sheet_to_json(sheet, {header:1, defval:''});
+    const imported = createImportedRows(matrix);
+    if (!imported.length) throw new Error('Tidak ada baris pesanan yang cocok ditemukan.');
+    const replace = confirm('Ditemukan ' + imported.length + ' baris. Tekan OK untuk mengganti data yang tampil, atau Cancel untuk menambahkan ke data saat ini.');
+    if (replace) {
+      orderData = imported;
+    } else {
+      const seen = new Set(orderData.map(item => [item.orderId,item.product,item.buyer,item.price].join('|')));
+      let added = 0;
+      imported.forEach(item => {
+        const key = [item.orderId,item.product,item.buyer,item.price].join('|');
+        if (!seen.has(key)) { orderData.push(item); seen.add(key); added++; }
+      });
+      document.getElementById('saveStatus').textContent = added + ' baris baru ditambahkan; duplikat yang sama dilewati.';
+    }
+    persist(replace ? imported.length + ' baris laporan dimuat dan tersimpan.' : document.getElementById('saveStatus').textContent);
+    renderTable();
+  } catch (error) {
+    alert('Impor gagal: ' + error.message);
+  } finally {
+    event.target.value = '';
+  }
+});
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (!window.XLSX) { alert('Pustaka Excel tidak tersedia.'); return; }
+  const exportList = orderData.map(item => ({
+    'No. Pesanan':item.orderId, 'Nama Produk':item.product, 'Pembeli':item.buyer,
+    'Harga Produk':item.price, 'Biaya Admin':item.adminFee, 'Biaya Proses':item.processFee,
+    'Biaya Gratis Ongkir':item.extraOngkir, 'PPh 22':item.pph,
+    'Total Potongan':feeTotal(item), 'Penghasilan Bersih':calculateNet(item)
+  }));
+  const ws = XLSX.utils.json_to_sheet(exportList);
+  ws['!cols'] = [{wch:22},{wch:42},{wch:22},{wch:16},{wch:16},{wch:16},{wch:22},{wch:12},{wch:16},{wch:20}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Penghasilan_Edit');
+  const summary = XLSX.utils.json_to_sheet([
+    {'Total Baris Pesanan':orderData.length,'Total Omzet':orderData.reduce((sum,item)=>sum+item.price,0),
+     'Total Potongan':orderData.reduce((sum,item)=>sum+feeTotal(item),0),
+     'Penghasilan Bersih':orderData.reduce((sum,item)=>sum+calculateNet(item),0)}
+  ]);
+  XLSX.utils.book_append_sheet(wb, summary, 'Ringkasan');
+  XLSX.writeFile(wb, 'Laporan_Penghasilan_Terbaru.xlsx');
+});
+renderTable();
+</script>
+</body>
+</html>
